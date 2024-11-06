@@ -49,12 +49,7 @@ workflow PROTEINFAMILIES {
         cluster_ch = MMSEQS_LINCLUST(db_ch).db_cluster
     }
 
-    // cluster_target_ch = cluster_ch.map { meta, filepath ->
-    //     meta.id = meta.id + "_target"
-    //     return [ meta, filepath ]
-    // }
-    // cluster_target_ch.view()
-    MMSEQS_CREATETSV(db_ch, db_ch, cluster_ch)
+    MMSEQS_CREATETSV(cluster_ch, db_ch, db_ch)
 
     //
     // Collate and save software versions
