@@ -14,9 +14,10 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_prot
 // MODULE: Installed directly from nf-core/modules
 //
 
-include { MMSEQS_CREATEDB } from '../modules/nf-core/mmseqs/createdb/main'
-include { MMSEQS_CLUSTER  } from '../modules/nf-core/mmseqs/cluster/main'
-include { MMSEQS_LINCLUST } from '../modules/nf-core/mmseqs/linclust/main'
+include { MMSEQS_CREATEDB  } from '../modules/nf-core/mmseqs/createdb/main'
+include { MMSEQS_CLUSTER   } from '../modules/nf-core/mmseqs/cluster/main'
+include { MMSEQS_LINCLUST  } from '../modules/nf-core/mmseqs/linclust/main'
+include { MMSEQS_CREATETSV } from '../modules/nf-core/mmseqs/createtsv/main'
 
 
 /*
@@ -43,10 +44,17 @@ workflow PROTEINFAMILIES {
         .set{ db_ch }
 
     if (params.clustering_tool == 'cluster') {
-        MMSEQS_CLUSTER(db_ch)
+        cluster_ch = MMSEQS_CLUSTER(db_ch).db_cluster
     } else { // fallback: linclust
-        MMSEQS_LINCLUST(db_ch)
+        cluster_ch = MMSEQS_LINCLUST(db_ch).db_cluster
     }
+
+    // cluster_target_ch = cluster_ch.map { meta, filepath ->
+    //     meta.id = meta.id + "_target"
+    //     return [ meta, filepath ]
+    // }
+    // cluster_target_ch.view()
+    MMSEQS_CREATETSV(db_ch, db_ch, cluster_ch)
 
     //
     // Collate and save software versions
