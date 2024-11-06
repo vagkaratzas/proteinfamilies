@@ -10,6 +10,15 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 
+//
+// MODULE: Installed directly from nf-core/modules
+//
+
+include { MMSEQS_CREATEDB } from '../modules/nf-core/mmseqs/createdb/main'
+include { MMSEQS_CLUSTER  } from '../modules/nf-core/mmseqs/cluster/main'
+include { MMSEQS_LINCLUST } from '../modules/nf-core/mmseqs/linclust/main'
+
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -24,6 +33,20 @@ workflow PROTEINFAMILIES {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
+
+    // Clustering
+    MMSEQS_CREATEDB(ch_samplesheet).db
+        .map { meta, filepath ->
+            meta.id = meta.id + "_db"
+            return [ meta, filepath ]
+        }
+        .set{ db_ch }
+
+    if (params.clustering_tool == 'cluster') {
+        MMSEQS_CLUSTER(db_ch)
+    } else { // fallback: linclust
+        MMSEQS_LINCLUST(db_ch)
+    }
 
     //
     // Collate and save software versions

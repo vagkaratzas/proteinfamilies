@@ -181,18 +181,33 @@
                     "hidden": true
                 }
             }
+        },
+        "pipeline_params": {
+            "title": "Pipeline parameters",
+            "type": "object",
+            "description": "Use these parameters to control the flow of the pipeline execution.",
+            "properties": {
+                "clustering_tool": {
+                    "type": "string",
+                    "description": "Choose clustering algorithm. Either simple 'cluster' for medium size inputs, or 'linclust' for less sensitive clustering of larger datasets.",
+                    "help_text": "mmseqs algorithms available: 'cluster' or 'linclust'.",
+                    "enum": ["cluster", "linclust"]
+                }
+            }
         }
     },
     "allOf": [
         {
             "$ref": "#/$defs/input_output_options"
         },
-        
         {
             "$ref": "#/$defs/institutional_config_options"
         },
         {
             "$ref": "#/$defs/generic_options"
+        },
+        {
+            "$ref": "#/$defs/pipeline_params"
         }
     ]
 }
