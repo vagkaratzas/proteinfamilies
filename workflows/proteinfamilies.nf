@@ -10,15 +10,16 @@ include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pi
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 
-//
-// MODULE: Installed directly from nf-core/modules
-//
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT LOCAL MODULES/SUBWORKFLOWS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
-include { MMSEQS_CREATEDB  } from '../modules/nf-core/mmseqs/createdb/main'
-include { MMSEQS_CLUSTER   } from '../modules/nf-core/mmseqs/cluster/main'
-include { MMSEQS_LINCLUST  } from '../modules/nf-core/mmseqs/linclust/main'
-include { MMSEQS_CREATETSV } from '../modules/nf-core/mmseqs/createtsv/main'
-
+//
+// SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
+//
+include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,27 +36,10 @@ workflow PROTEINFAMILIES {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
-    // Clustering // TODO subworkflow
-    MMSEQS_CREATEDB(ch_samplesheet)
-    ch_versions = ch_versions.mix( MMSEQS_CREATEDB.out.versions )
-
-    if (params.clustering_tool == 'cluster') {
-        cluster_res = MMSEQS_CLUSTER(MMSEQS_CREATEDB.out.db)
-    } else { // fallback: linclust
-        cluster_res = MMSEQS_LINCLUST(MMSEQS_CREATEDB.out.db)
-    }
-    ch_versions = ch_versions.mix( cluster_res.versions )
-
-    // Join together to ensure in sync
-    ch_input_for_createtsv = MMSEQS_CREATEDB.out.db
-        .join(cluster_res.db_cluster)
-        .multiMap { meta, db, db_cluster ->
-            db: [ meta, db ]
-            db_cluster: [ meta, db_cluster ]
-        }
-
-    MMSEQS_CREATETSV(ch_input_for_createtsv.db_cluster, ch_input_for_createtsv.db, ch_input_for_createtsv.db)
-    ch_versions = ch_versions.mix( MMSEQS_CREATETSV.out.versions )
+    // Clustering
+    EXECUTE_CLUSTERING( ch_samplesheet )
+    ch_versions       = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+    ch_clustering_tsv = EXECUTE_CLUSTERING.out.clustering_tsv
 
     //
     // Collate and save software versions
