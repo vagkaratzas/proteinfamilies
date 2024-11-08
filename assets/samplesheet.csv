@@ -1,3 +1,3 @@
 sample,fasta
-mgnifams_input,input/mgnifams_input.fa
-mgnifams_test2,input/mgnifams_input.fa
+mgnifams_test,input/mgnifams_input.fa
+mgnifams_test_copy,input/mgnifams_input.fa
