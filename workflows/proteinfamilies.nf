@@ -35,21 +35,27 @@ workflow PROTEINFAMILIES {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
 
-    // Clustering
-    MMSEQS_CREATEDB(ch_samplesheet).db
-        .map { meta, filepath ->
-            meta.id = meta.id + "_db"
-            return [ meta, filepath ]
-        }
-        .set{ db_ch }
+    // Clustering // TODO subworkflow
+    MMSEQS_CREATEDB(ch_samplesheet)
+    ch_versions = ch_versions.mix( MMSEQS_CREATEDB.out.versions )
 
     if (params.clustering_tool == 'cluster') {
-        cluster_ch = MMSEQS_CLUSTER(db_ch).db_cluster
+        cluster_res = MMSEQS_CLUSTER(MMSEQS_CREATEDB.out.db)
     } else { // fallback: linclust
-        cluster_ch = MMSEQS_LINCLUST(db_ch).db_cluster
+        cluster_res = MMSEQS_LINCLUST(MMSEQS_CREATEDB.out.db)
     }
+    ch_versions = ch_versions.mix( cluster_res.versions )
 
-    MMSEQS_CREATETSV(cluster_ch, db_ch, db_ch)
+    // Join together to ensure in sync
+    ch_input_for_createtsv = MMSEQS_CREATEDB.out.db
+        .join(cluster_res.db_cluster)
+        .multiMap { meta, db, db_cluster ->
+            db: [ meta, db ]
+            db_cluster: [ meta, db_cluster ]
+        }
+
+    MMSEQS_CREATETSV(ch_input_for_createtsv.db_cluster, ch_input_for_createtsv.db, ch_input_for_createtsv.db)
+    ch_versions = ch_versions.mix( MMSEQS_CREATETSV.out.versions )
 
     //
     // Collate and save software versions

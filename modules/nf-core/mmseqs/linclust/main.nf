@@ -8,7 +8,7 @@ process MMSEQS_LINCLUST {
         'biocontainers/mmseqs2:15.6f452--pl5321h6a68c12_0' }"
 
     input:
-    tuple val(meta), path(db_input)
+    tuple val(meta), path(db_input, stageAs: "db_input")
 
     output:
     tuple val(meta), path("${prefix}/"), emit: db_cluster
