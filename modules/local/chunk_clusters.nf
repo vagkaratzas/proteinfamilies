@@ -1,10 +1,10 @@
 process CHUNK_CLUSTERS {
     tag "$meta.id"
 
-    conda "conda-forge::biopython=1.84 conda-forge::pandas=2.2.3"
+    conda "conda-forge::biopython=1.84"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/e2/e25bf39c3ebfbf72a1ddcaeea8f246c03e6da84b240ec0f3b2814d9719ec66b1/data' :
-        'community.wave.seqera.io/library/biopython_pandas:641c5796a40a11b9' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/eb/eb3700531c7ec639f59f084ab64c05e881d654dcf829db163539f2f0b095e09d/data' :
+        'community.wave.seqera.io/library/biopython:1.84--3318633dad0031e7' }"
 
     input:
     tuple val(meta) , path(clustering)

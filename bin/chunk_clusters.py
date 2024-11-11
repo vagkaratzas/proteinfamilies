@@ -3,7 +3,7 @@
 import sys
 import os
 import argparse
-import pandas as pd
+from collections import defaultdict
 from Bio import SeqIO
 
 def parse_args(args=None):
@@ -22,7 +22,7 @@ def parse_args(args=None):
         required=True,
         metavar="FILE",
         type=str,
-        help="Initial sequences fasta file.",
+        help="Initial sequences FASTA file.",
     )
     parser.add_argument(
         "-t",
@@ -42,9 +42,16 @@ def parse_args(args=None):
     )
     return parser.parse_args(args)
 
-def load_sequences(sequences_file):
-    # Load sequences from the input FASTA file into a dictionary for quick lookup
-    return {record.id: record for record in SeqIO.parse(sequences_file, "fasta")}
+def collect_clusters(clustering_file, threshold):
+    # Collect clusters with a size threshold, storing in a defaultdict
+    clusters = defaultdict(list)
+    with open(clustering_file) as f:
+        for line in f:
+            rep, member = line.strip().split("\t")
+            clusters[rep].append(member)
+
+    # Filter clusters by threshold
+    return {rep: members for rep, members in clusters.items() if len(members) >= threshold}
 
 def main(args=None):
     args = parse_args(args)
@@ -52,31 +59,19 @@ def main(args=None):
     # Create output directory if it doesn't exist
     os.makedirs(args.out_folder, exist_ok=True)
 
-    # Load the sequences from the input FASTA file
-    sequences = load_sequences(args.sequences)
+    # Collect clusters that meet the threshold
+    clusters = collect_clusters(args.clustering, args.threshold)
 
-    # Read clustering file and filter by threshold
-    clusters = pd.read_csv(args.clustering, sep='\t', header=None, names=["rep", "member"])
-    cluster_groups = clusters.groupby("rep")
-
-    # Process each cluster and output sequences to chunked FASTA files
+    # Stream through the FASTA file and write out sequences that match clusters
     chunk_num = 1
-    for rep, group in cluster_groups:
-        members = group["member"].tolist()
-
-        # Filter by threshold
-        if len(members) >= args.threshold:
-            output_file = os.path.join(args.out_folder, f"{chunk_num}.fasta")
-
-            # Write sequences to the chunked FASTA file
-            with open(output_file, "w") as fasta_out:
-                for member in members:
-                    if member in sequences:
-                        SeqIO.write(sequences[member], fasta_out, "fasta")
-                    else:
-                        print(f"Warning: Sequence {member} not found in the input FASTA file.")
-
-            chunk_num += 1
+    for rep, members in clusters.items():
+        output_file = os.path.join(args.out_folder, f"{chunk_num}.fasta")
+        with open(output_file, "w") as fasta_out:
+            with open(args.sequences) as seq_file:
+                for record in SeqIO.parse(seq_file, "fasta"):
+                    if record.id in members:
+                        SeqIO.write(record, fasta_out, "fasta")
+        chunk_num += 1
 
 if __name__ == "__main__":
     sys.exit(main())
