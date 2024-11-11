@@ -13,8 +13,8 @@ workflow EXECUTE_CLUSTERING {
     sequences // tuple val(meta), path(fasta)
 
     main:
-    ch_versions       = Channel.empty()
-    ch_clustering_tsv = Channel.empty()
+    ch_versions      = Channel.empty()
+    ch_chunked_fasta = Channel.empty()
 
     MMSEQS_CREATEDB( sequences )
     ch_versions = ch_versions.mix( MMSEQS_CREATEDB.out.versions )
@@ -36,22 +36,20 @@ workflow EXECUTE_CLUSTERING {
 
     MMSEQS_CREATETSV(ch_input_for_createtsv.db_cluster, ch_input_for_createtsv.db, ch_input_for_createtsv.db)
     ch_versions       = ch_versions.mix( MMSEQS_CREATETSV.out.versions )
-    ch_clustering_tsv = MMSEQS_CREATETSV.out.tsv
 
     // Join together to ensure in sync
     ch_input_for_cluster_chunking = sequences
-        .join(ch_clustering_tsv)
+        .join(MMSEQS_CREATETSV.out.tsv)
         .multiMap { meta, seqs, clusters ->
             seqs: [ meta, seqs ]
             clusters: [ meta, clusters ]
         }
 
     CHUNK_CLUSTERS(ch_input_for_cluster_chunking.clusters, ch_input_for_cluster_chunking.seqs, params.cluster_size_threshold)
-    ch_versions       = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
-    ch_cluster_chunks = CHUNK_CLUSTERS.out.chunked_clusters
+    ch_versions     = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
+    ch_fasta_chunks = CHUNK_CLUSTERS.out.fasta_chunks
 
     emit:
-    versions       = ch_versions
-    clustering_tsv = ch_clustering_tsv // channel: [ val(meta), tsv ]
-    cluster_chunks = ch_cluster_chunks
+    versions      = ch_versions
+    fasta_chunks  = ch_fasta_chunks
 }

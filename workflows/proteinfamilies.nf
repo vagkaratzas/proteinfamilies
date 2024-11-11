@@ -46,7 +46,8 @@ workflow PROTEINFAMILIES {
     ch_versions       = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
     // Multiple sequence alignment
-    // FAMSA_ALIGN(EXECUTE_CLUSTERING.out.cluster_chunks, [[:],[]], false)
+    EXECUTE_CLUSTERING.out.fasta_chunks.view()
+    // FAMSA_ALIGN(EXECUTE_CLUSTERING.out.fasta_chunks, [[:],[]], false)
     // ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
 
     //

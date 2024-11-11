@@ -1,4 +1,5 @@
 process CHUNK_CLUSTERS {
+    tag "$meta.id"
 
     conda "conda-forge::biopython=1.84 conda-forge::pandas=2.2.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -11,14 +12,15 @@ process CHUNK_CLUSTERS {
     val(size_threshold)
 
     output:
-    tuple val(meta), path("chunked_clusters/*"), emit: chunked_clusters
-    path "versions.yml"                        , emit: versions
+    tuple val(meta), path("chunked_fasta/*"), emit: fasta_chunks
+    path "versions.yml"                     , emit: versions
 
     script:
     """
     chunk_clusters.py --clustering ${clustering} \
+        --sequences ${sequences} \
         --threshold ${size_threshold} \
-        --out_folder chunked_clusters
+        --out_folder chunked_fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

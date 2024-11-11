@@ -193,6 +193,21 @@
                     "help_text": "mmseqs algorithms available: 'cluster' or 'linclust'.",
                     "enum": ["cluster", "linclust"]
                 },
+                "cluster_seq_identity": {
+                    "type": "number",
+                    "default": 0.5,
+                    "description": "mmseqs parameter for minimum sequence identity"
+                },
+                "cluster_coverage": {
+                    "type": "number",
+                    "default": 0.9,
+                    "description": "mmseqs parameter for minimum sequence coverage ratio"
+                },
+                "cluster_cov_mode": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence"
+                },
                 "cluster_size_threshold": {
                     "type": "integer",
                     "default": 4,
