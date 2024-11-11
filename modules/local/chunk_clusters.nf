@@ -1,12 +1,13 @@
 process CHUNK_CLUSTERS {
 
-    conda "conda-forge::pandas=1.4.3"
+    conda "conda-forge::biopython=1.84 conda-forge::pandas=2.2.3"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/pandas:1.4.3' :
-        'biocontainers/pandas:1.4.3' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/e2/e25bf39c3ebfbf72a1ddcaeea8f246c03e6da84b240ec0f3b2814d9719ec66b1/data' :
+        'community.wave.seqera.io/library/biopython_pandas:641c5796a40a11b9' }"
 
     input:
-    tuple val(meta), path(clustering)
+    tuple val(meta) , path(clustering)
+    tuple val(meta2), path(sequences)
     val(size_threshold)
 
     output:

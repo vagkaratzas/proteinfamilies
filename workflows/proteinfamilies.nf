@@ -21,6 +21,11 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_prot
 //
 include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
 
+//
+// MODULE: Installed directly from nf-core/modules
+//
+include { FAMSA_ALIGN } from '../modules/nf-core/famsa/align/main'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -39,7 +44,10 @@ workflow PROTEINFAMILIES {
     // Clustering
     EXECUTE_CLUSTERING( ch_samplesheet )
     ch_versions       = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
-    ch_clustering_tsv = EXECUTE_CLUSTERING.out.clustering_tsv
+
+    // Multiple sequence alignment
+    // FAMSA_ALIGN(EXECUTE_CLUSTERING.out.cluster_chunks, [[:],[]], false)
+    // ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
 
     //
     // Collate and save software versions

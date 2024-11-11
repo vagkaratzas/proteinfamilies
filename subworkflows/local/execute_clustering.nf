@@ -38,7 +38,15 @@ workflow EXECUTE_CLUSTERING {
     ch_versions       = ch_versions.mix( MMSEQS_CREATETSV.out.versions )
     ch_clustering_tsv = MMSEQS_CREATETSV.out.tsv
 
-    CHUNK_CLUSTERS(MMSEQS_CREATETSV.out.tsv, params.cluster_size_threshold)
+    // Join together to ensure in sync
+    ch_input_for_cluster_chunking = sequences
+        .join(ch_clustering_tsv)
+        .multiMap { meta, seqs, clusters ->
+            seqs: [ meta, seqs ]
+            clusters: [ meta, clusters ]
+        }
+
+    CHUNK_CLUSTERS(ch_input_for_cluster_chunking.clusters, ch_input_for_cluster_chunking.seqs, params.cluster_size_threshold)
     ch_versions       = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
     ch_cluster_chunks = CHUNK_CLUSTERS.out.chunked_clusters
 
