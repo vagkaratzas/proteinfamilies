@@ -192,6 +192,11 @@
                     "description": "Choose clustering algorithm. Either simple 'cluster' for medium size inputs, or 'linclust' for less sensitive clustering of larger datasets.",
                     "help_text": "mmseqs algorithms available: 'cluster' or 'linclust'.",
                     "enum": ["cluster", "linclust"]
+                },
+                "cluster_size_threshold": {
+                    "type": "integer",
+                    "default": 4,
+                    "description": "Minimum clustering chunk size threshold to create seed multiple sequence alignments upon."
                 }
             }
         }

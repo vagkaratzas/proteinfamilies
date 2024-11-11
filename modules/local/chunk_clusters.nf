@@ -6,16 +6,16 @@ process CHUNK_CLUSTERS {
         'biocontainers/pandas:1.4.3' }"
 
     input:
-    path(clustering)
+    tuple val(meta), path(clustering)
     val(size_threshold)
 
     output:
-    path("chunked_clusters"), emit: chunked_clusters
-    path "versions.yml"     , emit: versions
+    tuple val(meta), path("chunked_clusters/*"), emit: chunked_clusters
+    path "versions.yml"                        , emit: versions
 
     script:
     """
-    combine_tables.py --clustering ${clustering} \
+    chunk_clusters.py --clustering ${clustering} \
         --threshold ${size_threshold} \
         --out_folder chunked_clusters
 
