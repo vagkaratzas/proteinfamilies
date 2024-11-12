@@ -43,12 +43,14 @@ workflow PROTEINFAMILIES {
 
     // Clustering
     EXECUTE_CLUSTERING( ch_samplesheet )
-    ch_versions       = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+    ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
     // Multiple sequence alignment
-    EXECUTE_CLUSTERING.out.fasta_chunks.view()
-    // FAMSA_ALIGN(EXECUTE_CLUSTERING.out.fasta_chunks, [[:],[]], false)
-    // ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
+    EXECUTE_CLUSTERING.out.fasta_chunks
+        .transpose()
+        .set { msa_input_ch }
+    FAMSA_ALIGN(msa_input_ch, [[:],[]], false)
+    ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
 
     //
     // Collate and save software versions
