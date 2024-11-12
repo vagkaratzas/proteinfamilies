@@ -24,8 +24,9 @@ include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FAMSA_ALIGN    } from '../modules/nf-core/famsa/align/main'
-include { HMMER_HMMBUILD } from '../modules/nf-core/hmmer/hmmbuild/main'
+include { FAMSA_ALIGN     } from '../modules/nf-core/famsa/align/main'
+include { HMMER_HMMBUILD  } from '../modules/nf-core/hmmer/hmmbuild/main'
+include { HMMER_HMMSEARCH } from '../modules/nf-core/hmmer/hmmsearch/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,8 +52,7 @@ workflow PROTEINFAMILIES {
         .transpose()
         .map { meta, file ->
             def baseName = file.toString().split('/')[-1].split('\\.')[0]
-            def id = "${meta.id}_${baseName}"
-            [ [id: id], file ]
+            [ [id: meta.id, chunk: baseName], file ]
         }
         .set { msa_input_ch }
 
@@ -61,7 +61,16 @@ workflow PROTEINFAMILIES {
 
     HMMER_HMMBUILD( FAMSA_ALIGN.out.alignment, [] )
     ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
-    HMMER_HMMBUILD.out.hmm.view()
+
+    // Combine with same id to ensure in sync
+    HMMER_HMMBUILD.out.hmm
+        .map{ meta, hmm -> [ [id: meta.id], meta, hmm ] }
+        .combine(ch_samplesheet, by: 0)
+        .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, params.hmmsearch_write_align, params.hmmsearch_write_target, params.hmmsearch_write_domain ] }
+        .set { ch_input_for_hmmsearch }
+
+    HMMER_HMMSEARCH{ ch_input_for_hmmsearch }
+    ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
 
     //
     // Collate and save software versions

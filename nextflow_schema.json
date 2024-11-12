@@ -182,10 +182,10 @@
                 }
             }
         },
-        "pipeline_params": {
-            "title": "Pipeline parameters",
+        "clustering_params": {
+            "title": "Clustering parameters",
             "type": "object",
-            "description": "Use these parameters to control the flow of the pipeline execution.",
+            "description": "Use these parameters to control the flow of the clustering subworkflow execution.",
             "properties": {
                 "clustering_tool": {
                     "type": "string",
@@ -214,6 +214,34 @@
                     "description": "Minimum clustering chunk size threshold to create seed multiple sequence alignments upon."
                 }
             }
+        },
+        "alignment_params": {
+            "title": "Alignment parameters",
+            "type": "object",
+            "description": "Use these parameters to control the multiple sequence alignment subworkflow execution.",
+            "properties": {
+                "hmmsearch_write_align": {
+                    "type": "boolean",
+                    "description": "Boolean whether to generate alignment results file of hmmsearch",
+                    "default": false,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "hmmsearch_write_target": {
+                    "type": "boolean",
+                    "description": "Boolean whether to generate target results file of hmmsearch",
+                    "default": false,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "hmmsearch_write_domain": {
+                    "type": "boolean",
+                    "description": "Boolean whether to generate domain results file of hmmsearch",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                }
+            }
         }
     },
     "allOf": [
@@ -227,7 +255,10 @@
             "$ref": "#/$defs/generic_options"
         },
         {
-            "$ref": "#/$defs/pipeline_params"
+            "$ref": "#/$defs/clustering_params"
+        },
+        {
+            "$ref": "#/$defs/alignment_params"
         }
     ]
 }
