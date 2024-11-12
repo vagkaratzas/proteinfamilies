@@ -24,7 +24,8 @@ include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FAMSA_ALIGN } from '../modules/nf-core/famsa/align/main'
+include { FAMSA_ALIGN    } from '../modules/nf-core/famsa/align/main'
+include { HMMER_HMMBUILD } from '../modules/nf-core/hmmer/hmmbuild/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,9 +49,19 @@ workflow PROTEINFAMILIES {
     // Multiple sequence alignment
     EXECUTE_CLUSTERING.out.fasta_chunks
         .transpose()
+        .map { meta, file ->
+            def baseName = file.toString().split('/')[-1].split('\\.')[0]
+            def id = "${meta.id}_${baseName}"
+            [ [id: id], file ]
+        }
         .set { msa_input_ch }
+
     FAMSA_ALIGN(msa_input_ch, [[:],[]], false)
     ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
+
+    HMMER_HMMBUILD( FAMSA_ALIGN.out.alignment, [] )
+    ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
+    HMMER_HMMBUILD.out.hmm.view()
 
     //
     // Collate and save software versions
