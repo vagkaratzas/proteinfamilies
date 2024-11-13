@@ -220,6 +220,12 @@
             "type": "object",
             "description": "Use these parameters to control the multiple sequence alignment subworkflow execution.",
             "properties": {
+                "alignment_tool": {
+                    "type": "string",
+                    "description": "Choose alignment tool. FAMSA is recommended as best time-memory-accuracy combination option.",
+                    "help_text": "Available tools: 'famsa' or 'mafft'.",
+                    "enum": ["famsa", "mafft"]
+                },
                 "hmmsearch_write_target": {
                     "type": "boolean",
                     "description": "Boolean whether to generate target results file of hmmsearch",
