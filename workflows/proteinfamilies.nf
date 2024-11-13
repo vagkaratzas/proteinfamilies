@@ -20,13 +20,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_prot
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
-
-//
-// MODULE: Installed directly from nf-core/modules
-//
-include { FAMSA_ALIGN     } from '../modules/nf-core/famsa/align/main'
-include { HMMER_HMMBUILD  } from '../modules/nf-core/hmmer/hmmbuild/main'
-include { HMMER_HMMSEARCH } from '../modules/nf-core/hmmer/hmmsearch/main'
+include { GENERATE_FAMILIES  } from '../subworkflows/local/generate_families'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,31 +40,11 @@ workflow PROTEINFAMILIES {
     // Clustering
     EXECUTE_CLUSTERING( ch_samplesheet )
     ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+    fasta_chunks = EXECUTE_CLUSTERING.out.fasta_chunks
 
     // Multiple sequence alignment
-    EXECUTE_CLUSTERING.out.fasta_chunks
-        .transpose()
-        .map { meta, file ->
-            def baseName = file.toString().split('/')[-1].split('\\.')[0]
-            [ [id: meta.id, chunk: baseName], file ]
-        }
-        .set { msa_input_ch }
-
-    FAMSA_ALIGN(msa_input_ch, [[:],[]], false)
-    ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
-
-    HMMER_HMMBUILD( FAMSA_ALIGN.out.alignment, [] )
-    ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
-
-    // Combine with same id to ensure in sync
-    HMMER_HMMBUILD.out.hmm
-        .map{ meta, hmm -> [ [id: meta.id], meta, hmm ] }
-        .combine(ch_samplesheet, by: 0)
-        .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, true, params.hmmsearch_write_target, params.hmmsearch_write_domain ] } // write_align must always be true
-        .set { ch_input_for_hmmsearch }
-
-    HMMER_HMMSEARCH{ ch_input_for_hmmsearch }
-    ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
+    GENERATE_FAMILIES( ch_samplesheet, fasta_chunks )
+    ch_versions = ch_versions.mix( GENERATE_FAMILIES.out.versions )
 
     //
     // Collate and save software versions
