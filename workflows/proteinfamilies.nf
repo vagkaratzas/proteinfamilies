@@ -66,7 +66,7 @@ workflow PROTEINFAMILIES {
     HMMER_HMMBUILD.out.hmm
         .map{ meta, hmm -> [ [id: meta.id], meta, hmm ] }
         .combine(ch_samplesheet, by: 0)
-        .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, params.hmmsearch_write_align, params.hmmsearch_write_target, params.hmmsearch_write_domain ] }
+        .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, true, params.hmmsearch_write_target, params.hmmsearch_write_domain ] } // write_align must always be true
         .set { ch_input_for_hmmsearch }
 
     HMMER_HMMSEARCH{ ch_input_for_hmmsearch }

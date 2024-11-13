@@ -220,13 +220,6 @@
             "type": "object",
             "description": "Use these parameters to control the multiple sequence alignment subworkflow execution.",
             "properties": {
-                "hmmsearch_write_align": {
-                    "type": "boolean",
-                    "description": "Boolean whether to generate alignment results file of hmmsearch",
-                    "default": false,
-                    "fa_icon": "fas fa-check-square",
-                    "hidden": true
-                },
                 "hmmsearch_write_target": {
                     "type": "boolean",
                     "description": "Boolean whether to generate target results file of hmmsearch",
@@ -240,6 +233,11 @@
                     "default": true,
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
+                },
+                "hmmsearch_evalue_cutoff": {
+                    "type": "number",
+                    "default": 0.001,
+                    "description": "hmmsearch e-value cutoff threshold for reported results"
                 }
             }
         }
