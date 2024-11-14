@@ -16,9 +16,15 @@ process CHUNK_CLUSTERS {
     path "versions.yml"                     , emit: versions
 
     script:
+    def is_compressed = sequences.getName().endsWith(".gz") ? true : false
+    def fasta_name    = sequences.name.replace(".gz", "")
     """
+    if [ "$is_compressed" == "true" ]; then
+        gzip -c -d $sequences > $fasta_name
+    fi
+
     chunk_clusters.py --clustering ${clustering} \
-        --sequences ${sequences} \
+        --sequences ${fasta_name} \
         --threshold ${size_threshold} \
         --out_folder chunked_fasta
 
