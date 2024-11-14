@@ -38,12 +38,12 @@ workflow GENERATE_FAMILIES {
 
     // Combine with same id to ensure in sync
     HMMER_HMMBUILD.out.hmm
-        .map{ meta, hmm -> [ [id: meta.id], meta, hmm ] }
+        .map { meta, hmm -> [ [id: meta.id], meta, hmm ] }
         .combine(sequences, by: 0)
         .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, true, params.hmmsearch_write_target, params.hmmsearch_write_domain ] } // write_align must always be true
         .set { ch_input_for_hmmsearch }
 
-    HMMER_HMMSEARCH{ ch_input_for_hmmsearch }
+    HMMER_HMMSEARCH ( ch_input_for_hmmsearch )
     ch_versions   = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
     ch_alignments = HMMER_HMMSEARCH.out.alignments
 

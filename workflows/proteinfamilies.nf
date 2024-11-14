@@ -46,6 +46,14 @@ workflow PROTEINFAMILIES {
     GENERATE_FAMILIES( ch_samplesheet, fasta_chunks )
     ch_versions = ch_versions.mix( GENERATE_FAMILIES.out.versions )
 
+    // Post-processing
+    GENERATE_FAMILIES.out.alignments
+        .map { meta, aln -> [ [id: meta.id], aln ] }
+        .groupTuple(by: 0)
+        .set { ch_family_reps }
+
+    ch_family_reps.view()
+
     //
     // Collate and save software versions
     //
