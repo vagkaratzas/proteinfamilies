@@ -4,6 +4,7 @@
 
 include { FAMSA_ALIGN     } from '../../modules/nf-core/famsa/align/main'
 include { MAFFT           } from '../../modules/nf-core/mafft/main'
+include { CLIPKIT         } from '../../modules/nf-core/clipkit/main'
 include { HMMER_HMMBUILD  } from '../../modules/nf-core/hmmer/hmmbuild/main'
 include { HMMER_HMMSEARCH } from '../../modules/nf-core/hmmer/hmmsearch/main'
 
@@ -26,12 +27,19 @@ workflow GENERATE_FAMILIES {
 
     if (params.alignment_tool == 'famsa') {
         alignment_res = FAMSA_ALIGN(msa_input_ch, [[:],[]], false)
+        ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
         alignment_ch  = alignment_res.alignment
     } else { // fallback: mafft
         alignment_res = MAFFT( msa_input_ch, [[:], []], [[:], []], [[:], []], [[:], []], [[:], []], false )
+        ch_versions = ch_versions.mix( MAFFT.out.versions )
         alignment_ch  = alignment_res.fas
     }
-    ch_versions = ch_versions.mix( alignment_res.versions )
+
+    if (params.trim_seed_msa) {
+        CLIPKIT(alignment_ch)
+        ch_versions = ch_versions.mix( CLIPKIT.out.versions )
+        alignment_ch = CLIPKIT.out.clipkit
+    }
 
     HMMER_HMMBUILD( alignment_ch, [] )
     ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )

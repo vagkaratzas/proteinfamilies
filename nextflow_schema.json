@@ -210,7 +210,7 @@
                 },
                 "cluster_size_threshold": {
                     "type": "integer",
-                    "default": 4,
+                    "default": 25,
                     "description": "Minimum clustering chunk size threshold to create seed multiple sequence alignments upon."
                 }
             }
@@ -225,6 +225,13 @@
                     "description": "Choose alignment tool. FAMSA is recommended as best time-memory-accuracy combination option.",
                     "help_text": "Available tools: 'famsa' or 'mafft'.",
                     "enum": ["famsa", "mafft"]
+                },
+                "trim_seed_msa": {
+                    "type": "boolean",
+                    "description": "Boolean whether to trim the seed MSA gaps",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
                 },
                 "hmmsearch_write_target": {
                     "type": "boolean",

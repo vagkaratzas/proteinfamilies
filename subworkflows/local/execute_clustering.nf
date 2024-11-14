@@ -13,18 +13,19 @@ workflow EXECUTE_CLUSTERING {
     sequences // tuple val(meta), path(fasta)
 
     main:
-    ch_versions      = Channel.empty()
-    ch_chunked_fasta = Channel.empty()
+    ch_versions     = Channel.empty()
+    ch_fasta_chunks = Channel.empty()
 
     MMSEQS_CREATEDB( sequences )
     ch_versions = ch_versions.mix( MMSEQS_CREATEDB.out.versions )
 
     if (params.clustering_tool == 'cluster') {
         cluster_res = MMSEQS_CLUSTER( MMSEQS_CREATEDB.out.db )
+        ch_versions = ch_versions.mix( MMSEQS_CLUSTER.out.versions )
     } else { // fallback: linclust
         cluster_res = MMSEQS_LINCLUST( MMSEQS_CREATEDB.out.db )
+        ch_versions = ch_versions.mix( MMSEQS_LINCLUST.out.versions )
     }
-    ch_versions = ch_versions.mix( cluster_res.versions )
 
     // Join together to ensure in sync
     ch_input_for_createtsv = MMSEQS_CREATEDB.out.db
