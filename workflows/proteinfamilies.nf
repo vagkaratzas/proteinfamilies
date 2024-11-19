@@ -22,7 +22,6 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_prot
 include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
 include { GENERATE_FAMILIES  } from '../subworkflows/local/generate_families'
 
-
 //
 // MODULE: Local to the pipeline
 //
@@ -60,7 +59,6 @@ workflow PROTEINFAMILIES {
 
     EXTRACT_FAMILY_REPS( ch_msa_sto )
     ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
-    // ch_family_reps = EXTRACT_FAMILY_REPS.out.fasta
 
     //
     // Collate and save software versions
