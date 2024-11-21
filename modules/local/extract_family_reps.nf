@@ -11,12 +11,14 @@ process EXTRACT_FAMILY_REPS {
 
     output:
     tuple val(meta), path("${meta.id}_reps.fa"), emit: fasta
+    tuple val(meta), path("${meta.id}_map.csv"), emit: map
     path "versions.yml"                        , emit: versions
 
     script:
     """
-    extract_family_reps.py --full_msa_folder sto \
-        --out_file ${meta.id}_reps.fa
+    extract_family_reps.py --full_msa_folder sto \\
+        --map ${meta.id}_map.csv \\
+        --out_fasta ${meta.id}_reps.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

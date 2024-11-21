@@ -23,9 +23,9 @@ process CHUNK_CLUSTERS {
         gzip -c -d $sequences > $fasta_name
     fi
 
-    chunk_clusters.py --clustering ${clustering} \
-        --sequences ${fasta_name} \
-        --threshold ${size_threshold} \
+    chunk_clusters.py --clustering ${clustering} \\
+        --sequences ${fasta_name} \\
+        --threshold ${size_threshold} \\
         --out_folder chunked_fasta
 
     cat <<-END_VERSIONS > versions.yml
