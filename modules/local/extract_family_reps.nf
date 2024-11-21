@@ -1,4 +1,4 @@
-process CHUNK_CLUSTERS {
+process EXTRACT_FAMILY_REPS {
     tag "$meta.id"
 
     conda "conda-forge::biopython=1.84"
@@ -7,26 +7,18 @@ process CHUNK_CLUSTERS {
         'community.wave.seqera.io/library/biopython:1.84--3318633dad0031e7' }"
 
     input:
-    tuple val(meta) , path(clustering)
-    tuple val(meta2), path(sequences)
-    val(size_threshold)
+    tuple val(meta), path(sto, stageAs: "sto/*")
 
     output:
-    tuple val(meta), path("chunked_fasta/*"), emit: fasta_chunks
-    path "versions.yml"                     , emit: versions
+    tuple val(meta), path("${meta.id}_reps.fa"), emit: fasta
+    tuple val(meta), path("${meta.id}_map.csv"), emit: map
+    path "versions.yml"                        , emit: versions
 
     script:
-    def is_compressed = sequences.getName().endsWith(".gz") ? true : false
-    def fasta_name    = sequences.name.replace(".gz", "")
     """
-    if [ "$is_compressed" == "true" ]; then
-        gzip -c -d $sequences > $fasta_name
-    fi
-
-    chunk_clusters.py --clustering ${clustering} \\
-        --sequences ${fasta_name} \\
-        --threshold ${size_threshold} \\
-        --out_folder chunked_fasta
+    extract_family_reps.py --full_msa_folder sto \\
+        --map ${meta.id}_map.csv \\
+        --out_fasta ${meta.id}_reps.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

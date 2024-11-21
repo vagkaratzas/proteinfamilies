@@ -22,6 +22,11 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_prot
 include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
 include { GENERATE_FAMILIES  } from '../subworkflows/local/generate_families'
 
+//
+// MODULE: Local to the pipeline
+//
+include { EXTRACT_FAMILY_REPS } from '../modules/local/extract_family_reps.nf'
+
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -50,9 +55,10 @@ workflow PROTEINFAMILIES {
     GENERATE_FAMILIES.out.alignments
         .map { meta, aln -> [ [id: meta.id], aln ] }
         .groupTuple(by: 0)
-        .set { ch_family_reps }
+        .set { ch_msa_sto }
 
-    ch_family_reps.view()
+    EXTRACT_FAMILY_REPS( ch_msa_sto )
+    ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
 
     //
     // Collate and save software versions
