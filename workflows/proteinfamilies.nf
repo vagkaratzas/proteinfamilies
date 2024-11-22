@@ -103,6 +103,8 @@ workflow PROTEINFAMILIES {
         )
     )
 
+    ch_multiqc_files = ch_multiqc_files.mix(EXTRACT_FAMILY_REPS.out.map.collect{it[1]}.ifEmpty([]))
+
     MULTIQC (
         ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),

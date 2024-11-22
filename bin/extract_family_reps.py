@@ -21,11 +21,11 @@ def parse_args(args=None):
     )
     parser.add_argument(
         "-m",
-        "--map",
+        "--metadata",
         required=True,
         metavar="FILE",
         type=str,
-        help="Name of the output csv file with representative sequences to family id mapping.",
+        help="Name of the output csv file with family ids, sizes and representative sequences.",
     )
     parser.add_argument(
         "-o",
@@ -37,12 +37,20 @@ def parse_args(args=None):
     )
     return parser.parse_args(args)
 
-def extract_first_sequences(msa_folder, map_file, out_fasta):
+def extract_first_sequences(msa_folder, metadata_file, out_fasta):
     # Open the output FASTA file in write mode
-    with open(out_fasta, "w") as fasta_out, open(map_file, "w", newline="") as csv_out:
+    with open(out_fasta, "w") as fasta_out, open(metadata_file, "w", newline="") as csv_out:
+        # Write custom metadata lines to the metadata file
+        csv_out.write(
+            "# id: \"family_metadata\"\n"
+            "# section_name: \"Family Metadata\"\n"
+            "# description: \"Family metadata table containing family ids and sizes along with representative sequences, ids and lengths.\"\n"
+            "# format: \"csv\"\n"
+            "# plot_type: \"table\"\n"
+        )
         csv_writer = csv.writer(csv_out)
         # Write the CSV header
-        csv_writer.writerow(["family", "representative_sequence"])
+        csv_writer.writerow(["Sample Name", "Family Id", "Size", "Representative Length", "Representative Id", "Sequence"])
 
         # Iterate over all files in the MSA folder
         for filename in os.listdir(msa_folder):
@@ -50,6 +58,7 @@ def extract_first_sequences(msa_folder, map_file, out_fasta):
             # Parse the Stockholm file and extract the first sequence
             with gzip.open(filepath, "rt") as sto_file:
                 records = list(SeqIO.parse(sto_file, "stockholm"))
+                family_size = len(records)
                 if records:
                     first_record = records[0]
                     # Remove gaps from the sequence
@@ -65,11 +74,12 @@ def extract_first_sequences(msa_folder, map_file, out_fasta):
                     # Write the cleaned sequence to the FASTA file
                     SeqIO.write(cleaned_record, fasta_out, "fasta")
                     # Write the mapping to the CSV file
-                    csv_writer.writerow([os.path.splitext(os.path.splitext(filename)[0])[0], cleaned_id])
+                    family_name = os.path.splitext(os.path.splitext(filename)[0])[0]
+                    csv_writer.writerow([family_name, family_name, family_size, len(cleaned_sequence), cleaned_id, cleaned_sequence])
 
 def main(args=None):
     args = parse_args(args)
-    extract_first_sequences(args.full_msa_folder, args.map, args.out_fasta)
+    extract_first_sequences(args.full_msa_folder, args.metadata, args.out_fasta)
 
 if __name__ == "__main__":
     sys.exit(main())
