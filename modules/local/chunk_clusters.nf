@@ -1,5 +1,6 @@
 process CHUNK_CLUSTERS {
     tag "$meta.id"
+    label 'process_single'
 
     conda "conda-forge::biopython=1.84"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -14,6 +15,9 @@ process CHUNK_CLUSTERS {
     output:
     tuple val(meta), path("chunked_fasta/*"), emit: fasta_chunks
     path "versions.yml"                     , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     def is_compressed = sequences.getName().endsWith(".gz") ? true : false

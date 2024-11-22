@@ -1,5 +1,6 @@
 process EXTRACT_FAMILY_REPS {
     tag "$meta.id"
+    label 'process_single'
 
     conda "conda-forge::biopython=1.84"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -13,6 +14,9 @@ process EXTRACT_FAMILY_REPS {
     tuple val(meta), path("${meta.id}_reps.fa")     , emit: fasta
     tuple val(meta), path("${meta.id}_meta_mqc.csv"), emit: map
     path "versions.yml"                             , emit: versions
+
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     """
