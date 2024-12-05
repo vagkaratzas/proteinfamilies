@@ -12,8 +12,22 @@ The directories listed below will be created in the results directory after the 
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
+Clustering:
+
 - [MMseqs2 clustering](#mmseqs2-clustering) of input amino acid sequences
 - [Chunked fasta clusters](#chunked-fasta-clusters) derived from the MMseqs2 clusters
+
+Multiple sequence alignment:
+
+- [FAMSA aligner](#famsa-aligner) option. Best speed and sensitivity option.
+- [mafft aligner](#mafft-aligner) option. Fast but not as sensitive as FAMSA.
+- [ClipKIT](#clipkit) to optionally clip gapped portions of the MSA (start, middle, end)
+
+Generating family models:
+
+
+Reporting:
+
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -38,6 +52,42 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
     - `chunked_fasta/`
       - `*.fasta`: fasta files with amino acid sequences of each cluster
 </details>
+
+### FAMSA aligner
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `famsa_align/`
+  - `<samplename>/`
+    - `*.aln`: fasta files with aligned amino acid sequences
+</details>
+
+[FAMSA](https://github.com/refresh-bio/FAMSA) is a progressive algorithm for large-scale multiple sequence alignments.
+
+### mafft aligner
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `mafft_align/`
+  - `<samplename>/`
+    - `*.fas`: fasta files with aligned amino acid sequences
+</details>
+
+[mafft](https://github.com/GSLBiotech/mafft) is a fast but not very sensitive multiple sequence alignment tool.
+
+### ClipKIT
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `mafft_align/`
+  - `<samplename>/`
+    - `*.clipkit`: gap-clipped (start, middle, end) fasta files of aligned amino acid sequences
+</details>
+
+[ClipKIT](https://github.com/JLSteenwyk/ClipKIT) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
 
 ### MultiQC
 
