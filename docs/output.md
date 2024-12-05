@@ -14,30 +14,42 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 Clustering:
 
-- [MMseqs2 clustering](#mmseqs2-clustering) of input amino acid sequences
-- [Chunked fasta clusters](#chunked-fasta-clusters) derived from the MMseqs2 clusters
+- [MMseqs2](#mmseqs2) clustering of input amino acid sequences
+- [Chunked fasta clusters](#chunked-fasta-clusters) derived from the MMseqs2 clusters for parallel downstream processing.
 
 Multiple sequence alignment:
 
-- [FAMSA aligner](#famsa-aligner) option. Best speed and sensitivity option.
-- [mafft aligner](#mafft-aligner) option. Fast but not as sensitive as FAMSA.
+- [FAMSA](#famsa) aligner option. Best speed and sensitivity option to build seed multiple sequence alignment for the families.
+- [mafft](#mafft) aligner option. Fast but not as sensitive as FAMSA to build seed multiple sequence alignment for the families.
 - [ClipKIT](#clipkit) to optionally clip gapped portions of the MSA (start, middle, end)
 
 Generating family models:
 
+- [hmmer](#hmmer) to build the family HMM (hmmbuild) and to 'fish' additional sequences from the input fasta file into the family and also build the full MSA (hmmsearch).
+- [Extract family representatives](#extract-family-representatives) to produce the final metadata file along with a fasta of all family representative sequences (can be used downstream for structural prediction).
 
 Reporting:
 
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
-### MMseqs2 clustering
+### MMseqs2
 
 <details markdown="1">
 <summary>Output files</summary>
 
-- `mmseqs/mmseqs2_createtsv/`
-  - `<samplename>.tsv`: tab-separated table containing 2 columns; the first one with the cluster representative sequences, and the second with the cluster members
+- `mmseqs/`
+  - `mmseqs_createtsv/`
+    - `<samplename>.tsv`: tab-separated table containing 2 columns; the first one with the cluster representative sequences, and the second with the cluster members
+  - `mmseqs_createdb/`
+    - `<samplename>/`
+      - `*`: (optional) mmseqs format db of fasta sequences
+  - `mmseqs_linclust/`
+    - `<samplename>/`
+      - `*`: (optional) mmseqs format clustered db
+  - `mmseqs_cluster/`
+    - `<samplename>/`
+      - `*`: (optional) mmseqs format clustered db
 </details>
 
 [MMseqs2](https://github.com/soedinglab/MMseqs2) clusters amino acid fasta files via either the 'cluster' or the 'linclust' algorithms.
@@ -88,6 +100,36 @@ Reporting:
 </details>
 
 [ClipKIT](https://github.com/JLSteenwyk/ClipKIT) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
+
+### hmmer
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `hmmer/`
+  - `hmmbuild/`
+    - `<samplename>/`
+      - `<samplename>_*.hmm.gz`: compressed hmm model for the family
+      - `<samplename>_*.hmmbuild.txt`: (optional) hmmbuild execution log
+  - `hmmsearch/`
+    - `<samplename>/`
+      - `<samplename>_*.sto.gz`: full multiple sequence alignment of the family
+      - `<samplename>_*.domtbl.gz`: (optional) hmmsearch results along parameters info
+      - `<samplename>_*.txt.gz`: (optional) hmmsearch execution log
+</details>
+
+[hmmer](https://github.com/EddyRivasLab/hmmer) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
+
+### Extract family representatives
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `family_reps/`
+  - `<samplename>/`
+    - `<samplename>_meta_mqc.csv`: csv with metadata to print with MultiQC (Sample Name,Family Id,Size,Representative Length,Representative Id,Sequence)
+    - `<samplename>_reps.fa`: fasta file of all family representative sequences (one sequence per family)
+</details>
 
 ### MultiQC
 
