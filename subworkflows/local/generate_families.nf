@@ -3,7 +3,7 @@
 */
 
 include { FAMSA_ALIGN     } from '../../modules/nf-core/famsa/align/main'
-include { MAFFT           } from '../../modules/nf-core/mafft/main'
+include { MAFFT_ALIGN     } from '../../modules/nf-core/mafft/align/main'
 include { CLIPKIT         } from '../../modules/nf-core/clipkit/main'
 include { HMMER_HMMBUILD  } from '../../modules/nf-core/hmmer/hmmbuild/main'
 include { HMMER_HMMSEARCH } from '../../modules/nf-core/hmmer/hmmsearch/main'
@@ -30,8 +30,8 @@ workflow GENERATE_FAMILIES {
         ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
         alignment_ch  = alignment_res.alignment
     } else { // fallback: mafft
-        alignment_res = MAFFT( msa_input_ch, [[:], []], [[:], []], [[:], []], [[:], []], [[:], []], false )
-        ch_versions = ch_versions.mix( MAFFT.out.versions )
+        alignment_res = MAFFT_ALIGN( msa_input_ch, [[:], []], [[:], []], [[:], []], [[:], []], [[:], []], false )
+        ch_versions = ch_versions.mix( MAFFT_ALIGN.out.versions )
         alignment_ch  = alignment_res.fas
     }
 
