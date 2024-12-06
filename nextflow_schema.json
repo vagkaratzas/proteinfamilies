@@ -233,6 +233,12 @@
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
                 },
+                "clipping_tool": {
+                    "type": "string",
+                    "description": "Choose clipping tool. ClipKIT clips gaps throughout the sequence while clip_ends only at the ends.",
+                    "help_text": "Available tools: local module 'clip_ends' or nf-core 'clipkit'.",
+                    "enum": ["clip_ends", "clipkit"]
+                },
                 "gap_threshold": {
                     "type": "number",
                     "default": 0.5,
