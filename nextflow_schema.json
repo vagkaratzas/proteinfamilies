@@ -233,6 +233,11 @@
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
                 },
+                "gap_threshold": {
+                    "type": "number",
+                    "default": 0.5,
+                    "description": "Seed MSA positions with gappyness greater than this threshold will be trimmed"
+                },
                 "hmmsearch_write_target": {
                     "type": "boolean",
                     "description": "Boolean whether to generate target results file of hmmsearch",
