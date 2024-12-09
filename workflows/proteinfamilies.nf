@@ -21,6 +21,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_prot
 //
 include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
 include { GENERATE_FAMILIES  } from '../subworkflows/local/generate_families'
+include { REMOVE_REDUNDANCY  } from '../subworkflows/local/remove_redundancy'
 
 //
 // MODULE: Local to the pipeline
@@ -51,8 +52,12 @@ workflow PROTEINFAMILIES {
     GENERATE_FAMILIES( ch_samplesheet, fasta_chunks )
     ch_versions = ch_versions.mix( GENERATE_FAMILIES.out.versions )
 
+    // Remove redundant sequences and families
+    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.full_msa )
+    ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
+
     // Post-processing
-    GENERATE_FAMILIES.out.alignments
+    REMOVE_REDUNDANCY.out.full_msa
         .map { meta, aln -> [ [id: meta.id], aln ] }
         .groupTuple(by: 0)
         .set { ch_full_msa }
