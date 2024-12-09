@@ -55,9 +55,9 @@ workflow PROTEINFAMILIES {
     GENERATE_FAMILIES.out.alignments
         .map { meta, aln -> [ [id: meta.id], aln ] }
         .groupTuple(by: 0)
-        .set { ch_msa_sto }
+        .set { ch_full_msa }
 
-    EXTRACT_FAMILY_REPS( ch_msa_sto )
+    EXTRACT_FAMILY_REPS( ch_full_msa )
     ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
 
     //

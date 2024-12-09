@@ -1,4 +1,4 @@
-process CHUNK_CLUSTERS {
+process FILTER_RECRUITED {
     tag "$meta.id"
     label 'process_single'
 
@@ -8,30 +8,25 @@ process CHUNK_CLUSTERS {
         'community.wave.seqera.io/library/biopython:1.84--3318633dad0031e7' }"
 
     input:
-    tuple val(meta) , path(clustering)
-    tuple val(meta2), path(sequences)
-    val(size_threshold)
+    tuple val(meta) , path(sto)
+    tuple val(meta2), path(domtbl)
+    val(length_threshold)
 
     output:
-    tuple val(meta), path("chunked_fasta/*"), emit: fasta_chunks
-    path "versions.yml"                     , emit: versions
+    tuple val(meta), path("*.fas.gz"), emit: full_msa
+    path "versions.yml"              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def is_compressed = sequences.getName().endsWith(".gz") ? true : false
-    def fasta_name    = sequences.name.replace(".gz", "")
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    if [ "$is_compressed" == "true" ]; then
-        gzip -c -d $sequences > $fasta_name
-    fi
-
-    chunk_clusters.py \\
-        --clustering ${clustering} \\
-        --sequences ${fasta_name} \\
-        --threshold ${size_threshold} \\
-        --out_folder chunked_fasta
+    filter_recruited.py \\
+        --alignment ${sto} \\
+        --domtbl ${domtbl} \\
+        --length_threshold ${length_threshold} \\
+        --out_fasta ${prefix}.fas.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -17,7 +17,7 @@ def parse_args(args=None):
         required=True,
         metavar="FOLDER",
         type=str,
-        help="Input folder with Stockholm full alignments.",
+        help="Input folder with fasta full alignments.",
     )
     parser.add_argument(
         "-m",
@@ -55,9 +55,9 @@ def extract_first_sequences(msa_folder, metadata_file, out_fasta):
         # Iterate over all files in the MSA folder
         for filename in os.listdir(msa_folder):
             filepath = os.path.join(msa_folder, filename)
-            # Parse the Stockholm file and extract the first sequence
+            # Parse the MSA fasta file and extract the first sequence
             with gzip.open(filepath, "rt") as sto_file:
-                records = list(SeqIO.parse(sto_file, "stockholm"))
+                records = list(SeqIO.parse(sto_file, "fasta"))
                 family_size = len(records)
                 if records:
                     first_record = records[0]

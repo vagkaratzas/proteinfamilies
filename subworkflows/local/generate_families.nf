@@ -2,12 +2,13 @@
     FAMILY MODEL GENERATION
 */
 
-include { FAMSA_ALIGN     } from '../../modules/nf-core/famsa/align/main'
-include { MAFFT_ALIGN     } from '../../modules/nf-core/mafft/align/main'
-include { CLIPKIT         } from '../../modules/nf-core/clipkit/main'
-include { CLIP_ENDS       } from '../../modules/local/clip_ends.nf'
-include { HMMER_HMMBUILD  } from '../../modules/nf-core/hmmer/hmmbuild/main'
-include { HMMER_HMMSEARCH } from '../../modules/nf-core/hmmer/hmmsearch/main'
+include { FAMSA_ALIGN      } from '../../modules/nf-core/famsa/align/main'
+include { MAFFT_ALIGN      } from '../../modules/nf-core/mafft/align/main'
+include { CLIPKIT          } from '../../modules/nf-core/clipkit/main'
+include { CLIP_ENDS        } from '../../modules/local/clip_ends.nf'
+include { HMMER_HMMBUILD   } from '../../modules/nf-core/hmmer/hmmbuild/main'
+include { HMMER_HMMSEARCH  } from '../../modules/nf-core/hmmer/hmmsearch/main'
+include { FILTER_RECRUITED } from '../../modules/local/filter_recruited.nf'
 
 workflow GENERATE_FAMILIES {
     take:
@@ -58,9 +59,12 @@ workflow GENERATE_FAMILIES {
         .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, true, params.hmmsearch_write_target, params.hmmsearch_write_domain ] } // write_align must always be true
         .set { ch_input_for_hmmsearch }
 
-    HMMER_HMMSEARCH ( ch_input_for_hmmsearch )
+    HMMER_HMMSEARCH( ch_input_for_hmmsearch )
     ch_versions   = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
-    ch_alignments = HMMER_HMMSEARCH.out.alignments
+
+    FILTER_RECRUITED( HMMER_HMMSEARCH.out.alignments, HMMER_HMMSEARCH.out.domain_summary, params.hmmsearch_query_length_threshold )
+    ch_versions   = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
+    ch_alignments = FILTER_RECRUITED.out.full_msa
 
     emit:
     versions   = ch_versions

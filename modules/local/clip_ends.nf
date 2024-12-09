@@ -21,7 +21,8 @@ process CLIP_ENDS {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    clip_ends.py --alignment ${aln} \\
+    clip_ends.py \\
+        --alignment ${aln} \\
         --gap_threshold ${gap_threshold} \\
         --out_fasta ${prefix}_clipped.fas
 

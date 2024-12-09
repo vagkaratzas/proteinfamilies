@@ -20,7 +20,8 @@ process EXTRACT_FAMILY_REPS {
 
     script:
     """
-    extract_family_reps.py --full_msa_folder sto \\
+    extract_family_reps.py \\
+        --full_msa_folder sto \\
         --metadata ${meta.id}_meta_mqc.csv \\
         --out_fasta ${meta.id}_reps.fa
 
