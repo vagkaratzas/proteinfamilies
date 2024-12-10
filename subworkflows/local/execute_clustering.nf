@@ -6,15 +6,14 @@ include { MMSEQS_CREATEDB  } from '../../modules/nf-core/mmseqs/createdb/main'
 include { MMSEQS_CLUSTER   } from '../../modules/nf-core/mmseqs/cluster/main'
 include { MMSEQS_LINCLUST  } from '../../modules/nf-core/mmseqs/linclust/main'
 include { MMSEQS_CREATETSV } from '../../modules/nf-core/mmseqs/createtsv/main'
-include { CHUNK_CLUSTERS   } from '../../modules/local/chunk_clusters.nf'
 
 workflow EXECUTE_CLUSTERING {
     take:
     sequences // tuple val(meta), path(fasta)
 
     main:
-    ch_versions     = Channel.empty()
-    ch_fasta_chunks = Channel.empty()
+    ch_versions       = Channel.empty()
+    ch_clustering_tsv = Channel.empty()
 
     MMSEQS_CREATEDB( sequences )
     ch_versions = ch_versions.mix( MMSEQS_CREATEDB.out.versions )
@@ -37,20 +36,9 @@ workflow EXECUTE_CLUSTERING {
 
     MMSEQS_CREATETSV(ch_input_for_createtsv.db_cluster, ch_input_for_createtsv.db, ch_input_for_createtsv.db)
     ch_versions       = ch_versions.mix( MMSEQS_CREATETSV.out.versions )
-
-    // Join together to ensure in sync
-    ch_input_for_cluster_chunking = sequences
-        .join(MMSEQS_CREATETSV.out.tsv)
-        .multiMap { meta, seqs, clusters ->
-            seqs: [ meta, seqs ]
-            clusters: [ meta, clusters ]
-        }
-
-    CHUNK_CLUSTERS(ch_input_for_cluster_chunking.clusters, ch_input_for_cluster_chunking.seqs, params.cluster_size_threshold)
-    ch_versions     = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
-    ch_fasta_chunks = CHUNK_CLUSTERS.out.fasta_chunks
+    ch_clustering_tsv = MMSEQS_CREATETSV.out.tsv
 
     emit:
-    versions      = ch_versions
-    fasta_chunks  = ch_fasta_chunks
+    versions       = ch_versions
+    clustering_tsv = ch_clustering_tsv
 }

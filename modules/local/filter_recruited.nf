@@ -13,8 +13,9 @@ process FILTER_RECRUITED {
     val(length_threshold)
 
     output:
-    tuple val(meta), path("*.fas.gz"), emit: full_msa
-    path "versions.yml"              , emit: versions
+    tuple val(meta), path("*.fas.gz")  , emit: full_msa
+    tuple val(meta), path("*.fasta.gz"), emit: fasta
+    path "versions.yml"                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -26,7 +27,8 @@ process FILTER_RECRUITED {
         --alignment ${sto} \\
         --domtbl ${domtbl} \\
         --length_threshold ${length_threshold} \\
-        --out_fasta ${prefix}.fas.gz
+        --out_msa ${prefix}.fas.gz \\
+        --out_fasta ${prefix}.fasta.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -65,8 +65,10 @@ workflow GENERATE_FAMILIES {
     FILTER_RECRUITED( HMMER_HMMSEARCH.out.alignments, HMMER_HMMSEARCH.out.domain_summary, params.hmmsearch_query_length_threshold )
     ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
     ch_full_msa = FILTER_RECRUITED.out.full_msa
+    ch_fasta    = FILTER_RECRUITED.out.fasta
 
     emit:
     versions = ch_versions
     full_msa = ch_full_msa
+    fasta    = ch_fasta
 }

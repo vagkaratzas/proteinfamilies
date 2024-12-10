@@ -32,12 +32,20 @@ def parse_args(args=None):
         help="Minimum length percentage threshold of annotated domain (env) against query to keep.",
     )
     parser.add_argument(
+        "-m",
+        "--out_msa",
+        required=True,
+        metavar="FILE",
+        type=str,
+        help="Name of the output fasta file with the fasta converted multiple sequence alignment (includes gaps).",
+    )
+    parser.add_argument(
         "-o",
         "--out_fasta",
         required=True,
         metavar="FILE",
         type=str,
-        help="Name of the output fasta file with the fasta converted multiple sequence alignment.",
+        help="Name of the output fasta file with the fasta converted sequences (no gaps).",
     )
     return parser.parse_args(args)
 
@@ -66,23 +74,33 @@ def filter_sequences(domtbl, length_threshold):
 
     return filtered_sequences
 
-def filter_stockholm_to_fasta(alignment, filtered_sequences, out_fasta):
+def filter_stockholm_to_fasta(alignment, filtered_sequences, out_msa, out_fasta):
     with gzip.open(alignment, 'rt', encoding='utf-8') as file:
         alignment_data = AlignIO.read(file, "stockholm")
         filtered_records = [record for record in alignment_data if record.id in filtered_sequences]
+
         for record in filtered_records:
             record.description = ""
+
+        with gzip.open(out_msa, 'wt') as gz_file:
+            SeqIO.write(filtered_records, gz_file, "fasta")
+
+        for record in filtered_records:
+            record.letter_annotations = {}  # Clear annotations
+            record.seq = record.seq.replace('-', '')
+
         with gzip.open(out_fasta, 'wt') as gz_file:
             SeqIO.write(filtered_records, gz_file, "fasta")
-        print(f"Filtered alignment saved to {out_fasta}")
 
-def filter_recruited(alignment, domtbl, length_threshold, out_fasta):
+        print(f"Filtered alignment saved to {out_msa}")
+
+def filter_recruited(alignment, domtbl, length_threshold, out_msa, out_fasta):
     filtered_sequences = filter_sequences(domtbl, length_threshold)
-    filter_stockholm_to_fasta(alignment, filtered_sequences, out_fasta)
+    filter_stockholm_to_fasta(alignment, filtered_sequences, out_msa, out_fasta)
 
 def main(args=None):
     args = parse_args(args)
-    filter_recruited(args.alignment, args.domtbl, args.length_threshold, args.out_fasta)
+    filter_recruited(args.alignment, args.domtbl, args.length_threshold, args.out_msa, args.out_fasta)
 
 if __name__ == "__main__":
     sys.exit(main())

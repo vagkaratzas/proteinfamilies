@@ -274,6 +274,42 @@
                     "description": "hmmsearch minimum length percentage filter of hit env vs query length"
                 }
             }
+        },
+        "redundancy_params": {
+            "title": "Redundancy removal parameters",
+            "type": "object",
+            "description": "Use these parameters to control the redundancy removal subworkflow execution.",
+            "properties": {
+                "remove_sequence_redundancy": {
+                    "type": "boolean",
+                    "description": "Removal of inside-family redundancy of sequences via mmseqs clustering.",
+                    "default": true,
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "cluster_seq_identity_for_redundancy": {
+                    "type": "number",
+                    "default": 0.95,
+                    "description": "mmseqs parameter for minimum sequence identity"
+                },
+                "cluster_coverage_for_redundancy": {
+                    "type": "number",
+                    "default": 0.95,
+                    "description": "mmseqs parameter for minimum sequence coverage ratio"
+                },
+                "cluster_cov_mode_for_redundancy": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence"
+                },
+                "remove_family_redundancy": {
+                    "type": "boolean",
+                    "description": "Removal of between-family redundancy via hmmsearch.",
+                    "default": true,
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                }
+            }
         }
     },
     "allOf": [
@@ -291,6 +327,9 @@
         },
         {
             "$ref": "#/$defs/alignment_params"
+        },
+        {
+            "$ref": "#/$defs/redundancy_params"
         }
     ]
 }
