@@ -15,6 +15,11 @@ workflow REMOVE_REDUNDANCY {
     ch_versions = Channel.empty()
 
     // TODO
+    // if (params.remove_family_redundancy) {
+    //
+    // }
+
+    // TODO only for remaining families (after removal of redundant ones)
     if (params.remove_sequence_redundancy) {
         fasta = fasta
             .map { meta, aln ->
@@ -26,6 +31,7 @@ workflow REMOVE_REDUNDANCY {
         EXECUTE_CLUSTERING(fasta)
         ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
         clustering_tsv = EXECUTE_CLUSTERING.out.clustering_tsv
+        // TODO continue with producing MSAs from cluster reps only
         clustering_tsv.view()
     }
 
