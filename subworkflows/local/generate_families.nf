@@ -2,7 +2,7 @@
     FAMILY MODEL GENERATION
 */
 
-include { FAMSA_ALIGN      } from '../../modules/nf-core/famsa/align/main'
+include { ALIGN_SEQUENCES  } from '../../subworkflows/local/align_sequences'
 include { MAFFT_ALIGN      } from '../../modules/nf-core/mafft/align/main'
 include { CLIPKIT          } from '../../modules/nf-core/clipkit/main'
 include { CLIP_ENDS        } from '../../modules/local/clip_ends.nf'
@@ -27,29 +27,22 @@ workflow GENERATE_FAMILIES {
         }
         .set { msa_input_ch }
 
-    if (params.alignment_tool == 'famsa') {
-        alignment_res = FAMSA_ALIGN(msa_input_ch, [[:],[]], false)
-        ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
-        alignment_ch  = alignment_res.alignment
-    } else { // fallback: mafft
-        alignment_res = MAFFT_ALIGN( msa_input_ch, [[:], []], [[:], []], [[:], []], [[:], []], [[:], []], false )
-        ch_versions = ch_versions.mix( MAFFT_ALIGN.out.versions )
-        alignment_ch  = alignment_res.fas
-    }
+    ALIGN_SEQUENCES( msa_input_ch )
+    ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
 
     if (params.trim_seed_msa) {
         if (params.clipping_tool == 'clipkit') {
-            CLIPKIT(alignment_ch)
+            CLIPKIT( ALIGN_SEQUENCES.out.alignments )
             ch_versions = ch_versions.mix( CLIPKIT.out.versions )
-            alignment_ch = CLIPKIT.out.clipkit
+            ch_alignments = CLIPKIT.out.clipkit
         } else { // fallback: local module clip_ends
-            CLIP_ENDS(alignment_ch, params.gap_threshold)
+            CLIP_ENDS( ALIGN_SEQUENCES.out.alignments, params.gap_threshold )
             ch_versions = ch_versions.mix( CLIP_ENDS.out.versions )
-            alignment_ch = CLIP_ENDS.out.fas
+            ch_alignments = CLIP_ENDS.out.fas
         }
     }
 
-    HMMER_HMMBUILD( alignment_ch, [] )
+    HMMER_HMMBUILD( ch_alignments, [] )
     ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
 
     // Combine with same id to ensure in sync

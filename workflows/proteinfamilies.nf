@@ -57,7 +57,7 @@ workflow PROTEINFAMILIES {
             clusters: [ meta, clusters ]
         }
 
-    CHUNK_CLUSTERS(ch_input_for_cluster_chunking.clusters, ch_input_for_cluster_chunking.seqs, params.cluster_size_threshold)
+    CHUNK_CLUSTERS( ch_input_for_cluster_chunking.clusters, ch_input_for_cluster_chunking.seqs, params.cluster_size_threshold )
     ch_versions = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
 
     // Multiple sequence alignment

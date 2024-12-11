@@ -56,8 +56,8 @@ def extract_first_sequences(msa_folder, metadata_file, out_fasta):
         for filename in os.listdir(msa_folder):
             filepath = os.path.join(msa_folder, filename)
             # Parse the MSA fasta file and extract the first sequence
-            with gzip.open(filepath, "rt") as sto_file:
-                records = list(SeqIO.parse(sto_file, "fasta"))
+            with gzip.open(filepath, 'rt') if filepath.endswith('.gz') else open(filepath, 'r') as fasta_file:
+                records = list(SeqIO.parse(fasta_file, "fasta"))
                 family_size = len(records)
                 if records:
                     first_record = records[0]

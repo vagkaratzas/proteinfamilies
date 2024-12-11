@@ -1,4 +1,4 @@
-process EXTRACT_FAMILY_REPS {
+process REMOVE_REDUNDANT_SEQS {
     tag "$meta.id"
     label 'process_single'
 
@@ -8,21 +8,27 @@ process EXTRACT_FAMILY_REPS {
         'community.wave.seqera.io/library/biopython:1.84--3318633dad0031e7' }"
 
     input:
-    tuple val(meta), path(aln, stageAs: "aln/*")
+    tuple val(meta) , path(clustering)
+    tuple val(meta2), path(sequences)
 
     output:
-    tuple val(meta), path("${meta.id}_reps.fa")     , emit: fasta
-    tuple val(meta), path("${meta.id}_meta_mqc.csv"), emit: map
-    path "versions.yml"                             , emit: versions
+    tuple val(meta), path("${meta.id}_reps.fa"), emit: fasta
+    path "versions.yml"                        , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
+    def is_compressed = sequences.getName().endsWith(".gz") ? true : false
+    def fasta_name    = sequences.name.replace(".gz", "")
     """
-    extract_family_reps.py \\
-        --full_msa_folder aln \\
-        --metadata ${meta.id}_meta_mqc.csv \\
+    if [ "$is_compressed" == "true" ]; then
+        gzip -c -d $sequences > $fasta_name
+    fi
+
+    remove_redundant_seqs.py \\
+        --clustering ${clustering} \\
+        --sequences ${fasta_name} \\
         --out_fasta ${meta.id}_reps.fa
 
     cat <<-END_VERSIONS > versions.yml
