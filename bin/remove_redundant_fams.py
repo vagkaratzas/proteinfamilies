@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
-import sys
-import gzip
-import argparse
-import csv
 import os
+import sys
+import pandas as pd
+import argparse
 import shutil
-from Bio import SeqIO
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
@@ -52,12 +50,43 @@ def parse_args(args=None):
     )
     return parser.parse_args(args)
 
+def remove_self_hits(mapping_set, domtbl_df):
+    # Filter out these self-hits from domtbl_df based on the set membership
+    filtered_domtbl_df = domtbl_df[
+        ~domtbl_df.apply(lambda row: (row["target name"], row["query name"]) in mapping_set, axis=1)
+    ]
+
+    return filtered_domtbl_df
+
 def remove_redundant_fams(mapping, domtbl, fasta_folder, length_threshold, out_folder):
+    mapping_df = pd.read_csv(
+        mapping,
+        comment='#',
+        usecols=["Family Id", "Size", "Representative Id"]
+    )
+    domtbl_df = pd.read_csv(
+        domtbl,
+        sep=r'\s+',
+        comment='#',
+        header=None,
+        usecols=[0, 3, 5, 20, 21]
+    ).rename(columns={0: "target name", 3: "query name", 5: "qlen", 20: "env from", 21: "env to"})
+    # Create a set of (Representative Id, Family Id) pairs from mapping_df
+    mapping_set = set(zip(mapping_df["Representative Id"], mapping_df["Family Id"]))
+
+    domtbl_df = remove_self_hits(mapping_set, domtbl_df)
+    
+    print(domtbl_df)
+
+    # TODO logic with actual family filtering
+    # 1. remove self-hits, done
+    # 2. filter_by_length
+    # 3. keep larger hit
+    # 4. write out non redundant
     for file_name in os.listdir(fasta_folder):
         source_file = os.path.join(fasta_folder, file_name)
         destination_file = os.path.join(out_folder, file_name)
 
-        # TODO logic with actual family filtering
         # Check if it is a file (not a directory)
         if os.path.isfile(source_file):
             # Copy file to the destination folder
