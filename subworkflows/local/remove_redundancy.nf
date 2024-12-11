@@ -2,8 +2,9 @@
     REMOVAL OF REDUNDANT SEQUENCES AND FAMILIES
 */
 
-include { EXECUTE_CLUSTERING    } from '../../subworkflows/local/execute_clustering'
+include { CONCAT_HMMS           } from '../../modules/local/concat_hmms.nf'
 // include { REMOVE_REDUNDANT_FAMS } from '../../modules/local/remove_redundant_fams.nf'
+include { EXECUTE_CLUSTERING    } from '../../subworkflows/local/execute_clustering'
 include { REMOVE_REDUNDANT_SEQS } from '../../modules/local/remove_redundant_seqs.nf'
 include { ALIGN_SEQUENCES       } from '../../subworkflows/local/align_sequences'
 
@@ -11,16 +12,24 @@ workflow REMOVE_REDUNDANCY {
     take:
     full_msa // tuple val(meta), path(fas)
     fasta    // tuple val(meta), path(fasta)
+    hmm      // tuple val(meta), path(hmm)
 
     main:
     ch_versions = Channel.empty()
 
-    // TODO
-    // if (params.remove_family_redundancy) {
-    //
-    // }
+    if (params.remove_family_redundancy) {
+        hmm
+            .map { meta, model -> [ [id: meta.id], model ] }
+            .groupTuple(by: 0)
+            .set { ch_hmm }
+        CONCAT_HMMS( ch_hmm )
+        ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
-    // TODO only for remaining families (after removal of redundant ones)
+        // TODO
+
+    }
+
+    // TODO only for remaining families (after removal of redundant ones)..fasta = ...
     if (params.remove_sequence_redundancy) {
         EXECUTE_CLUSTERING( fasta )
         ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )

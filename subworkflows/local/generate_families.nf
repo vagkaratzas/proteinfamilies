@@ -44,9 +44,10 @@ workflow GENERATE_FAMILIES {
 
     HMMER_HMMBUILD( ch_alignments, [] )
     ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
+    ch_hmm = HMMER_HMMBUILD.out.hmm
 
     // Combine with same id to ensure in sync
-    HMMER_HMMBUILD.out.hmm
+    ch_hmm
         .map { meta, hmm -> [ [id: meta.id], meta, hmm ] }
         .combine(sequences, by: 0)
         .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, true, params.hmmsearch_write_target, params.hmmsearch_write_domain ] } // write_align must always be true
@@ -64,4 +65,5 @@ workflow GENERATE_FAMILIES {
     versions = ch_versions
     full_msa = ch_full_msa
     fasta    = ch_fasta
+    hmm      = ch_hmm
 }

@@ -65,7 +65,7 @@ workflow PROTEINFAMILIES {
     ch_versions = ch_versions.mix( GENERATE_FAMILIES.out.versions )
 
     // Remove redundant sequences and families
-    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.full_msa, GENERATE_FAMILIES.out.fasta )
+    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.full_msa, GENERATE_FAMILIES.out.fasta, GENERATE_FAMILIES.out.hmm )
     ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
 
     // Post-processing
