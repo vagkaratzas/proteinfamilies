@@ -280,6 +280,18 @@
             "type": "object",
             "description": "Use these parameters to control the redundancy removal subworkflow execution.",
             "properties": {
+                "remove_family_redundancy": {
+                    "type": "boolean",
+                    "description": "Removal of between-family redundancy via hmmsearch.",
+                    "default": true,
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "hmmsearch_family_length_threshold": {
+                    "type": "number",
+                    "default": 0.8,
+                    "description": "hmmsearch minimum length percentage filter of hit env vs query length, for redundant family removal"
+                },
                 "remove_sequence_redundancy": {
                     "type": "boolean",
                     "description": "Removal of inside-family redundancy of sequences via mmseqs clustering.",
@@ -301,13 +313,6 @@
                     "type": "integer",
                     "default": 0,
                     "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence"
-                },
-                "remove_family_redundancy": {
-                    "type": "boolean",
-                    "description": "Removal of between-family redundancy via hmmsearch.",
-                    "default": true,
-                    "fa_icon": "fas fa-question-circle",
-                    "hidden": true
                 }
             }
         }
