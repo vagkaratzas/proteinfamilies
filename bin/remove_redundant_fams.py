@@ -50,11 +50,9 @@ def parse_args(args=None):
     )
     return parser.parse_args(args)
 
-def remove_self_hits(mapping_set, domtbl_df):
-    # Filter out these self-hits from domtbl_df based on the set membership
-    domtbl_df = domtbl_df[
-        ~domtbl_df.apply(lambda row: (row["target name"], row["query name"]) in mapping_set, axis=1)
-    ]
+def remove_self_hits(domtbl_df, representative_to_family):
+    domtbl_df["target name"] = domtbl_df["target name"].map(representative_to_family)
+    domtbl_df = domtbl_df[domtbl_df["target name"] != domtbl_df["query name"]]
 
     return domtbl_df
 
@@ -76,26 +74,32 @@ def remove_redundant_fams(mapping, domtbl, fasta_folder, length_threshold, out_f
         header=None,
         usecols=[0, 3, 5, 19, 20]
     ).rename(columns={0: "target name", 3: "query name", 5: "qlen", 19: "env from", 20: "env to"})
-    # Create a set of (Representative Id, Family Id) pairs from mapping_df
-    mapping_set = set(zip(mapping_df["Representative Id"], mapping_df["Family Id"]))
 
-    domtbl_df = remove_self_hits(mapping_set, domtbl_df)
+    representative_to_family = dict(zip(mapping_df["Representative Id"], mapping_df["Family Id"]))
+    family_to_size = dict(zip(mapping_df["Family Id"], mapping_df["Size"]))
+
+    domtbl_df = remove_self_hits(domtbl_df, representative_to_family)
     domtbl_df = filter_by_length(domtbl_df, length_threshold)
-    print(domtbl_df)
+    domtbl_df = domtbl_df.drop(columns=["qlen", "env from", "env to"])
+    domtbl_df['query size'] = domtbl_df['query name'].map(family_to_size)
+    domtbl_df['target size'] = domtbl_df['target name'].map(family_to_size)
 
-    # TODO logic with actual family filtering
-    # 1. remove self-hits, done
-    # 2. filter_by_length, done
-    # 3. keep larger hit
-    # 4. write out non redundant
+    redundant_fam_names = set()
+    for _, row in domtbl_df.iterrows():
+        if row['query size'] < row['target size']:
+            redundant_fam_names.add(row['query name'])
+        else:
+            redundant_fam_names.add(row['target name'])
+
     for file_name in os.listdir(fasta_folder):
-        source_file = os.path.join(fasta_folder, file_name)
-        destination_file = os.path.join(out_folder, file_name)
+        base_name = os.path.basename(file_name).split(".")[0]
+        if base_name not in redundant_fam_names:
+            source_file = os.path.join(fasta_folder, file_name)
+            destination_file = os.path.join(out_folder, file_name)
 
-        # Check if it is a file (not a directory)
-        if os.path.isfile(source_file):
-            # Copy file to the destination folder
-            shutil.copy2(source_file, destination_file)
+            # Check if it is a file (not a directory) and copy
+            if os.path.isfile(source_file):
+                shutil.copy2(source_file, destination_file)
 
 def main(args=None):
     args = parse_args(args)
