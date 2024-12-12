@@ -1,4 +1,4 @@
-process FILTER_RECRUITED {
+process REMOVE_REDUNDANT_SEQS {
     tag "$meta.id"
     label 'process_single'
 
@@ -8,27 +8,28 @@ process FILTER_RECRUITED {
         'community.wave.seqera.io/library/biopython:1.84--3318633dad0031e7' }"
 
     input:
-    tuple val(meta) , path(sto)
-    tuple val(meta2), path(domtbl)
-    val(length_threshold)
+    tuple val(meta) , path(clustering)
+    tuple val(meta2), path(sequences)
 
     output:
-    tuple val(meta), path("*.fas.gz")  , emit: full_msa
-    tuple val(meta), path("*.fasta.gz"), emit: fasta
-    path "versions.yml"                , emit: versions
+    tuple val(meta), path("${meta.id}_reps.fa"), emit: fasta
+    path "versions.yml"                        , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def is_compressed = sequences.getName().endsWith(".gz") ? true : false
+    def fasta_name    = sequences.name.replace(".gz", "")
     """
-    filter_recruited.py \\
-        --alignment ${sto} \\
-        --domtbl ${domtbl} \\
-        --length_threshold ${length_threshold} \\
-        --out_msa ${prefix}.fas.gz \\
-        --out_fasta ${prefix}.fasta.gz
+    if [ "$is_compressed" == "true" ]; then
+        gzip -c -d $sequences > $fasta_name
+    fi
+
+    remove_redundant_seqs.py \\
+        --clustering ${clustering} \\
+        --sequences ${fasta_name} \\
+        --out_fasta ${meta.id}_reps.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

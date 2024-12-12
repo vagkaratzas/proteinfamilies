@@ -8,7 +8,7 @@ process EXTRACT_FAMILY_REPS {
         'community.wave.seqera.io/library/biopython:1.84--3318633dad0031e7' }"
 
     input:
-    tuple val(meta), path(sto, stageAs: "sto/*")
+    tuple val(meta), path(aln, stageAs: "aln/*")
 
     output:
     tuple val(meta), path("${meta.id}_reps.fa")     , emit: fasta
@@ -21,7 +21,7 @@ process EXTRACT_FAMILY_REPS {
     script:
     """
     extract_family_reps.py \\
-        --full_msa_folder sto \\
+        --full_msa_folder aln \\
         --metadata ${meta.id}_meta_mqc.csv \\
         --out_fasta ${meta.id}_reps.fa
 
