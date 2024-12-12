@@ -187,6 +187,11 @@
             "type": "object",
             "description": "Use these parameters to control the flow of the clustering subworkflow execution.",
             "properties": {
+                "save_mmseqs_db": {
+                    "type": "boolean",
+                    "description": "Save the db output folder of mmseqs createdb",
+                    "help_text": "Specify to save the mmseqs formatted database of input fasta sequences."
+                },
                 "clustering_tool": {
                     "type": "string",
                     "description": "Choose clustering algorithm. Either simple 'cluster' for medium size inputs, or 'linclust' for less sensitive clustering of larger datasets.",
@@ -207,6 +212,11 @@
                     "type": "integer",
                     "default": 0,
                     "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence"
+                },
+                "save_mmseqs_clustering": {
+                    "type": "boolean",
+                    "description": "Save the clustering output folder of mmseqs cluster or linclust",
+                    "help_text": "Specify to save the mmseqs formatted result clustering."
                 },
                 "cluster_size_threshold": {
                     "type": "integer",
@@ -280,6 +290,18 @@
             "type": "object",
             "description": "Use these parameters to control the redundancy removal subworkflow execution.",
             "properties": {
+                "remove_family_redundancy": {
+                    "type": "boolean",
+                    "description": "Removal of between-family redundancy via hmmsearch.",
+                    "default": true,
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "hmmsearch_family_length_threshold": {
+                    "type": "number",
+                    "default": 0.8,
+                    "description": "hmmsearch minimum length percentage filter of hit env vs query length, for redundant family removal"
+                },
                 "remove_sequence_redundancy": {
                     "type": "boolean",
                     "description": "Removal of inside-family redundancy of sequences via mmseqs clustering.",
@@ -301,13 +323,6 @@
                     "type": "integer",
                     "default": 0,
                     "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence"
-                },
-                "remove_family_redundancy": {
-                    "type": "boolean",
-                    "description": "Removal of between-family redundancy via hmmsearch.",
-                    "default": true,
-                    "fa_icon": "fas fa-question-circle",
-                    "hidden": true
                 }
             }
         }
