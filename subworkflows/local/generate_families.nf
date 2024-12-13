@@ -3,7 +3,6 @@
 */
 
 include { ALIGN_SEQUENCES  } from '../../subworkflows/local/align_sequences'
-include { MAFFT_ALIGN      } from '../../modules/nf-core/mafft/align/main'
 include { CLIPKIT          } from '../../modules/nf-core/clipkit/main'
 include { CLIP_ENDS        } from '../../modules/local/clip_ends.nf'
 include { HMMER_HMMBUILD   } from '../../modules/nf-core/hmmer/hmmbuild/main'
