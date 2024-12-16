@@ -28,14 +28,15 @@ workflow GENERATE_FAMILIES {
 
     ALIGN_SEQUENCES( msa_input_ch )
     ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
+    ch_alignments = ALIGN_SEQUENCES.out.alignments
 
     if (params.trim_seed_msa) {
         if (params.clipping_tool == 'clipkit') {
-            CLIPKIT( ALIGN_SEQUENCES.out.alignments )
+            CLIPKIT( ch_alignments )
             ch_versions = ch_versions.mix( CLIPKIT.out.versions )
             ch_alignments = CLIPKIT.out.clipkit
         } else { // fallback: local module clip_ends
-            CLIP_ENDS( ALIGN_SEQUENCES.out.alignments, params.gap_threshold )
+            CLIP_ENDS( ch_alignments, params.gap_threshold )
             ch_versions = ch_versions.mix( CLIP_ENDS.out.versions )
             ch_alignments = CLIP_ENDS.out.fas
         }
