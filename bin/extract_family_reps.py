@@ -48,7 +48,7 @@ def extract_first_sequences(msa_folder, metadata_file, out_fasta):
             "# format: \"csv\"\n"
             "# plot_type: \"table\"\n"
         )
-        csv_writer = csv.writer(csv_out)
+        csv_writer = csv.writer(csv_out, quoting=csv.QUOTE_NONNUMERIC)
         # Write the CSV header
         csv_writer.writerow(["Sample Name", "Family Id", "Size", "Representative Length", "Representative Id", "Sequence"])
 
