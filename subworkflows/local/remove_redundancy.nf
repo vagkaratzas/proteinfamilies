@@ -2,13 +2,14 @@
     REMOVAL OF REDUNDANT SEQUENCES AND FAMILIES
 */
 
-include { EXTRACT_FAMILY_REPS   } from '../../modules/local/extract_family_reps.nf'
-include { CONCAT_HMMS           } from '../../modules/local/concat_hmms.nf'
-include { HMMER_HMMSEARCH       } from '../../modules/nf-core/hmmer/hmmsearch/main'
-include { REMOVE_REDUNDANT_FAMS } from '../../modules/local/remove_redundant_fams.nf'
-include { EXECUTE_CLUSTERING    } from '../../subworkflows/local/execute_clustering'
-include { REMOVE_REDUNDANT_SEQS } from '../../modules/local/remove_redundant_seqs.nf'
-include { ALIGN_SEQUENCES       } from '../../subworkflows/local/align_sequences'
+include { EXTRACT_FAMILY_REPS       } from '../../modules/local/extract_family_reps.nf'
+include { CONCAT_HMMS               } from '../../modules/local/concat_hmms.nf'
+include { HMMER_HMMSEARCH           } from '../../modules/nf-core/hmmer/hmmsearch/main'
+include { REMOVE_REDUNDANT_FAMS     } from '../../modules/local/remove_redundant_fams.nf'
+include { FILTER_NON_REDUNDANT_HMMS } from '../../modules/local/filter_non_redundant_hmms.nf'
+include { EXECUTE_CLUSTERING        } from '../../subworkflows/local/execute_clustering'
+include { REMOVE_REDUNDANT_SEQS     } from '../../modules/local/remove_redundant_seqs.nf'
+include { ALIGN_SEQUENCES           } from '../../subworkflows/local/align_sequences'
 
 workflow REMOVE_REDUNDANCY {
     take:
@@ -60,6 +61,16 @@ workflow REMOVE_REDUNDANCY {
         REMOVE_REDUNDANT_FAMS( ch_input_for_fam_removal.map, ch_input_for_fam_removal.domtbl, ch_input_for_fam_removal.seqs, params.hmmsearch_family_length_threshold )
         ch_versions = ch_versions.mix( REMOVE_REDUNDANT_FAMS.out.versions )
         fasta = REMOVE_REDUNDANT_FAMS.out.fasta
+
+        // Join together to ensure in sync
+        ch_input_for_hmm_filtering = fasta
+            .join(ch_hmm)
+            .multiMap { meta, seqs, models ->
+                seqs: [ meta, seqs ]
+                models: [ meta, models ]
+            }
+        FILTER_NON_REDUNDANT_HMMS( ch_input_for_hmm_filtering.seqs, ch_input_for_hmm_filtering.models )
+
         fasta
             .transpose()
             .map { meta, file ->
