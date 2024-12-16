@@ -15,8 +15,10 @@ workflow GENERATE_FAMILIES {
     fasta_chunks
 
     main:
-    ch_versions   = Channel.empty()
-    ch_alignments = Channel.empty()
+    ch_versions = Channel.empty()
+    ch_msa      = Channel.empty()
+    ch_fasta    = Channel.empty()
+    ch_hmm      = Channel.empty()
 
     fasta_chunks
         .transpose()
@@ -24,25 +26,25 @@ workflow GENERATE_FAMILIES {
             def baseName = file.toString().split('/')[-1].split('\\.')[0]
             [ [id: meta.id, chunk: baseName], file ]
         }
-        .set { msa_input_ch }
+        .set { ch_fasta }
 
-    ALIGN_SEQUENCES( msa_input_ch )
+    ALIGN_SEQUENCES( ch_fasta )
     ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
-    ch_alignments = ALIGN_SEQUENCES.out.alignments
+    ch_msa = ALIGN_SEQUENCES.out.alignments
 
     if (params.trim_seed_msa) {
         if (params.clipping_tool == 'clipkit') {
-            CLIPKIT( ch_alignments )
+            CLIPKIT( ch_msa )
             ch_versions = ch_versions.mix( CLIPKIT.out.versions )
-            ch_alignments = CLIPKIT.out.clipkit
+            ch_msa = CLIPKIT.out.clipkit
         } else { // fallback: local module clip_ends
-            CLIP_ENDS( ch_alignments, params.gap_threshold )
+            CLIP_ENDS( ch_msa, params.gap_threshold )
             ch_versions = ch_versions.mix( CLIP_ENDS.out.versions )
-            ch_alignments = CLIP_ENDS.out.fas
+            ch_msa = CLIP_ENDS.out.fas
         }
     }
 
-    HMMER_HMMBUILD( ch_alignments, [] )
+    HMMER_HMMBUILD( ch_msa, [] )
     ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
     ch_hmm = HMMER_HMMBUILD.out.hmm
 
@@ -53,17 +55,19 @@ workflow GENERATE_FAMILIES {
         .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, true, params.hmmsearch_write_target, params.hmmsearch_write_domain ] } // write_align must always be true
         .set { ch_input_for_hmmsearch }
 
-    HMMER_HMMSEARCH( ch_input_for_hmmsearch )
-    ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
+    if (params.recruit_sequences_with_models) {
+        HMMER_HMMSEARCH( ch_input_for_hmmsearch )
+        ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
 
-    FILTER_RECRUITED( HMMER_HMMSEARCH.out.alignments, HMMER_HMMSEARCH.out.domain_summary, params.hmmsearch_query_length_threshold )
-    ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
-    ch_full_msa = FILTER_RECRUITED.out.full_msa
-    ch_fasta    = FILTER_RECRUITED.out.fasta
+        FILTER_RECRUITED( HMMER_HMMSEARCH.out.alignments, HMMER_HMMSEARCH.out.domain_summary, params.hmmsearch_query_length_threshold )
+        ch_versions = ch_versions.mix( FILTER_RECRUITED.out.versions )
+        ch_msa = FILTER_RECRUITED.out.full_msa
+        ch_fasta = FILTER_RECRUITED.out.fasta
+    }
 
     emit:
     versions = ch_versions
-    full_msa = ch_full_msa
+    msa      = ch_msa
     fasta    = ch_fasta
     hmm      = ch_hmm
 }
