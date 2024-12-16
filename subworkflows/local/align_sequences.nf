@@ -16,11 +16,11 @@ workflow ALIGN_SEQUENCES {
     if (params.alignment_tool == 'famsa') {
         alignment_res = FAMSA_ALIGN( sequences, [[:],[]], false )
         ch_versions = ch_versions.mix( FAMSA_ALIGN.out.versions )
-        ch_alignments  = alignment_res.alignment
+        ch_alignments = alignment_res.alignment
     } else { // fallback: mafft
         alignment_res = MAFFT_ALIGN( sequences, [[:], []], [[:], []], [[:], []], [[:], []], [[:], []], false )
         ch_versions = ch_versions.mix( MAFFT_ALIGN.out.versions )
-        ch_alignments  = alignment_res.fas
+        ch_alignments = alignment_res.fas
     }
 
     emit:

@@ -70,6 +70,7 @@ workflow REMOVE_REDUNDANCY {
                 models: [ meta, models ]
             }
         FILTER_NON_REDUNDANT_HMMS( ch_input_for_hmm_filtering.seqs, ch_input_for_hmm_filtering.models )
+        ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_HMMS.out.versions )
 
         fasta
             .transpose()
