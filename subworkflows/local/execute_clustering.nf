@@ -35,7 +35,7 @@ workflow EXECUTE_CLUSTERING {
         }
 
     MMSEQS_CREATETSV(ch_input_for_createtsv.db_cluster, ch_input_for_createtsv.db, ch_input_for_createtsv.db)
-    ch_versions       = ch_versions.mix( MMSEQS_CREATETSV.out.versions )
+    ch_versions = ch_versions.mix( MMSEQS_CREATETSV.out.versions )
     ch_clustering_tsv = MMSEQS_CREATETSV.out.tsv
 
     emit:

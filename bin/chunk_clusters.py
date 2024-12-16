@@ -60,7 +60,7 @@ def main(args=None):
     os.makedirs(args.out_folder, exist_ok=True)
 
     # Collect clusters that meet the threshold
-    clusters = collect_clusters(args.clustering, args.threshold)
+    clusters = collect_clusters(args.clustering, int(args.threshold))
 
     # Stream through the FASTA file and write out sequences that match clusters
     chunk_num = 1
