@@ -262,7 +262,7 @@
                 },
                 "recruit_sequences_with_models": {
                     "type": "boolean",
-                    "description": "Boolean whether to recruit extra sequences from the input fasta file, using the family HMMs, to refine the alignments",
+                    "description": "Set to true to recruit additional sequences from the input FASTA file using the family HMMs to refine the alignments",
                     "default": true,
                     "fa_icon": "fas fa-check-square",
                     "hidden": true

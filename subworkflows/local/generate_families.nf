@@ -22,9 +22,8 @@ workflow GENERATE_FAMILIES {
 
     fasta_chunks
         .transpose()
-        .map { meta, file ->
-            def baseName = file.toString().split('/')[-1].split('\\.')[0]
-            [ [id: meta.id, chunk: baseName], file ]
+        .map { meta, file_path ->
+            [ [id: meta.id, chunk: file(file_path).baseName], file_path ]
         }
         .set { ch_fasta }
 
