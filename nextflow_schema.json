@@ -260,6 +260,13 @@
                     "default": 0.5,
                     "description": "Seed MSA positions with gappyness greater than this threshold will be trimmed"
                 },
+                "recruit_sequences_with_models": {
+                    "type": "boolean",
+                    "description": "Set to true to recruit additional sequences from the input FASTA file using the family HMMs to refine the alignments",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
                 "hmmsearch_write_target": {
                     "type": "boolean",
                     "description": "Boolean whether to generate target results file of hmmsearch",

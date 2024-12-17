@@ -13,19 +13,19 @@ include { ALIGN_SEQUENCES           } from '../../subworkflows/local/align_seque
 
 workflow REMOVE_REDUNDANCY {
     take:
-    full_msa // tuple val(meta), path(fas)
-    fasta    // tuple val(meta), path(fasta)
-    hmm      // tuple val(meta), path(hmm)
+    msa   // tuple val(meta), path(fas)
+    fasta // tuple val(meta), path(fasta)
+    hmm   // tuple val(meta), path(hmm)
 
     main:
     ch_versions = Channel.empty()
 
     if (params.remove_family_redundancy) {
-        full_msa
+        msa
             .map { meta, aln -> [ [id: meta.id], aln ] }
             .groupTuple(by: 0)
-            .set { ch_full_msa }
-        EXTRACT_FAMILY_REPS( ch_full_msa )
+            .set { ch_msa }
+        EXTRACT_FAMILY_REPS( ch_msa )
         ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
 
         hmm
@@ -75,8 +75,8 @@ workflow REMOVE_REDUNDANCY {
         fasta
             .transpose()
             .map { meta, file ->
-                def baseName = file.toString().split('/')[-1].split('\\.')[0].split('_')[-1]
-                [ [id: meta.id, chunk: baseName], file ]
+                def chunk_num = file.toString().split('/')[-1].split('\\.')[0].split('_')[-1]
+                [ [id: meta.id, chunk: chunk_num], file ]
             }
             .set { fasta }
     }
@@ -99,10 +99,10 @@ workflow REMOVE_REDUNDANCY {
 
         ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta )
         ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
-        full_msa = ALIGN_SEQUENCES.out.alignments
+        msa = ALIGN_SEQUENCES.out.alignments
     }
 
     emit:
     versions = ch_versions
-    full_msa = full_msa
+    msa      = msa
 }
