@@ -19,6 +19,18 @@
                 "exists": true,
                 "pattern": "^\\S+\\.f(ast)?a(\\.gz)?$",
                 "errorMessage": "Fasta file for amino acid sequences must be provided, cannot contain spaces and must have extension '.fa', '.fasta', '.fa.gz' or '.fasta.gz'"
+            },
+            "existing_hmms": {
+                "type": "string",
+                "format": "directory-path",
+                "exists": true,
+                "description": "Directory containing existing protein family HMM models. These models will be used to update the corresponding families."
+            },
+            "existing_msas": {
+                "type": "string",
+                "format": "directory-path",
+                "exists": true,
+                "description": "Directory containing multiple sequence alignments (MSAs) for the families to be updated. These alignments are essential for the update process."
             }
         },
         "required": ["sample", "fasta"]
