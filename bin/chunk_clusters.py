@@ -4,7 +4,9 @@ import sys
 import os
 import argparse
 from collections import defaultdict
+import csv
 from Bio import SeqIO
+
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
@@ -42,16 +44,22 @@ def parse_args(args=None):
     )
     return parser.parse_args(args)
 
+
 def collect_clusters(clustering_file, threshold):
     # Collect clusters with a size threshold, storing in a defaultdict
     clusters = defaultdict(list)
+
     with open(clustering_file) as f:
-        for line in f:
-            rep, member = line.strip().split("\t")
+        csv_reader = csv.reader(f, delimiter="\t")
+        for row in csv_reader:
+            rep, member = row
             clusters[rep].append(member)
 
     # Filter clusters by threshold
-    return {rep: members for rep, members in clusters.items() if len(members) >= threshold}
+    return {
+        rep: members for rep, members in clusters.items() if len(members) >= threshold
+    }
+
 
 def main(args=None):
     args = parse_args(args)
@@ -72,6 +80,7 @@ def main(args=None):
                     if record.id in members:
                         SeqIO.write(record, fasta_out, "fasta")
         chunk_num += 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
