@@ -27,6 +27,7 @@ include { PROCESS_FAMILIES as PROCESS_FAMILIES_UPDATE         } from '../subwork
 include { HMMER_HMMSEARCH                                     } from '../modules/nf-core/hmmer/hmmsearch/main'
 include { CAT_CAT as CAT_HMMS                                 } from '../modules/nf-core/cat/cat/main'
 include { CAT_CAT as CAT_MSAS                                 } from '../modules/nf-core/cat/cat/main'
+include { CAT_CAT as CAT_SEQS                                 } from '../modules/nf-core/cat/cat/main'
 include { SEQKIT_SEQ                                          } from '../modules/nf-core/seqkit/seq/main'
 include { EXTRACT_FAMILY_REPS as EXTRACT_FAMILY_REPS_CREATION } from '../modules/local/extract_family_reps'
 include { EXTRACT_FAMILY_REPS as EXTRACT_FAMILY_REPS_UPDATE   } from '../modules/local/extract_family_reps'
@@ -79,6 +80,8 @@ workflow PROTEINFAMILIES {
     /**********************/
     if (branch_result.to_update) {
 
+        // TODO: check that the HMMs and the MSAs match //
+
         // Squeeze the hmm models into a single file
         CAT_HMMS(
             ch_samplesheet_for_update.map { meta, _fasta, existing_hmms, _existing_msas ->
@@ -101,7 +104,8 @@ workflow PROTEINFAMILIES {
             }
         )
 
-        // We only keep those sequences that match the HMM model with the families to update
+        // We only keep those sequences that match the HMM models with the families to update, the seqs that don't match
+        // are sent to the "create families mode"
         GET_NONHITS_SEQS(
             ch_samplesheet_for_update.map { meta, fasta, _concatenated_hmm, _existing_msas -> [meta, fasta] }.join(HMMER_HMMSEARCH.out.output)
         )
@@ -126,9 +130,23 @@ workflow PROTEINFAMILIES {
         SEQKIT_SEQ(CAT_MSAS.out.file_out)
         ch_versions = ch_versions.mix(SEQKIT_SEQ.out.versions)
 
+        // Add the sequences that match with the seqs from the MSAs
+        // TOOD: this is untested
+        CAT_SEQS(
+            SEQKIT_SEQ.out.fastx.join(
+                FILTER_RECRUITED.out.fasta,
+                by: [0]
+            ).map { meta, msas_fasta, filtered_fastas ->
+                [
+                    [meta, [msas_fasta, filtered_fastas]]
+                ]
+            }
+        )
+        ch_versions = ch_versions.mix(CAT_SEQS.out.versions)
+
         // Process existing families
         PROCESS_FAMILIES_UPDATE(
-            SEQKIT_SEQ.out.fastx
+            CAT_SEQS.out.file_out
         )
         ch_versions = ch_versions.mix(PROCESS_FAMILIES_UPDATE.out.versions)
 
