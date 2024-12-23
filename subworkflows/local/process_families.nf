@@ -48,19 +48,16 @@ workflow PROCESS_FAMILIES {
     ch_versions = ch_versions.mix(GENERATE_FAMILIES.out.versions)
 
     // Remove redundant sequences and families
-    REMOVE_REDUNDANCY(
-        GENERATE_FAMILIES.out.full_msa,
-        GENERATE_FAMILIES.out.fasta,
-        GENERATE_FAMILIES.out.hmm,
-    )
-    ch_versions = ch_versions.mix(REMOVE_REDUNDANCY.out.versions)
+    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.msa, GENERATE_FAMILIES.out.fasta, GENERATE_FAMILIES.out.hmm )
+    ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
 
     // Post-processing
-    ch_full_msa = REMOVE_REDUNDANCY.out.full_msa
-        .map { meta, aln -> [[id: meta.id], aln] }
+    REMOVE_REDUNDANCY.out.msa
+        .map { meta, aln -> [ [id: meta.id], aln ] }
         .groupTuple(by: 0)
+        .set { ch_msa }
 
-    EXTRACT_FAMILY_REPS(ch_full_msa)
+    EXTRACT_FAMILY_REPS(ch_msa)
     ch_versions = ch_versions.mix(EXTRACT_FAMILY_REPS.out.versions)
 
     emit:
