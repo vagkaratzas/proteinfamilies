@@ -26,29 +26,32 @@ workflow UPDATE_FAMILIES {
             [meta, file("${existing_hmms_to_update}/*.{hmm,hmm.gz}")]
         }
     )
+    ch_versions = ch_versions.mix( CAT_HMMS.out.versions )
 
     // Prep the sequences to search them against the HMM concatenated model of families //
-    ch_samplesheet_for_update = ch_samplesheet_for_update
-        .join(
-            CAT_HMMS.out.file_out
-        )
-        .map { meta, fasta, _existing_hmms, existing_msas_to_update, concatenated_hmm ->
-            [meta, fasta, concatenated_hmm, existing_msas_to_update]
-        }
+    CAT_HMMS.out.file_out
+        .combine(ch_samplesheet_for_update, by: 0)
+        .map { meta, concatenated_hmm, fasta, _existing_hmms_to_update, _existing_msas_to_update -> [meta, concatenated_hmm, fasta, false, false, true] }
+        .set { ch_input_for_hmmsearch }
 
-    HMMER_HMMSEARCH(
-        ch_samplesheet_for_update.map { meta, fasta, concatenated_hmm, _existing_msas ->
-            [meta, concatenated_hmm, fasta, false, false, true]
-        }
-    )
+    HMMER_HMMSEARCH( ch_input_for_hmmsearch )
+    ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
 
-    // We only keep those sequences that match the HMM models with the families to update, the seqs that don't match
-    // are sent to the "create families mode"
-    GET_NONHITS_SEQS( ch_samplesheet_for_update.map { meta, fasta, _concatenated_hmm, _existing_msas -> [meta, fasta] }.join(HMMER_HMMSEARCH.out.output) )
+    // TODO continue
+    HMMER_HMMSEARCH.out.domain_summary
+        .combine(ch_samplesheet_for_update, by: 0)
+        .map { meta, domtbl, fasta, _existing_hmms_to_update, _existing_msas_to_update -> [meta, domtbl, fasta] }
+        .set { ch_input_for_split_hits }
+
+    // TODO new module SPLIT_HITS: outputs: 1. hit_family_seqs (family name for filename, to then map to id), 2. non_hit seqs
+
+    // We only keep those sequences that match the HMM models (filtered with length thresholds and evalue) with the families to update,
+    // the seqs that don't match are sent to the "create new families mode"
+    GET_NONHITS_SEQS( ch_samplesheet_for_update.map { meta, fasta, _concatenated_hmm, _existing_msas -> [meta, fasta] }.join(HMMER_HMMSEARCH.out.output) ) // TODO with domtbl instead in SPLIT_HITS
     ch_versions = ch_versions.mix( GET_NONHITS_SEQS.out.versions )
     ch_no_hit_seqs = GET_NONHITS_SEQS.out.fasta
 
-    FILTER_RECRUITED( HMMER_HMMSEARCH.out.alignments, HMMER_HMMSEARCH.out.domain_summary, params.hmmsearch_query_length_threshold )
+    FILTER_RECRUITED( HMMER_HMMSEARCH.out.alignments, HMMER_HMMSEARCH.out.domain_summary, params.hmmsearch_query_length_threshold ) // TODO remove
     ch_versions = ch_versions.mix(HMMER_HMMSEARCH.out.versions)
 
     // Get the sequences from the MSAs

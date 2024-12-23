@@ -68,8 +68,7 @@ workflow PROTEINFAMILIES {
 
     PROCESS_FAMILIES( ch_samplesheet_for_create )
     ch_versions = ch_versions.mix( PROCESS_FAMILIES.out.versions )
-
-    ch_family_reps = ch_family_reps.mix(PROCESS_FAMILIES.out.family_reps)
+    ch_family_reps = ch_family_reps.mix( PROCESS_FAMILIES.out.family_reps )
 
     //
     // Collate and save software versions
