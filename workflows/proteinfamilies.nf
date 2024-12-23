@@ -18,21 +18,8 @@ include { MULTIQC                                             } from '../modules
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { PROCESS_FAMILIES as PROCESS_FAMILIES_NEW            } from '../subworkflows/local/process_families'
-include { PROCESS_FAMILIES as PROCESS_FAMILIES_UPDATE         } from '../subworkflows/local/process_families'
-
-//
-// MODULE: Local to the pipeline
-//
-include { HMMER_HMMSEARCH                                     } from '../modules/nf-core/hmmer/hmmsearch/main'
-include { CAT_CAT as CAT_HMMS                                 } from '../modules/nf-core/cat/cat/main'
-include { CAT_CAT as CAT_MSAS                                 } from '../modules/nf-core/cat/cat/main'
-include { CAT_CAT as CAT_SEQS                                 } from '../modules/nf-core/cat/cat/main'
-include { SEQKIT_SEQ                                          } from '../modules/nf-core/seqkit/seq/main'
-include { EXTRACT_FAMILY_REPS as EXTRACT_FAMILY_REPS_CREATION } from '../modules/local/extract_family_reps'
-include { EXTRACT_FAMILY_REPS as EXTRACT_FAMILY_REPS_UPDATE   } from '../modules/local/extract_family_reps'
-include { GET_NONHITS_SEQS                                    } from '../modules/local/get_nonhits_seqs'
-include { FILTER_RECRUITED                                    } from '../modules/local/filter_recruited'
+include { UPDATE_FAMILIES  } from '../subworkflows/local/update_families'
+include { PROCESS_FAMILIES } from '../subworkflows/local/process_families'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,23 +33,19 @@ workflow PROTEINFAMILIES {
 
     main:
 
-    ch_versions = Channel.empty()
+    ch_versions      = Channel.empty()
     ch_multiqc_files = Channel.empty()
+    ch_family_reps   = Channel.empty()
 
     ch_samplesheet_for_create = Channel.empty()
     ch_samplesheet_for_update = Channel.empty()
 
-
     ch_samplesheet
-        .branch { _meta, _fasta, existing_hmms, existing_msas ->
-            to_create: !existing_hmms?.size() && !existing_msas?.size()
-            to_update: existing_hmms?.size() && existing_msas?.size()
+        .branch { _meta, _fasta, existing_hmms_to_update, existing_msas_to_update ->
+            to_create: !existing_hmms_to_update?.size() && !existing_msas_to_update?.size()
+            to_update: existing_hmms_to_update?.size() && existing_msas_to_update?.size()
         }
-        .set {
-            branch_result
-        }
-
-    ch_family_reps = Channel.empty()
+        .set { branch_result }
 
     /************************************/
     /* Splitting the samplesheet into 2 */
@@ -75,93 +58,18 @@ workflow PROTEINFAMILIES {
     ch_samplesheet_for_create = branch_result.to_create.map { meta, fasta, _existing_hmms, _existing_msas -> [meta, fasta] }
     ch_samplesheet_for_update = branch_result.to_update
 
-    /**********************/
-    /* UPDATE SUBWORKFLOW */
-    /**********************/
     if (branch_result.to_update) {
+        UPDATE_FAMILIES( ch_samplesheet_for_update )
+        ch_versions = ch_versions.mix( UPDATE_FAMILIES.out.versions )
 
-        // TODO: check that the HMMs and the MSAs match //
-
-        // Squeeze the hmm models into a single file
-        CAT_HMMS(
-            ch_samplesheet_for_update.map { meta, _fasta, existing_hmms, _existing_msas ->
-                [meta, file("${existing_hmms}/*.{hmm,hmm.gz}")]
-            }
-        )
-
-        // Prep the sequences to search them against the HMM concatenated model of families //
-        ch_samplesheet_for_update = ch_samplesheet_for_update
-            .join(
-                CAT_HMMS.out.file_out
-            )
-            .map { meta, fasta, _existing_hmms, existing_msas, concatenated_hmm ->
-                [meta, fasta, concatenated_hmm, existing_msas]
-            }
-
-        HMMER_HMMSEARCH(
-            ch_samplesheet_for_update.map { meta, fasta, concatenated_hmm, _existing_msas ->
-                [meta, concatenated_hmm, fasta, false, false, true]
-            }
-        )
-
-        // We only keep those sequences that match the HMM models with the families to update, the seqs that don't match
-        // are sent to the "create families mode"
-        GET_NONHITS_SEQS(
-            ch_samplesheet_for_update.map { meta, fasta, _concatenated_hmm, _existing_msas -> [meta, fasta] }.join(HMMER_HMMSEARCH.out.output)
-        )
-        ch_versions = ch_versions.mix(GET_NONHITS_SEQS.out.versions)
-
-        FILTER_RECRUITED(
-            HMMER_HMMSEARCH.out.alignments,
-            HMMER_HMMSEARCH.out.domain_summary,
-            params.hmmsearch_query_length_threshold,
-        )
-        ch_versions = ch_versions.mix(HMMER_HMMSEARCH.out.versions)
-
-        // Get the sequences from the MSAs
-        CAT_MSAS(
-            ch_samplesheet_for_update.map { meta, _fasta, _concatenated_hmm, existing_msas ->
-                [meta, file("${existing_msas}/*.{aln,aln.gz}")]
-            }
-        )
-        ch_versions = ch_versions.mix(CAT_MSAS.out.versions)
-
-        // An .aln is basically a fasta file with gaps, seqkit - seq will remove the gaps to create a traditional fasta
-        SEQKIT_SEQ(CAT_MSAS.out.file_out)
-        ch_versions = ch_versions.mix(SEQKIT_SEQ.out.versions)
-
-        // Add the sequences that match with the seqs from the MSAs
-        // TOOD: this is untested
-        CAT_SEQS(
-            SEQKIT_SEQ.out.fastx.join(
-                FILTER_RECRUITED.out.fasta,
-                by: [0]
-            ).map { meta, msas_fasta, filtered_fastas ->
-                [
-                    [meta, [msas_fasta, filtered_fastas]]
-                ]
-            }
-        )
-        ch_versions = ch_versions.mix(CAT_SEQS.out.versions)
-
-        // Process existing families
-        PROCESS_FAMILIES_UPDATE(
-            CAT_SEQS.out.file_out
-        )
-        ch_versions = ch_versions.mix(PROCESS_FAMILIES_UPDATE.out.versions)
-
-        ch_family_reps = ch_family_reps.mix(PROCESS_FAMILIES_UPDATE.out.family_reps)
-
-        // Process new families
-        ch_samplesheet_for_create = ch_samplesheet_for_create.mix(GET_NONHITS_SEQS.out.fasta)
+        ch_family_reps = ch_family_reps.mix( UPDATE_FAMILIES.out.updated_family_reps )
+        ch_samplesheet_for_create = ch_samplesheet_for_create.mix( UPDATE_FAMILIES.out.no_hit_seqs )
     }
 
-    PROCESS_FAMILIES_NEW(
-        ch_samplesheet_for_create
-    )
-    ch_versions = ch_versions.mix(PROCESS_FAMILIES_NEW.out.versions)
+    PROCESS_FAMILIES( ch_samplesheet_for_create )
+    ch_versions = ch_versions.mix( PROCESS_FAMILIES.out.versions )
 
-    ch_family_reps = ch_family_reps.mix(PROCESS_FAMILIES_NEW.out.family_reps)
+    ch_family_reps = ch_family_reps.mix(PROCESS_FAMILIES.out.family_reps)
 
     //
     // Collate and save software versions
