@@ -3,11 +3,11 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { paramsSummaryMap                                    } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc                                } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML                              } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText                              } from '../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
-include { MULTIQC                                             } from '../modules/nf-core/multiqc/main'
+include { MULTIQC                } from '../modules/nf-core/multiqc/main'
+include { paramsSummaryMap       } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -19,7 +19,15 @@ include { MULTIQC                                             } from '../modules
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { UPDATE_FAMILIES  } from '../subworkflows/local/update_families'
-include { PROCESS_FAMILIES } from '../subworkflows/local/process_families'
+include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
+include { GENERATE_FAMILIES  } from '../subworkflows/local/generate_families'
+include { REMOVE_REDUNDANCY  } from '../subworkflows/local/remove_redundancy'
+
+//
+// MODULE: Local to the pipeline
+//
+include { CHUNK_CLUSTERS      } from '../modules/local/chunk_clusters.nf'
+include { EXTRACT_FAMILY_REPS } from '../modules/local/extract_family_reps.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -58,6 +66,7 @@ workflow PROTEINFAMILIES {
     ch_samplesheet_for_create = branch_result.to_create.map { meta, fasta, _existing_hmms, _existing_msas -> [meta, fasta] }
     ch_samplesheet_for_update = branch_result.to_update
 
+    // Updating existing families
     if (branch_result.to_update) {
         UPDATE_FAMILIES( ch_samplesheet_for_update )
         ch_versions = ch_versions.mix( UPDATE_FAMILIES.out.versions )
@@ -66,9 +75,39 @@ workflow PROTEINFAMILIES {
         ch_samplesheet_for_create = ch_samplesheet_for_create.mix( UPDATE_FAMILIES.out.no_hit_seqs )
     }
 
-    PROCESS_FAMILIES( ch_samplesheet_for_create )
-    ch_versions = ch_versions.mix( PROCESS_FAMILIES.out.versions )
-    ch_family_reps = ch_family_reps.mix( PROCESS_FAMILIES.out.family_reps )
+    // Creating new families
+    // Clustering
+    EXECUTE_CLUSTERING( ch_samplesheet_for_create )
+    ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+
+    // Join together to ensure in sync
+    ch_input_for_cluster_chunking = ch_samplesheet_for_create
+        .join(EXECUTE_CLUSTERING.out.clustering_tsv)
+        .multiMap { meta, seqs, clusters ->
+            seqs: [ meta, seqs ]
+            clusters: [ meta, clusters ]
+        }
+
+    CHUNK_CLUSTERS( ch_input_for_cluster_chunking.clusters, ch_input_for_cluster_chunking.seqs, params.cluster_size_threshold )
+    ch_versions = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
+
+    // Multiple sequence alignment
+    GENERATE_FAMILIES( ch_samplesheet_for_create, CHUNK_CLUSTERS.out.fasta_chunks )
+    ch_versions = ch_versions.mix( GENERATE_FAMILIES.out.versions )
+
+    // Remove redundant sequences and families
+    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.msa, GENERATE_FAMILIES.out.fasta, GENERATE_FAMILIES.out.hmm )
+    ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
+
+    // Post-processing
+    REMOVE_REDUNDANCY.out.msa
+        .map { meta, aln -> [ [id: meta.id], aln ] }
+        .groupTuple(by: 0)
+        .set { ch_msa }
+
+    EXTRACT_FAMILY_REPS( ch_msa )
+    ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
+    ch_family_reps = ch_family_reps.mix( EXTRACT_FAMILY_REPS.out.map )
 
     //
     // Collate and save software versions
