@@ -145,7 +145,7 @@ def write_family_fastas(results, sequences, output_dir):
                 new_record = SeqRecord(
                     Seq(extracted_seq),
                     id=new_id,
-                    description=""  # Clear description
+                    description=family
                 )
                 family_records.append(new_record)
             except KeyError:

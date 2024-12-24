@@ -75,56 +75,62 @@ workflow UPDATE_FAMILIES {
     ch_versions = ch_versions.mix(SEQKIT_SEQ.out.versions)
 
     // Match newly recruited sequences with existing ones for each family
-    hits_fasta
-        .combine(SEQKIT_SEQ.out.fastx, by: 0)
-        .map { meta, new_fasta, family_fasta ->
-            [meta, [new_fasta, family_fasta]]
+    SEQKIT_SEQ.out.fastx
+        .combine(hits_fasta, by: 0)
+        .map { meta, family_fasta, new_fasta  ->
+            [meta, [family_fasta, new_fasta]]
         }
         .set { ch_input_for_cat }
 
     // Aggregate each family's MSA sequences with the newly recruited ones
     CAT_FASTA( ch_input_for_cat )
     ch_versions = ch_versions.mix( CAT_FASTA.out.versions )
+    fasta_ch = CAT_FASTA.out.file_out
 
-    // Strict clustering to remove redundancy
-    EXECUTE_CLUSTERING( CAT_FASTA.out.file_out )
-    ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+    if (params.remove_sequence_redundancy) {
+        // Strict clustering to remove redundancy
+        EXECUTE_CLUSTERING( fasta_ch )
+        ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
-    // // TODO prefixes and tags to complete
-    // // Join together to ensure in sync
-    // ch_input_for_seq_removal = CAT_FASTA.out.file_out
-    //     .join(EXECUTE_CLUSTERING.out.clustering_tsv)
-    //     .multiMap { meta, seqs, clusters ->
-    //         seqs: [meta, seqs]
-    //         clusters: [meta, clusters]
-    //     }
+        // Join together to ensure in sync
+        ch_input_for_seq_removal = fasta_ch
+            .join(EXECUTE_CLUSTERING.out.clustering_tsv)
+            .multiMap { meta, seqs, clusters ->
+                seqs: [meta, seqs]
+                clusters: [meta, clusters]
+            }
 
-    // REMOVE_REDUNDANT_SEQS( ch_input_for_seq_removal.clusters, ch_input_for_seq_removal.seqs )
-    // ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
+        REMOVE_REDUNDANT_SEQS( ch_input_for_seq_removal.clusters, ch_input_for_seq_removal.seqs )
+        ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
+        fasta_ch = REMOVE_REDUNDANT_SEQS.out.fasta
+    }
 
-    // ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta )
-    // ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
-    // ch_msa = ALIGN_SEQUENCES.out.alignments
+    ALIGN_SEQUENCES( fasta_ch )
+    ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
+    ch_msa = ALIGN_SEQUENCES.out.alignments
 
-    // if (params.trim_seed_msa) {
-    //     if (params.clipping_tool == 'clipkit') {
-    //         CLIPKIT( ch_msa )
-    //         ch_versions = ch_versions.mix( CLIPKIT.out.versions )
-    //         ch_msa = CLIPKIT.out.clipkit
-    //     } else { // fallback: local module clip_ends
-    //         CLIP_ENDS( ch_msa, params.gap_threshold )
-    //         ch_versions = ch_versions.mix( CLIP_ENDS.out.versions )
-    //         ch_msa = CLIP_ENDS.out.fas
-    //     }
-    // }
+    if (params.trim_seed_msa) {
+        if (params.clipping_tool == 'clipkit') {
+            CLIPKIT( ch_msa )
+            ch_versions = ch_versions.mix( CLIPKIT.out.versions )
+            ch_msa = CLIPKIT.out.clipkit
+        } else { // fallback: local module clip_ends
+            CLIP_ENDS( ch_msa, params.gap_threshold )
+            ch_versions = ch_versions.mix( CLIP_ENDS.out.versions )
+            ch_msa = CLIP_ENDS.out.fas
+        }
+    }
 
-    // HMMER_HMMBUILD( ch_msa, [] )
-    // ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
-    // ch_hmm = HMMER_HMMBUILD.out.hmm
+    HMMER_HMMBUILD( ch_msa, [] )
+    ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
 
-    // EXTRACT_FAMILY_REPS( ch_msa )
-    // ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
-    // ch_updated_family_reps = ch_updated_family_reps.mix( EXTRACT_FAMILY_REPS.out.map )
+    ch_msa
+        .map { meta, aln -> [ [id: meta.id], aln ] }
+        .groupTuple(by: 0)
+        .set { ch_msa }
+    EXTRACT_FAMILY_REPS( ch_msa )
+    ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
+    ch_updated_family_reps = ch_updated_family_reps.mix( EXTRACT_FAMILY_REPS.out.map )
 
     emit:
     versions            = ch_versions
