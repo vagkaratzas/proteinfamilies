@@ -1,6 +1,8 @@
-include { CAT_CAT           } from '../../modules/nf-core/cat/cat/main'
-include { HMMER_HMMSEARCH   } from '../../modules/nf-core/hmmer/hmmsearch/main'
-include { BRANCH_HITS_FASTA } from '../../modules/local/branch_hits_fasta'
+include { CAT_CAT              } from '../../modules/nf-core/cat/cat/main'
+include { HMMER_HMMSEARCH      } from '../../modules/nf-core/hmmer/hmmsearch/main'
+include { BRANCH_HITS_FASTA    } from '../../modules/local/branch_hits_fasta'
+include { SEQKIT_SEQ           } from '../../modules/nf-core/seqkit/seq/main'
+include { CAT_CAT as CAT_FASTA } from '../../modules/nf-core/cat/cat/main'
 
 workflow UPDATE_FAMILIES {
     take:
@@ -61,14 +63,22 @@ workflow UPDATE_FAMILIES {
         }
         .set { family_msas }
 
+    // Keep fasta with family sequences by removing gaps
+    SEQKIT_SEQ( family_msas )
+    ch_versions = ch_versions.mix(SEQKIT_SEQ.out.versions)
+
     // Match newly recruited sequences with existing ones for each family
     hits_fasta
-        .combine(family_msas, by: 0)
-        .set { ch_input_for_updates }
-    ch_input_for_updates.view()
+        .combine(SEQKIT_SEQ.out.fastx, by: 0)
+        .map { meta, new_fasta, family_fasta ->
+            [meta, [new_fasta, family_fasta]]
+        }
+        .set { ch_input_for_cat }
 
     // Aggregate each family's MSA sequences with the newly recruited ones
-
+    CAT_FASTA( ch_input_for_cat )
+    ch_versions = ch_versions.mix( CAT_FASTA.out.versions )
+    CAT_FASTA.out.file_out.view()
 
     emit:
     versions            = ch_versions
