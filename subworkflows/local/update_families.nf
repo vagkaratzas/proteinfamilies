@@ -1,8 +1,15 @@
-include { CAT_CAT              } from '../../modules/nf-core/cat/cat/main'
-include { HMMER_HMMSEARCH      } from '../../modules/nf-core/hmmer/hmmsearch/main'
-include { BRANCH_HITS_FASTA    } from '../../modules/local/branch_hits_fasta'
-include { SEQKIT_SEQ           } from '../../modules/nf-core/seqkit/seq/main'
-include { CAT_CAT as CAT_FASTA } from '../../modules/nf-core/cat/cat/main'
+include { CAT_CAT               } from '../../modules/nf-core/cat/cat/main'
+include { HMMER_HMMSEARCH       } from '../../modules/nf-core/hmmer/hmmsearch/main'
+include { BRANCH_HITS_FASTA     } from '../../modules/local/branch_hits_fasta'
+include { SEQKIT_SEQ            } from '../../modules/nf-core/seqkit/seq/main'
+include { CAT_CAT as CAT_FASTA  } from '../../modules/nf-core/cat/cat/main'
+include { EXECUTE_CLUSTERING    } from '../../subworkflows/local/execute_clustering'
+include { REMOVE_REDUNDANT_SEQS } from '../../modules/local/remove_redundant_seqs.nf'
+include { ALIGN_SEQUENCES       } from '../../subworkflows/local/align_sequences'
+include { CLIPKIT               } from '../../modules/nf-core/clipkit/main'
+include { CLIP_ENDS             } from '../../modules/local/clip_ends.nf'
+include { HMMER_HMMBUILD        } from '../../modules/nf-core/hmmer/hmmbuild/main'
+include { EXTRACT_FAMILY_REPS   } from '../../modules/local/extract_family_reps.nf'
 
 workflow UPDATE_FAMILIES {
     take:
@@ -78,7 +85,46 @@ workflow UPDATE_FAMILIES {
     // Aggregate each family's MSA sequences with the newly recruited ones
     CAT_FASTA( ch_input_for_cat )
     ch_versions = ch_versions.mix( CAT_FASTA.out.versions )
-    CAT_FASTA.out.file_out.view()
+
+    // Strict clustering to remove redundancy
+    EXECUTE_CLUSTERING( CAT_FASTA.out.file_out )
+    ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+
+    // // TODO prefixes and tags to complete
+    // // Join together to ensure in sync
+    // ch_input_for_seq_removal = CAT_FASTA.out.file_out
+    //     .join(EXECUTE_CLUSTERING.out.clustering_tsv)
+    //     .multiMap { meta, seqs, clusters ->
+    //         seqs: [meta, seqs]
+    //         clusters: [meta, clusters]
+    //     }
+
+    // REMOVE_REDUNDANT_SEQS( ch_input_for_seq_removal.clusters, ch_input_for_seq_removal.seqs )
+    // ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
+
+    // ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta )
+    // ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
+    // ch_msa = ALIGN_SEQUENCES.out.alignments
+
+    // if (params.trim_seed_msa) {
+    //     if (params.clipping_tool == 'clipkit') {
+    //         CLIPKIT( ch_msa )
+    //         ch_versions = ch_versions.mix( CLIPKIT.out.versions )
+    //         ch_msa = CLIPKIT.out.clipkit
+    //     } else { // fallback: local module clip_ends
+    //         CLIP_ENDS( ch_msa, params.gap_threshold )
+    //         ch_versions = ch_versions.mix( CLIP_ENDS.out.versions )
+    //         ch_msa = CLIP_ENDS.out.fas
+    //     }
+    // }
+
+    // HMMER_HMMBUILD( ch_msa, [] )
+    // ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
+    // ch_hmm = HMMER_HMMBUILD.out.hmm
+
+    // EXTRACT_FAMILY_REPS( ch_msa )
+    // ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
+    // ch_updated_family_reps = ch_updated_family_reps.mix( EXTRACT_FAMILY_REPS.out.map )
 
     emit:
     versions            = ch_versions

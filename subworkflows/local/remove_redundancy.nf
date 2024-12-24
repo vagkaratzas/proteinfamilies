@@ -84,11 +84,10 @@ workflow REMOVE_REDUNDANCY {
     if (params.remove_sequence_redundancy) {
         EXECUTE_CLUSTERING( fasta )
         ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
-        clustering_tsv = EXECUTE_CLUSTERING.out.clustering_tsv
 
         // Join together to ensure in sync
         ch_input_for_seq_removal = fasta
-            .join(clustering_tsv)
+            .join(EXECUTE_CLUSTERING.out.clustering_tsv)
             .multiMap { meta, seqs, clusters ->
                 seqs: [meta, seqs]
                 clusters: [meta, clusters]
