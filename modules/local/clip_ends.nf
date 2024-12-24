@@ -12,8 +12,8 @@ process CLIP_ENDS {
     val(gap_threshold)
 
     output:
-    tuple val(meta), path("*_clipped.fas"), emit: fas
-    path "versions.yml"                   , emit: versions
+    tuple val(meta), path("*.clipends"), emit: fas
+    path "versions.yml"                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -24,7 +24,7 @@ process CLIP_ENDS {
     clip_ends.py \\
         --alignment ${aln} \\
         --gap_threshold ${gap_threshold} \\
-        --out_fasta ${prefix}_clipped.fas
+        --out_fasta ${prefix}.clipends
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
