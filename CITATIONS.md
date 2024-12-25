@@ -28,7 +28,11 @@
 
 - [hmmer](https://pubmed.ncbi.nlm.nih.gov/29905871/)
 
-> Potter SC, Luciani A, Eddy SR, Park Y, Lopez R, Finn RD.  . Nucleic acids research. 2018 Jul 2;46(W1):W200-4. doi: 10.1093/nar/gky448. PubMed PMID: 29905871; PubMed Central PMCID: PMC6030962.
+> Potter SC, Luciani A, Eddy SR, Park Y, Lopez R, Finn RD. Nucleic acids research. 2018 Jul 2;46(W1):W200-4. doi: 10.1093/nar/gky448. PubMed PMID: 29905871; PubMed Central PMCID: PMC6030962.
+
+- [SeqKit](https://pubmed.ncbi.nlm.nih.gov/38898985/)
+
+> Shen W, Sipos B, Zhao L. SeqKit2: A Swiss army knife for sequence and alignment processing. iMeta. 2024 Apr 5:e191. doi: 10.1002/imt2.191. PubMed PMID: 38898985; PubMed Central PMCID: PMC11183193.
 
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
 

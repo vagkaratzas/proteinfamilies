@@ -19,21 +19,32 @@
 
 ## Introduction
 
-**nf-core/proteinfamilies** is a bioinformatics pipeline that generates protein families from amino acid sequences.
-It takes a protein fasta file as input, clusters the sequences and then generates protein family models along with their multiple sequence alignments and HMM files.
+**nf-core/proteinfamilies** is a bioinformatics pipeline that generates protein families from amino acid sequences and/or updates existing families with new sequences.
+It takes a protein fasta file as input, clusters the sequences and then generates protein family Hiden Markov Models (HMMs) along with their multiple sequence alignments (MSAs).
+Optionally, paths to existing family HMMs and MSAs can be given (must have matching base filenames one-to-one) in order to update with new sequences in case of matching hits.
 
 
 <p align="center">
     <img src="docs/images/proteinfamilies_workflow.png" alt="nf-core/proteinfamilies workflow overview">
 </p>
 
+A. Create families
 1. Cluster sequences ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/))
 2. Perform multiple sequence alignment (MSA) ([`FAMSA`](https://github.com/refresh-bio/FAMSA/) or [`mafft`](https://github.com/GSLBiotech/mafft/))
-3. Optionally clip gap parts of the MSA ([`ClipKIT`](https://github.com/JLSteenwyk/ClipKIT/))
+3. Optionally, clip gap parts of the MSA ([`ClipKIT`](https://github.com/JLSteenwyk/ClipKIT/))
 4. Generate family HMMs and fish additional sequences in the family ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
-5. Remove redundant families by comparing family representative sequences against family models with ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
-6. From the remaining families, removing in-family redundant sequences by strictly clustering with ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/)) and keeping cluster representatives
-7. Present QC for remaining family size distributions and representative sequence lengths ([`MultiQC`](http://multiqc.info/))
+5. Optionally, remove redundant families by comparing family representative sequences against family models with ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
+6. Optionally, from the remaining families, remove in-family redundant sequences by strictly clustering with ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/)) and keep cluster representatives
+7. Present QC for remaining/updated families size distributions and representative sequence lengths ([`MultiQC`](http://multiqc.info/))
+
+B. Update families
+1. Find which families to update by comparing the input sequences against existing family models with ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
+2. For non hit sequences continue with the above: A. Create families. For hit sequences and families continue to: 3
+3. Extract family sequences ([`SeqKit`](https://github.com/shenwei356/seqkit/)) and concatenate with filtered hit sequences of each family
+4. Optionally, remove in-family redundant sequences by strictly clustering with ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/)) and keeping cluster representatives
+5. Perform multiple sequence alignment (MSA) ([`FAMSA`](https://github.com/refresh-bio/FAMSA/) or [`mafft`](https://github.com/GSLBiotech/mafft/))
+6. Optionally, clip gap parts of the MSA ([`ClipKIT`](https://github.com/JLSteenwyk/ClipKIT/))
+7. Update family HMM with ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
 
 ## Usage
 
@@ -46,12 +57,12 @@ First, prepare a samplesheet with your input data that looks as follows:
 `samplesheet.csv`:
 
 ```csv
-sample,fasta
-CONTROL_REP1,input/mgnifams_input.fa
-CONTROL_REP2,input/mgnifams_input_copy.fa.gz
+sample,fasta,existing_hmms_to_update,existing_msas_to_update
+CONTROL_REP1,input/mgnifams_input.fa,,
+CONTROL_REP2,input/mgnifams_input_copy.fa.gz,,
 ```
 
-Each row represents a fasta file (can be zipped or unzipped).
+Each row contains a fasta file (can be zipped or unzipped).
 
 Now, you can run the pipeline using:
 
