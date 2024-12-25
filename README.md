@@ -24,7 +24,7 @@ It takes a protein fasta file as input, clusters the sequences and then generate
 
 
 <p align="center">
-    <img src="docs/images/proteinfamilies_workflow.png" alt="nf-core/proteinfamilies workflow overview" width="90%">
+    <img src="docs/images/proteinfamilies_workflow.png" alt="nf-core/proteinfamilies workflow overview">
 </p>
 
 1. Cluster sequences ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/))
