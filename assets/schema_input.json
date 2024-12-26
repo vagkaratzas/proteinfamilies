@@ -21,40 +21,18 @@
                 "errorMessage": "Fasta file for amino acid sequences must be provided, cannot contain spaces and must have extension '.fa', '.fasta', '.fa.gz' or '.fasta.gz'"
             },
             "existing_hmms_to_update": {
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "format": "directory-path",
-                        "exists": true,
-                        "description": "Directory containing existing protein family HMMs. These models will be used to 'fish' new sequences from the input and then be updated accordingly."
-                    },
-                    {
-                        "type": "string",
-                        "format": "file-path",
-                        "exists": true,
-                        "pattern": "^\\S+\\.tar\\.gz$",
-                        "description": "Tarball file containing existing protein family HMMs. These models will be used to 'fish' new sequences from the input and then be updated accordingly."
-                    }
-                ],
-                "errorMessage": "Provide either a directory or a '.tar.gz' file for HMMs to update. File names cannot contain spaces."
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.tar\\.gz$",
+                "description": "Tarball file containing existing protein family HMMs. These models will be used to 'fish' new sequences from the input and then be updated accordingly."
             },
             "existing_msas_to_update": {
-                "anyOf": [
-                    {
-                        "type": "string",
-                        "format": "directory-path",
-                        "exists": true,
-                        "description": "Directory containing multiple sequence alignments (MSAs) for the families to be updated. These alignments are essential for the update process and should match the HMM filenames one by one."
-                    },
-                    {
-                        "type": "string",
-                        "format": "file-path",
-                        "exists": true,
-                        "pattern": "^\\S+\\.tar\\.gz$",
-                        "description": "Tarball file containing multiple sequence alignments (MSAs) for the families to be updated. These alignments are essential for the update process and should match the HMM filenames one by one."
-                    }
-                ],
-                "errorMessage": "Provide either a directory or a '.tar.gz' file for MSAs to update. File names cannot contain spaces."
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.tar\\.gz$",
+                "description": "Tarball file containing multiple sequence alignments (MSAs) for the families to be updated. These alignments are essential for the update process and should match the HMM filenames one by one."
             }
         },
         "required": ["sample", "fasta"]

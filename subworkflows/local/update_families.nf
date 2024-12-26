@@ -1,4 +1,6 @@
-include { CAT_CAT               } from '../../modules/nf-core/cat/cat/main'
+include { UNTAR as UNTAR_HMM    } from '../../modules/nf-core/untar/main'
+include { UNTAR as UNTAR_MSA    } from '../../modules/nf-core/untar/main'
+include { CAT_CAT as CAT_HMM    } from '../../modules/nf-core/cat/cat/main'
 include { HMMER_HMMSEARCH       } from '../../modules/nf-core/hmmer/hmmsearch/main'
 include { BRANCH_HITS_FASTA     } from '../../modules/local/branch_hits_fasta'
 include { SEQKIT_SEQ            } from '../../modules/nf-core/seqkit/seq/main'
@@ -20,18 +22,28 @@ workflow UPDATE_FAMILIES {
     ch_updated_family_reps = Channel.empty()
     ch_no_hit_seqs         = Channel.empty()
 
+
+    ch_samplesheet_for_update
+        .multiMap { meta, _fasta, existing_hmms_to_update, existing_msas_to_update ->
+            hmm: [ meta, existing_hmms_to_update ]
+            msa: [ meta, existing_msas_to_update ]
+        }
+        .set { ch_input_for_untar }
+
+    UNTAR_HMM( ch_input_for_untar.hmm )
+    ch_versions = ch_versions.mix( UNTAR_HMM.out.versions )
+
+    UNTAR_MSA( ch_input_for_untar.msa )
+    ch_versions = ch_versions.mix( UNTAR_MSA.out.versions )
+
     // TODO: check that the HMMs and the MSAs match //
 
     // Squeeze the HMMs into a single file
-    CAT_CAT(
-        ch_samplesheet_for_update.map { meta, _fasta, existing_hmms_to_update, _existing_msas_to_update ->
-            [meta, file("${existing_hmms_to_update}/*.{hmm,hmm.gz}")]
-        }
-    )
-    ch_versions = ch_versions.mix( CAT_CAT.out.versions )
+    CAT_HMM( UNTAR_HMM.out.untar.map { meta, folder -> [meta, file("$folder/*")] } )
+    ch_versions = ch_versions.mix( CAT_HMM.out.versions )
 
     // Prep the sequences to search against the HMM concatenated model of families
-    CAT_CAT.out.file_out
+    CAT_HMM.out.file_out
         .combine(ch_samplesheet_for_update, by: 0)
         .map { meta, concatenated_hmm, fasta, _existing_hmms_to_update, _existing_msas_to_update -> [meta, concatenated_hmm, fasta, false, false, true] }
         .set { ch_input_for_hmmsearch }
@@ -59,9 +71,9 @@ workflow UPDATE_FAMILIES {
         }
         .set { hits_fasta }
 
-    ch_samplesheet_for_update
-        .map { meta, _fasta, _existing_hmms_to_update, existing_msas_to_update ->
-            [meta, file("${existing_msas_to_update}/*")]
+    UNTAR_MSA.out.untar
+        .map { meta, folder ->
+            [meta, file("$folder/*")]
         }
         .transpose()
         .map { meta, file ->

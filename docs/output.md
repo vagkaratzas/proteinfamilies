@@ -33,6 +33,7 @@ Removing redundancy:
 
 Updating families:
 
+- [untar](#untar) to decompress tarballs of existing hmms and msas
 - [hmmer](#hmmer-for-updating-families) to match input sequences to existing families with hmmsearch as well as for rebuilding models with newly recruited sequences with hmmbuild
 - [SeqKit](#SeqKit) to extract fasta formatted family sequences from their MSA files
 - [MMseqs2](#mmseqs2-for-updating-families) to strictly cluster the sequences within each of the families to update
@@ -223,6 +224,21 @@ Reporting:
 </details>
 
 [mafft](https://github.com/GSLBiotech/mafft) is a fast but not very sensitive multiple sequence alignment tool.
+
+### untar
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `untar/`
+  - `hmm/`
+    - `<samplename>/`
+      - `<family_name>.{hmm.gz,hmm}`: (optional) decompressed input hmm tarball
+  - `msa/`
+    - `<samplename>/`
+      - `<family_id>.{aln,fas}`: (optional) decompressed input msa tarball
+
+</details>
 
 ### hmmer for updating families
 
