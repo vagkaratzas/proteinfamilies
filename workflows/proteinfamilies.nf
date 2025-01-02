@@ -18,7 +18,7 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_prot
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { UPDATE_FAMILIES  } from '../subworkflows/local/update_families'
+include { UPDATE_FAMILIES    } from '../subworkflows/local/update_families'
 include { EXECUTE_CLUSTERING } from '../subworkflows/local/execute_clustering'
 include { GENERATE_FAMILIES  } from '../subworkflows/local/generate_families'
 include { REMOVE_REDUNDANCY  } from '../subworkflows/local/remove_redundancy'
