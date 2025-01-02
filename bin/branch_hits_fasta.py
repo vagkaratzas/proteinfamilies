@@ -149,9 +149,9 @@ def write_family_fastas(results, sequences, output_dir):
                 )
                 family_records.append(new_record)
             except KeyError:
-                print(f"Sequence {sequence_name} not found in the input FASTA.")
+                print(f"Sequence {sequence_name} not found in the input FASTA.", file=sys.stderr)
             except ValueError:
-                print(f"Invalid range format for hit: {hit}")
+                print(f"Invalid range format for hit: {hit}", file=sys.stderr)
 
         # Write the extracted sequences to a FASTA file for the family
         if family_records:
