@@ -258,7 +258,7 @@ Reporting:
         - `<family_id>.hmmbuild.txt`: (optional) hmmbuild execution log
   - `branch_fasta/`
     - `hits/`
-      - `<family_id>.fasta`: (optional) subset of input fasta with hit sequences for each existing family
+      - `<family_id>.fasta`: (optional) subset of the input FASTA with hit sequences for each existing family
     - `<samplename>.fasta.gz`: (optional) FASTA file that contains all remaining non-hit input sequences, which will be passed to normal execution mode to create new families
   - `family_reps/`
     - `<samplename>/`
