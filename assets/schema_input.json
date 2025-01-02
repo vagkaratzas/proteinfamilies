@@ -22,15 +22,17 @@
             },
             "existing_hmms_to_update": {
                 "type": "string",
-                "format": "directory-path",
+                "format": "file-path",
                 "exists": true,
-                "description": "Directory containing existing protein family HMMs. These models will be used to 'fish' new sequences from the input and then be updated accordingly."
+                "pattern": "^\\S+\\.tar\\.gz$",
+                "description": "Tarball file containing existing protein family HMMs. These models will be used to 'fish' new sequences from the input and then be updated accordingly."
             },
             "existing_msas_to_update": {
                 "type": "string",
-                "format": "directory-path",
+                "format": "file-path",
                 "exists": true,
-                "description": "Directory containing multiple sequence alignments (MSAs) for the families to be updated. These alignments are essential for the update process and should match the HMM filenames one by one."
+                "pattern": "^\\S+\\.tar\\.gz$",
+                "description": "Tarball file containing multiple sequence alignments (MSAs) for the families to be updated. These alignments are essential for the update process and should match the HMM filenames one by one."
             }
         },
         "required": ["sample", "fasta"]
