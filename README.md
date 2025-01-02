@@ -32,7 +32,7 @@ A. Create families
 1. Cluster sequences ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/))
 2. Perform multiple sequence alignment (MSA) ([`FAMSA`](https://github.com/refresh-bio/FAMSA/) or [`mafft`](https://github.com/GSLBiotech/mafft/))
 3. Optionally, clip gap parts of the MSA ([`ClipKIT`](https://github.com/JLSteenwyk/ClipKIT/))
-4. Generate family HMMs and fish additional sequences in the family ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
+4. Generate family HMMs and fish additional sequences into the family ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
 5. Optionally, remove redundant families by comparing family representative sequences against family models with ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
 6. Optionally, from the remaining families, remove in-family redundant sequences by strictly clustering with ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/)) and keep cluster representatives
 7. Present QC for remaining/updated families size distributions and representative sequence lengths ([`MultiQC`](http://multiqc.info/))
