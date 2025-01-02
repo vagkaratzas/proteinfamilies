@@ -254,7 +254,7 @@ Reporting:
         - `<samplename>.domtbl.gz`: (optional) hmmsearch results of input fasta file against existing families' HMMs
     - `hmmbuild/`
       - `<samplename>/`
-        - `<family_id>.hmm.gz`: (optional) compressed family HMM after update
+        - `<family_id>.hmm.gz`: (optional) compressed family HMM after the update
         - `<family_id>.hmmbuild.txt`: (optional) hmmbuild execution log
   - `branch_fasta/`
     - `hits/`
