@@ -22,7 +22,6 @@ workflow UPDATE_FAMILIES {
     ch_updated_family_reps = Channel.empty()
     ch_no_hit_seqs         = Channel.empty()
 
-
     ch_samplesheet_for_update
         .multiMap { meta, _fasta, existing_hmms_to_update, existing_msas_to_update ->
             hmm: [ meta, existing_hmms_to_update ]
@@ -104,15 +103,7 @@ workflow UPDATE_FAMILIES {
         EXECUTE_CLUSTERING( fasta_ch )
         ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
-        // Join together to ensure in sync
-        ch_input_for_seq_removal = fasta_ch
-            .join(EXECUTE_CLUSTERING.out.clustering_tsv)
-            .multiMap { meta, seqs, clusters ->
-                seqs: [meta, seqs]
-                clusters: [meta, clusters]
-            }
-
-        REMOVE_REDUNDANT_SEQS( ch_input_for_seq_removal.clusters, ch_input_for_seq_removal.seqs )
+        REMOVE_REDUNDANT_SEQS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs )
         ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
         fasta_ch = REMOVE_REDUNDANT_SEQS.out.fasta
     }

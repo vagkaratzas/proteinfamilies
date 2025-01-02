@@ -48,7 +48,7 @@ workflow REMOVE_REDUNDANCY {
             .groupTuple(by: 0)
             .set { fasta }
 
-        // Join together to ensure in sync
+        // Join to ensure in sync
         ch_input_for_fam_removal = EXTRACT_FAMILY_REPS.out.map
             .join(HMMER_HMMSEARCH.out.domain_summary)
             .join(fasta)
@@ -62,7 +62,7 @@ workflow REMOVE_REDUNDANCY {
         ch_versions = ch_versions.mix( REMOVE_REDUNDANT_FAMS.out.versions )
         fasta = REMOVE_REDUNDANT_FAMS.out.fasta
 
-        // Join together to ensure in sync
+        // Join to ensure in sync
         ch_input_for_hmm_filtering = fasta
             .join(ch_hmm)
             .multiMap { meta, seqs, models ->
@@ -85,15 +85,7 @@ workflow REMOVE_REDUNDANCY {
         EXECUTE_CLUSTERING( fasta )
         ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
-        // Join together to ensure in sync
-        ch_input_for_seq_removal = fasta
-            .join(EXECUTE_CLUSTERING.out.clustering_tsv)
-            .multiMap { meta, seqs, clusters ->
-                seqs: [meta, seqs]
-                clusters: [meta, clusters]
-            }
-
-        REMOVE_REDUNDANT_SEQS( ch_input_for_seq_removal.clusters, ch_input_for_seq_removal.seqs )
+        REMOVE_REDUNDANT_SEQS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs )
         ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
 
         ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta )

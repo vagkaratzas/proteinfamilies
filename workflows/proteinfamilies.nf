@@ -80,15 +80,7 @@ workflow PROTEINFAMILIES {
     EXECUTE_CLUSTERING( ch_samplesheet_for_create )
     ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
-    // Join together to ensure in sync
-    ch_input_for_cluster_chunking = ch_samplesheet_for_create
-        .join(EXECUTE_CLUSTERING.out.clustering_tsv)
-        .multiMap { meta, seqs, clusters ->
-            seqs: [ meta, seqs ]
-            clusters: [ meta, clusters ]
-        }
-
-    CHUNK_CLUSTERS( ch_input_for_cluster_chunking.clusters, ch_input_for_cluster_chunking.seqs, params.cluster_size_threshold )
+    CHUNK_CLUSTERS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs, params.cluster_size_threshold )
     ch_versions = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
 
     // Multiple sequence alignment
