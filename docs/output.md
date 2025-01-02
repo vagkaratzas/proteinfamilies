@@ -259,7 +259,7 @@ Reporting:
   - `branch_fasta/`
     - `hits/`
       - `<family_id>.fasta`: (optional) subset of input fasta with hit sequences for each existing family
-    - `<samplename>.fasta.gz`: (optional) fasta file with all remaining non-hit input sequences, which will be passed to normal execution mode to create new families
+    - `<samplename>.fasta.gz`: (optional) FASTA file that contains all remaining non-hit input sequences, which will be passed to normal execution mode to create new families
   - `family_reps/`
     - `<samplename>/`
       - `<samplename>_meta_mqc.csv`: (optional) csv with metadata (Sample Name,Family Id,Size,Representative Length,Representative Id,Sequence)
