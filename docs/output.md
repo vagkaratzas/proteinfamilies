@@ -248,7 +248,7 @@ Reporting:
 - `update_families/`
   - `hmmer/`
     - `concatenated/`
-      - `<samplename>.hmm.gz`: (optional) concatenated compressed hmm model for all families in a given sample, to give as input to hmmsearch, to figure which families will be updated with new sequences
+      - `<samplename>.hmm.gz`: (optional) concatenated compressed HMM models for all families in a given sample, to be used as input for hmmsearch, to determine which families will be updated with new sequences.
     - `hmmsearch/`
       - `<samplename>/`
         - `<samplename>.domtbl.gz`: (optional) hmmsearch results of input fasta file against existing families' HMMs
