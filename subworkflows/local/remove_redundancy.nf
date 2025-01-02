@@ -75,8 +75,7 @@ workflow REMOVE_REDUNDANCY {
         fasta
             .transpose()
             .map { meta, file ->
-                def baseName = file.toString().split('/')[-1].split('\\.')[0].split('_')[-1]
-                [[id: meta.id, chunk: baseName], file]
+                [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
             }
             .set { fasta }
     }

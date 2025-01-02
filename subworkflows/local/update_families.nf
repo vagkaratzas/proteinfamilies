@@ -65,8 +65,7 @@ workflow UPDATE_FAMILIES {
     BRANCH_HITS_FASTA.out.hits
         .transpose()
         .map { meta, file ->
-            def baseName = file.toString().split('/')[-1].split('\\.')[0]
-            [[id: meta.id, family: baseName], file]
+            [[id: meta.id, family: file.getSimpleName()], file]
         }
         .set { hits_fasta }
 
@@ -76,8 +75,7 @@ workflow UPDATE_FAMILIES {
         }
         .transpose()
         .map { meta, file ->
-            def baseName = file.toString().split('/')[-1].split('\\.')[0]
-            [[id: meta.id, family: baseName], file]
+            [[id: meta.id, family: file.getSimpleName()], file]
         }
         .set { family_msas }
 
