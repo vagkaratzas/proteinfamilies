@@ -1,17 +1,18 @@
-include { UNTAR as UNTAR_HMM    } from '../../modules/nf-core/untar/main'
-include { UNTAR as UNTAR_MSA    } from '../../modules/nf-core/untar/main'
-include { CAT_CAT as CAT_HMM    } from '../../modules/nf-core/cat/cat/main'
-include { HMMER_HMMSEARCH       } from '../../modules/nf-core/hmmer/hmmsearch/main'
-include { BRANCH_HITS_FASTA     } from '../../modules/local/branch_hits_fasta'
-include { SEQKIT_SEQ            } from '../../modules/nf-core/seqkit/seq/main'
-include { CAT_CAT as CAT_FASTA  } from '../../modules/nf-core/cat/cat/main'
-include { EXECUTE_CLUSTERING    } from '../../subworkflows/local/execute_clustering'
-include { REMOVE_REDUNDANT_SEQS } from '../../modules/local/remove_redundant_seqs.nf'
-include { ALIGN_SEQUENCES       } from '../../subworkflows/local/align_sequences'
-include { CLIPKIT               } from '../../modules/nf-core/clipkit/main'
-include { CLIP_ENDS             } from '../../modules/local/clip_ends.nf'
-include { HMMER_HMMBUILD        } from '../../modules/nf-core/hmmer/hmmbuild/main'
-include { EXTRACT_FAMILY_REPS   } from '../../modules/local/extract_family_reps.nf'
+include { UNTAR as UNTAR_HMM      } from '../../modules/nf-core/untar/main'
+include { UNTAR as UNTAR_MSA      } from '../../modules/nf-core/untar/main'
+include { validateMatchingFolders } from '../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
+include { CAT_CAT as CAT_HMM      } from '../../modules/nf-core/cat/cat/main'
+include { HMMER_HMMSEARCH         } from '../../modules/nf-core/hmmer/hmmsearch/main'
+include { BRANCH_HITS_FASTA       } from '../../modules/local/branch_hits_fasta'
+include { SEQKIT_SEQ              } from '../../modules/nf-core/seqkit/seq/main'
+include { CAT_CAT as CAT_FASTA    } from '../../modules/nf-core/cat/cat/main'
+include { EXECUTE_CLUSTERING      } from '../../subworkflows/local/execute_clustering'
+include { REMOVE_REDUNDANT_SEQS   } from '../../modules/local/remove_redundant_seqs.nf'
+include { ALIGN_SEQUENCES         } from '../../subworkflows/local/align_sequences'
+include { CLIPKIT                 } from '../../modules/nf-core/clipkit/main'
+include { CLIP_ENDS               } from '../../modules/local/clip_ends.nf'
+include { HMMER_HMMBUILD          } from '../../modules/nf-core/hmmer/hmmbuild/main'
+include { EXTRACT_FAMILY_REPS     } from '../../modules/local/extract_family_reps.nf'
 
 workflow UPDATE_FAMILIES {
     take:
@@ -35,7 +36,15 @@ workflow UPDATE_FAMILIES {
     UNTAR_MSA( ch_input_for_untar.msa )
     ch_versions = ch_versions.mix( UNTAR_MSA.out.versions )
 
-    // TODO: check that the HMMs and the MSAs match //
+    // check that the HMMs and the MSAs match
+    // join to ensure in sync
+    ch_folders_to_validate = UNTAR_HMM.out.untar
+        .join(UNTAR_MSA.out.untar)
+        .multiMap { meta, folder1, folder2 ->
+            hmm_folder_ch: [meta, folder1]
+            msa_folder_ch: [meta, folder2]
+        }
+    validateMatchingFolders(ch_folders_to_validate.hmm_folder_ch, ch_folders_to_validate.msa_folder_ch)
 
     // Squeeze the HMMs into a single file
     CAT_HMM( UNTAR_HMM.out.untar.map { meta, folder -> [meta, file("$folder/*")] } )
