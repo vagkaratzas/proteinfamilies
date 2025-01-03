@@ -4,6 +4,7 @@ import sys
 import argparse
 import os
 import gzip
+import re
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.Seq import Seq
@@ -117,6 +118,36 @@ def write_non_hit_sequences(filtered_sequences, sequences, non_hits):
     print(f"Written {len(non_hit_records)} non-hit sequences to {non_hits}")
 
 
+def validate_and_parse_hit_name(hit):
+    """
+    Validates and parses a hit string.
+    The hit must contain a string, at least one '/', and a valid range (integer-integer) after the last '/'.
+
+    Args:
+        hit (str): The hit string to validate and parse.
+
+    Returns:
+        tuple: (sequence_name, ali_from, ali_to) if the hit is valid.
+
+    Raises:
+        ValueError: If the hit is invalid.
+    """
+    # Define the regex pattern
+    pattern = r"^(.*)/(\d+)-(\d+)$"
+
+    # Match the pattern
+    match = re.match(pattern, hit)
+    if not match:
+        raise ValueError(f"Skipping hit with invalid format: {hit}.")
+
+    # Extract components
+    sequence_name = match.group(1)  # Everything before the last '/'
+    ali_from = int(match.group(2))  # First integer in the range
+    ali_to = int(match.group(3))    # Second integer in the range
+
+    return sequence_name, ali_from, ali_to
+
+
 def write_family_fastas(results, sequences, output_dir):
     # Create the output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
@@ -126,8 +157,7 @@ def write_family_fastas(results, sequences, output_dir):
 
         for hit in hits:
             try:
-                sequence_name, range_part = hit.split("/")
-                ali_from, ali_to = map(int, range_part.split("-"))
+                sequence_name, ali_from, ali_to = validate_and_parse_hit_name(hit)
 
                 # Get the original sequence
                 original_record = sequences[sequence_name]
@@ -150,8 +180,8 @@ def write_family_fastas(results, sequences, output_dir):
                 family_records.append(new_record)
             except KeyError:
                 print(f"Sequence {sequence_name} not found in the input FASTA.", file=sys.stderr)
-            except ValueError:
-                print(f"Invalid range format for hit: {hit}", file=sys.stderr)
+            except ValueError as e:
+                print(e, file=sys.stderr)
 
         # Write the extracted sequences to a FASTA file for the family
         if family_records:
