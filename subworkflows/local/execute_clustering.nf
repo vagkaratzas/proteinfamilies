@@ -26,7 +26,7 @@ workflow EXECUTE_CLUSTERING {
         ch_versions = ch_versions.mix( MMSEQS_LINCLUST.out.versions )
     }
 
-    // Join together to ensure in sync
+    // Join to ensure in sync
     ch_input_for_createtsv = MMSEQS_CREATEDB.out.db
         .join(cluster_res.db_cluster)
         .multiMap { meta, db, db_cluster ->
@@ -38,7 +38,16 @@ workflow EXECUTE_CLUSTERING {
     ch_versions = ch_versions.mix( MMSEQS_CREATETSV.out.versions )
     ch_clustering_tsv = MMSEQS_CREATETSV.out.tsv
 
+    // Join to ensure in sync
+    ch_clustering_output = sequences
+        .join(MMSEQS_CREATETSV.out.tsv)
+        .multiMap { meta, seqs, clusters ->
+            seqs: [meta, seqs]
+            clusters: [meta, clusters]
+        }
+
     emit:
-    versions       = ch_versions
-    clustering_tsv = ch_clustering_tsv
+    versions = ch_versions
+    seqs     = ch_clustering_output.seqs
+    clusters = ch_clustering_output.clusters
 }

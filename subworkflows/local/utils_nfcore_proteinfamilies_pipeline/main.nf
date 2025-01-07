@@ -96,7 +96,7 @@ workflow PIPELINE_COMPLETION {
     main:
     summary_params = paramsSummaryMap(workflow, parameters_schema: "nextflow_schema.json")
     def multiqc_reports = multiqc_report.toList()
-    
+
     //
     // Completion email and summary
     //
@@ -206,3 +206,29 @@ def methodsDescriptionText(mqc_methods_yaml) {
     return description_html.toString()
 }
 
+//
+// Validate that two folders (HMMs and MSAs for update) contain the same number of files and matching base filenames
+//
+def validateMatchingFolders(channel1, channel2) {
+    // Fetch the contents of the channels
+    channel1
+        .join(channel2)
+        .map { meta, folder1, folder2 ->
+            def files1 = folder1.listFiles()
+            def files2 = folder2.listFiles()
+
+            // Check if the number of files matches
+            if (files1.size() != files2.size()) {
+                error("Folder mismatch: ${folder1} has ${files1.size()} files, but ${folder2} has ${files2.size()} files.")
+            }
+
+            // Extract base filenames (without extensions) and sort
+            def baseNames1 = files1.collect { it.getSimpleName() }.sort()
+            def baseNames2 = files2.collect { it.getSimpleName() }.sort()
+
+            // Check if base filenames match one to one
+            if (baseNames1 != baseNames2) {
+                error("Filename mismatch: Expected matching files in ${folder1} and ${folder2}. Base filenames do not match.")
+            }
+    }
+}
