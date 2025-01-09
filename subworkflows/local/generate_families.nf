@@ -8,6 +8,7 @@ include { CLIP_ENDS        } from '../../modules/local/clip_ends.nf'
 include { HMMER_HMMBUILD   } from '../../modules/nf-core/hmmer/hmmbuild/main'
 include { HMMER_HMMSEARCH  } from '../../modules/nf-core/hmmer/hmmsearch/main'
 include { FILTER_RECRUITED } from '../../modules/local/filter_recruited.nf'
+// TODO include { HMMER_HMMALIGN } from '../../modules/nf-core/hmmer/hmmalign/main'
 
 workflow GENERATE_FAMILIES {
     take:
@@ -51,7 +52,7 @@ workflow GENERATE_FAMILIES {
     ch_hmm
         .map { meta, hmm -> [ [id: meta.id], meta, hmm ] }
         .combine(sequences, by: 0)
-        .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, true, params.hmmsearch_write_target, params.hmmsearch_write_domain ] } // write_align must always be true
+        .map { id, meta, hmm, seqs -> [ meta, hmm, seqs, true, params.hmmsearch_write_target, params.hmmsearch_write_domain ] } // TODO true to false, no .sto
         .set { ch_input_for_hmmsearch }
 
     if (params.recruit_sequences_with_models) {
@@ -62,6 +63,8 @@ workflow GENERATE_FAMILIES {
         ch_versions = ch_versions.mix( FILTER_RECRUITED.out.versions )
         ch_msa = FILTER_RECRUITED.out.full_msa
         ch_fasta = FILTER_RECRUITED.out.fasta
+
+        // TODO HMMER_HMMALIGN
     }
 
     emit:

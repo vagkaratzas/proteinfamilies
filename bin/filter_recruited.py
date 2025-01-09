@@ -54,6 +54,7 @@ def parse_args(args=None):
 
 def filter_sequences(domtbl, length_threshold):
     filtered_sequences = []
+
     with gzip.open(domtbl, "rt", encoding="utf-8") as file:
         for line in file:
             if line.startswith("#"):
@@ -68,10 +69,8 @@ def filter_sequences(domtbl, length_threshold):
 
                 if env_length >= length_threshold * qlen:
                     sequence_name = columns[0]
-                    ali_from = int(columns[17])
-                    ali_to = int(columns[18])
 
-                    filtered_sequences.append(f"{sequence_name}/{ali_from}-{ali_to}")
+                    filtered_sequences.append(f"{sequence_name}/{env_from}-{env_to}")
             except (IndexError, ValueError):
                 continue  # Skip malformed lines
 

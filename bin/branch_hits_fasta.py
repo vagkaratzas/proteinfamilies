@@ -62,29 +62,25 @@ def filter_sequences(domtbl, length_threshold):
     open_func = gzip.open if domtbl.endswith(".gz") else open
     with open_func(domtbl, "rt") as file:
         for line in file:
-            # Skip comment lines
             if line.startswith("#"):
-                continue
+                continue # Skip comments
 
-            # Split line into columns
             columns = line.split()
-            if len(columns) < 21:  # Ensure enough columns are present
-                continue
+            try:
+                qlen = float(columns[5])
+                env_from = int(columns[19])
+                env_to = int(columns[20])
+                env_length = env_to - env_from + 1
 
-            # Extract required values
-            qlen = float(columns[5])
-            env_from = int(columns[19])
-            env_to = int(columns[20])
-            env_length = env_to - env_from + 1
+                if env_length >= length_threshold * qlen:
+                    sequence_name = columns[0]
+                    query_name = columns[3]
 
-            # Apply the length threshold filter
-            if env_length >= length_threshold * qlen:
-                sequence_name = columns[0]
-                query_name = columns[3]
-
-                if query_name not in results:
-                    results[query_name] = set()
-                results[query_name].add(f"{sequence_name}/{env_from}-{env_to}")
+                    if query_name not in results:
+                        results[query_name] = set()
+                    results[query_name].add(f"{sequence_name}/{env_from}-{env_to}")
+            except (IndexError, ValueError):
+                continue  # Skip malformed lines
 
     return results
 
