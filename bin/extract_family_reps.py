@@ -74,13 +74,14 @@ def extract_first_sequences(msa_folder, metadata_file, out_fasta):
                 if filepath.endswith(".gz")
                 else open(filepath, "r")
             ) as fasta_file:
-                records = list(SeqIO.parse(fasta_file, "fasta"))
+                format = "stockholm" if filepath.endswith(".sto.gz") else "fasta"
+                records = list(SeqIO.parse(fasta_file, format))
                 family_size = len(records)
                 if records:
                     first_record = records[0]
-                    # Remove gaps from the sequence
+                    # Remove gaps from the sequence, and convert all to upper case
                     cleaned_sequence = (
-                        str(first_record.seq).replace("-", "").replace(".", "")
+                        str(first_record.seq).replace("-", "").replace(".", "").upper()
                     )
                     # Modify the ID to only include the part before the first space
                     cleaned_id = first_record.id.split(" ")[0]

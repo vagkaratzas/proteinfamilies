@@ -22,7 +22,7 @@ Multiple sequence alignment:
 
 Generating family models:
 
-- [hmmer](#hmmer) to build the family HMM (hmmbuild) and to 'fish' additional sequences from the input fasta file, with given thresholds, into the family and also build the family full MSA (hmmsearch)
+- [hmmer](#hmmer) to build the family HMM (hmmbuild) and to optionally 'fish' additional sequences from the input fasta file (hmmsearch), with given thresholds, into the family and also build the family full MSA (hmmalign)
 
 Removing redundancy:
 
@@ -131,13 +131,12 @@ Reporting:
       - `<samplename>_*.hmmbuild.txt`: (optional) hmmbuild execution log
   - `hmmsearch/`
     - `<samplename>/`
-      - `<samplename>_*.sto.gz`: (optional) full multiple sequence alignment of the family
       - `<samplename>_*.domtbl.gz`: (optional) hmmsearch results along parameters info
       - `<samplename>_*.txt.gz`: (optional) hmmsearch execution log
 - `full_msa/`
   - `pre_non_redundant/`
     - `<samplename>/`
-      - `<samplename>_*.fas.gz`: compressed family full MSA (before checking for redundancy)
+      - `<samplename>_*.sto.gz`: compressed family full MSA produced by hmmalign (before checking for redundancy)
 
 </details>
 

@@ -62,31 +62,25 @@ def filter_sequences(domtbl, length_threshold):
     open_func = gzip.open if domtbl.endswith(".gz") else open
     with open_func(domtbl, "rt") as file:
         for line in file:
-            # Skip comment lines
             if line.startswith("#"):
-                continue
+                continue # Skip comments
 
-            # Split line into columns
             columns = line.split()
-            if len(columns) < 21:  # Ensure enough columns are present
-                continue
+            try:
+                qlen = float(columns[5])
+                env_from = int(columns[19])
+                env_to = int(columns[20])
+                env_length = env_to - env_from + 1
 
-            # Extract required values
-            qlen = float(columns[5])
-            env_from = int(columns[19])
-            env_to = int(columns[20])
-            env_length = env_to - env_from + 1
+                if env_length >= length_threshold * qlen:
+                    sequence_name = columns[0]
+                    query_name = columns[3]
 
-            # Apply the length threshold filter
-            if env_length >= length_threshold * qlen:
-                sequence_name = columns[0]
-                ali_from = int(columns[17])
-                ali_to = int(columns[18])
-                query_name = columns[3]
-
-                if query_name not in results:
-                    results[query_name] = set()
-                results[query_name].add(f"{sequence_name}/{ali_from}-{ali_to}")
+                    if query_name not in results:
+                        results[query_name] = set()
+                    results[query_name].add(f"{sequence_name}/{env_from}-{env_to}")
+            except (IndexError, ValueError):
+                continue  # Skip malformed lines
 
     return results
 
@@ -127,7 +121,7 @@ def validate_and_parse_hit_name(hit):
         hit (str): The hit string to validate and parse.
 
     Returns:
-        tuple: (sequence_name, ali_from, ali_to) if the hit is valid.
+        tuple: (sequence_name, env_from, env_to) if the hit is valid.
 
     Raises:
         ValueError: If the hit is invalid.
@@ -142,10 +136,10 @@ def validate_and_parse_hit_name(hit):
 
     # Extract components
     sequence_name = match.group(1)  # Everything before the last '/'
-    ali_from = int(match.group(2))  # First integer in the range
-    ali_to = int(match.group(3))    # Second integer in the range
+    env_from = int(match.group(2))  # First integer in the range
+    env_to = int(match.group(3))    # Second integer in the range
 
-    return sequence_name, ali_from, ali_to
+    return sequence_name, env_from, env_to
 
 
 def write_family_fastas(results, sequences, output_dir):
@@ -157,19 +151,19 @@ def write_family_fastas(results, sequences, output_dir):
 
         for hit in hits:
             try:
-                sequence_name, ali_from, ali_to = validate_and_parse_hit_name(hit)
+                sequence_name, env_from, env_to = validate_and_parse_hit_name(hit)
 
                 # Get the original sequence
                 original_record = sequences[sequence_name]
 
                 # Extract the specific range (adjust indices for 0-based indexing)
-                extracted_seq = original_record.seq[ali_from-1:ali_to]
+                extracted_seq = original_record.seq[env_from-1:env_to]
 
                 # Determine the new sequence ID
                 if len(extracted_seq) == len(original_record.seq):
                     new_id = sequence_name  # Omit range if full-length
                 else:
-                    new_id = f"{sequence_name}/{ali_from}-{ali_to}"
+                    new_id = f"{sequence_name}/{env_from}-{env_to}"
 
                 # Create a new SeqRecord for the extracted range
                 new_record = SeqRecord(

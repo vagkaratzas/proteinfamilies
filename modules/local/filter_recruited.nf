@@ -8,12 +8,10 @@ process FILTER_RECRUITED {
         'community.wave.seqera.io/library/biopython:1.84--3318633dad0031e7' }"
 
     input:
-    tuple val(meta) , path(sto)
-    tuple val(meta2), path(domtbl)
+    tuple val(meta), path(domtbl), path(fa)
     val(length_threshold)
 
     output:
-    tuple val(meta), path("*.fas.gz")  , emit: full_msa
     tuple val(meta), path("*.fasta.gz"), emit: fasta
     path "versions.yml"                , emit: versions
 
@@ -24,10 +22,9 @@ process FILTER_RECRUITED {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     filter_recruited.py \\
-        --alignment ${sto} \\
         --domtbl ${domtbl} \\
+        --fasta ${fa} \\
         --length_threshold ${length_threshold} \\
-        --out_msa ${prefix}.fas.gz \\
         --out_fasta ${prefix}.fasta.gz
 
     cat <<-END_VERSIONS > versions.yml
