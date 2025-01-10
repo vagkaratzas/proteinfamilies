@@ -20,6 +20,11 @@
                         "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
                         "installed_by": ["modules"]
                     },
+                    "hmmer/hmmalign": {
+                        "branch": "master",
+                        "git_sha": "03a9f356a1a333923c1177c2912fa7bc61bb46f3",
+                        "installed_by": ["modules"]
+                    },
                     "hmmer/hmmbuild": {
                         "branch": "master",
                         "git_sha": "03a9f356a1a333923c1177c2912fa7bc61bb46f3",
