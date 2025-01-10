@@ -40,61 +40,59 @@ workflow REMOVE_REDUNDANCY {
             .map { meta, model, seqs -> [meta, model, seqs, false, false, true] }
             .set { ch_input_for_hmmsearch }
 
-        ch_input_for_hmmsearch.view()
+        HMMER_HMMSEARCH( ch_input_for_hmmsearch )
+        ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
 
-    //     HMMER_HMMSEARCH( ch_input_for_hmmsearch )
-    //     ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
+        fasta
+            .map { meta, fas -> [[id: meta.id], fas] }
+            .groupTuple(by: 0)
+            .set { fasta }
 
-    //     fasta
-    //         .map { meta, fas -> [[id: meta.id], fas] }
-    //         .groupTuple(by: 0)
-    //         .set { fasta }
+        // Join to ensure in sync
+        ch_input_for_fam_removal = EXTRACT_FAMILY_REPS.out.map
+            .join(HMMER_HMMSEARCH.out.domain_summary)
+            .join(fasta)
+            .multiMap { meta, map, domtbl, seqs ->
+                map: [meta, map]
+                domtbl: [meta, domtbl]
+                seqs: [meta, seqs]
+            }
 
-    //     // Join to ensure in sync
-    //     ch_input_for_fam_removal = EXTRACT_FAMILY_REPS.out.map
-    //         .join(HMMER_HMMSEARCH.out.domain_summary)
-    //         .join(fasta)
-    //         .multiMap { meta, map, domtbl, seqs ->
-    //             map: [meta, map]
-    //             domtbl: [meta, domtbl]
-    //             seqs: [meta, seqs]
-    //         }
+        REMOVE_REDUNDANT_FAMS( ch_input_for_fam_removal.map, ch_input_for_fam_removal.domtbl, ch_input_for_fam_removal.seqs, params.hmmsearch_family_length_threshold )
+        ch_versions = ch_versions.mix( REMOVE_REDUNDANT_FAMS.out.versions )
+        fasta = REMOVE_REDUNDANT_FAMS.out.fasta
 
-    //     REMOVE_REDUNDANT_FAMS( ch_input_for_fam_removal.map, ch_input_for_fam_removal.domtbl, ch_input_for_fam_removal.seqs, params.hmmsearch_family_length_threshold )
-    //     ch_versions = ch_versions.mix( REMOVE_REDUNDANT_FAMS.out.versions )
-    //     fasta = REMOVE_REDUNDANT_FAMS.out.fasta
+        // Join to ensure in sync
+        ch_input_for_hmm_filtering = fasta
+            .join(ch_hmm)
+            .multiMap { meta, seqs, models ->
+                seqs: [meta, seqs]
+                models: [meta, models]
+            }
+        FILTER_NON_REDUNDANT_HMMS( ch_input_for_hmm_filtering.seqs, ch_input_for_hmm_filtering.models )
+        ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_HMMS.out.versions )
 
-    //     // Join to ensure in sync
-    //     ch_input_for_hmm_filtering = fasta
-    //         .join(ch_hmm)
-    //         .multiMap { meta, seqs, models ->
-    //             seqs: [meta, seqs]
-    //             models: [meta, models]
-    //         }
-    //     FILTER_NON_REDUNDANT_HMMS( ch_input_for_hmm_filtering.seqs, ch_input_for_hmm_filtering.models )
-    //     ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_HMMS.out.versions )
-
-    //     fasta
-    //         .transpose()
-    //         .map { meta, file ->
-    //             [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
-    //         }
-    //         .set { fasta }
+        fasta
+            .transpose()
+            .map { meta, file ->
+                [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
+            }
+            .set { fasta }
     }
 
-    // if (params.remove_sequence_redundancy) {
-    //     EXECUTE_CLUSTERING( fasta )
-    //     ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+    if (params.remove_sequence_redundancy) {
+        EXECUTE_CLUSTERING( fasta )
+        ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
-    //     REMOVE_REDUNDANT_SEQS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs )
-    //     ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
+        REMOVE_REDUNDANT_SEQS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs )
+        ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
 
-    //     ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta )
-    //     ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
-    //     msa = ALIGN_SEQUENCES.out.alignments
-    // }
+        ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta )
+        ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
+        msa = ALIGN_SEQUENCES.out.alignments
+    }
 
     emit:
     versions = ch_versions
-    // msa      = msa
+    msa      = msa
 }

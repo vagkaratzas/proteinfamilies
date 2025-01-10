@@ -92,14 +92,14 @@ workflow PROTEINFAMILIES {
     ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
 
     // Post-processing
-    // REMOVE_REDUNDANCY.out.msa
-    //     .map { meta, aln -> [ [id: meta.id], aln ] }
-    //     .groupTuple(by: 0)
-    //     .set { ch_msa }
+    REMOVE_REDUNDANCY.out.msa
+        .map { meta, aln -> [ [id: meta.id], aln ] }
+        .groupTuple(by: 0)
+        .set { ch_msa }
 
-    // EXTRACT_FAMILY_REPS( ch_msa )
-    // ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
-    // ch_family_reps = ch_family_reps.mix( EXTRACT_FAMILY_REPS.out.map )
+    EXTRACT_FAMILY_REPS( ch_msa )
+    ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
+    ch_family_reps = ch_family_reps.mix( EXTRACT_FAMILY_REPS.out.map )
 
     //
     // Collate and save software versions
