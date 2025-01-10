@@ -10,22 +10,24 @@ The input data can be passed to nf-core/proteinfamilies using the `--input` para
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 2 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 2 mandatory and 2 optional columns, and a header row as shown in the examples below.
 
 ```bash
 --input '[path to samplesheet file]'
 ```
 
 ```csv
-sample,fasta
-CONTROL_REP1,input/mgnifams_input.fa
-CONTROL_REP2,input/mgnifams_input_copy.fa.gz
+sample,fasta,existing_hmms_to_update,existing_msas_to_update
+CONTROL_REP1,amino_acid_sequences_input.fasta,,
+CONTROL_REP2,amino_acid_sequences_extra.fa.gz,existing_hmms.tar.gz,existing_msas.tar.gz
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. Spaces in sample names are automatically converted to underscores (`_`).                                                                                           |
-| `fasta`   | Full path to amino acid fasta file. File can be gzipped and allowed extensions include ".fasta", ".fasta.gz", ".fa" or ".fa.gz".                                                       |
+| Column                      | Description                                                                                                                       |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`                    | Custom sample name. Spaces in sample names are automatically converted to underscores (`_`).                                      |
+| `fasta`                     | Full path to amino acid fasta file. File can be gzipped and allowed extensions include ".fasta", ".fasta.gz", ".fa" or ".fa.gz".  |
+| `existing_hmms_to_update`   | Full path to compressed archive with existing family HMMs. Allowed extension should be ".tar.gz".                                 |
+| `existing_msas_to_update`   | Full path to compressed archive with existing family MSAs. Allowed extension should be ".tar.gz".                                 |
 
 ## Running the pipeline
 
