@@ -137,7 +137,7 @@ Reporting:
 - `full_msa/`
   - `pre_non_redundant/`
     - `<samplename>/`
-      - `<samplename>_*.fas.gz`: compressed family full MSA (before checking for redundancy)
+      - `<samplename>_*.fas.gz`: compressed family full MSA (before checking for redundancy) <!-- TODO update -->
 
 </details>
 

@@ -2,21 +2,13 @@
 
 import sys
 import argparse
-import os
 import gzip
-from Bio import AlignIO, SeqIO
+import re
+from Bio import SeqIO
 
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-a",
-        "--alignment",
-        required=True,
-        metavar="FILE",
-        type=str,
-        help="Stockholm format multiple sequence alignment from hmmsearch.",
-    )
     parser.add_argument(
         "-d",
         "--domtbl",
@@ -26,20 +18,20 @@ def parse_args(args=None):
         help="Domain summary annotations result from hmmsearch.",
     )
     parser.add_argument(
+        "-f",
+        "--fasta",
+        required=True,
+        metavar="FILE",
+        type=str,
+        help="Input fasta file containing all protein names with their amino acid sequence for mapping.",
+    )
+    parser.add_argument(
         "-l",
         "--length_threshold",
         required=True,
         metavar="FLOAT",
         type=float,
         help="Minimum length percentage threshold of annotated domain (env) against query to keep.",
-    )
-    parser.add_argument(
-        "-m",
-        "--out_msa",
-        required=True,
-        metavar="FILE",
-        type=str,
-        help="Name of the output fasta file with the fasta converted multiple sequence alignment (includes gaps).",
     )
     parser.add_argument(
         "-o",
@@ -77,55 +69,73 @@ def filter_sequences(domtbl, length_threshold):
     return filtered_sequences
 
 
-def filter_stockholm_to_fasta(alignment, filtered_sequences, out_msa, out_fasta):
-    base_filename = os.path.basename(alignment).split(".")[0]
+def validate_and_parse_hit_name(hit):
+    """
+    Validates and parses a hit string.
+    The hit must contain a string, at least one '/', and a valid range (integer-integer) after the last '/'.
 
-    with gzip.open(alignment, "rt", encoding="utf-8") as file:
-        alignment_data = AlignIO.read(file, "stockholm")
-        filtered_records = [
-            record for record in alignment_data if record.id in filtered_sequences
-        ]
+    Args:
+        hit (str): The hit string to validate and parse.
 
-        for record in filtered_records:
-            ungapped_length = len(record.seq.replace("-", ""))
-            # Extract the part after the slash in the name (if present)
-            if "/" in record.id:
-                ranges = record.id.split("/")
-                if len(ranges) > 2:
-                    # FIXME: we need to adjust the workflow to handle these cases
-                    continue
-                name, range_info = ranges
-                start, end = map(int, range_info.split("-"))
-                # If the sequence starts at 1 and the end matches the ungapped length, remove the slash and range
-                if start == 1 and end == ungapped_length:
-                    record.id = name
+    Returns:
+        tuple: (sequence_name, env_from, env_to) if the hit is valid.
 
-            # Add the family name to the description field
-            record.description = base_filename
+    Raises:
+        ValueError: If the hit is invalid.
+    """
+    # Define the regex pattern
+    pattern = r"^(.*)/(\d+)-(\d+)$"
 
-        with gzip.open(out_msa, "wt") as gz_file:
-            SeqIO.write(filtered_records, gz_file, "fasta")
+    # Match the pattern
+    match = re.match(pattern, hit)
+    if not match:
+        raise ValueError(f"Skipping hit with invalid format: {hit}.")
 
-        for record in filtered_records:
-            record.letter_annotations = {}  # Clear annotations
-            record.seq = record.seq.replace("-", "")
+    # Extract components
+    sequence_name = match.group(1)  # Everything before the last '/'
+    env_from = int(match.group(2))  # First integer in the range
+    env_to = int(match.group(3))    # Second integer in the range
 
-        with gzip.open(out_fasta, "wt") as gz_file:
-            SeqIO.write(filtered_records, gz_file, "fasta")
-
-        print(f"Filtered alignment saved to {out_msa}")
+    return sequence_name, env_from, env_to
 
 
-def filter_recruited(alignment, domtbl, length_threshold, out_msa, out_fasta):
+def extract_fasta_subset(filtered_sequences, fasta, out_fasta):
+    open_func = gzip.open if fasta.endswith(".gz") else open
+    with open_func(fasta, "rt") as in_fasta:
+        fasta_dict = {record.id: str(record.seq) for record in SeqIO.parse(in_fasta, "fasta")}
+
+    with gzip.open(out_fasta, "wt") as out_file:
+        for filtered_sequence in filtered_sequences:
+            try:
+                sequence_name, env_from, env_to = validate_and_parse_hit_name(filtered_sequence)
+
+                # Get the original sequence
+                original_record = fasta_dict[sequence_name]
+
+                # Extract the specific range (adjust indices for 0-based indexing)
+                extracted_seq = original_record[env_from-1:env_to]
+
+                # Determine the new sequence ID
+                if len(extracted_seq) == len(original_record):
+                    new_id = sequence_name  # Omit range if full-length
+                else:
+                    new_id = f"{sequence_name}/{env_from}-{env_to}"
+
+                out_file.write(f">{new_id}\n{extracted_seq}\n")
+            except KeyError:
+                print(f"Sequence {sequence_name} not found in the input FASTA.", file=sys.stderr)
+            except ValueError as e:
+                print(e, file=sys.stderr)
+
+
+def filter_recruited(domtbl, fasta, length_threshold, out_fasta):
     filtered_sequences = filter_sequences(domtbl, length_threshold)
-    filter_stockholm_to_fasta(alignment, filtered_sequences, out_msa, out_fasta)
+    extract_fasta_subset(filtered_sequences, fasta, out_fasta)
 
 
 def main(args=None):
     args = parse_args(args)
-    filter_recruited(
-        args.alignment, args.domtbl, args.length_threshold, args.out_msa, args.out_fasta
-    )
+    filter_recruited(args.domtbl, args.fasta, args.length_threshold, args.out_fasta)
 
 
 if __name__ == "__main__":
