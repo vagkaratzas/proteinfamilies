@@ -87,11 +87,11 @@ workflow PROTEINFAMILIES {
     GENERATE_FAMILIES( ch_samplesheet_for_create, CHUNK_CLUSTERS.out.fasta_chunks )
     ch_versions = ch_versions.mix( GENERATE_FAMILIES.out.versions )
 
-    // // Remove redundant sequences and families
-    // REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.msa, GENERATE_FAMILIES.out.fasta, GENERATE_FAMILIES.out.hmm )
-    // ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
+    // Remove redundant sequences and families
+    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.msa, GENERATE_FAMILIES.out.fasta, GENERATE_FAMILIES.out.hmm )
+    ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
 
-    // // Post-processing
+    // Post-processing
     // REMOVE_REDUNDANCY.out.msa
     //     .map { meta, aln -> [ [id: meta.id], aln ] }
     //     .groupTuple(by: 0)

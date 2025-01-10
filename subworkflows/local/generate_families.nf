@@ -8,7 +8,7 @@ include { CLIP_ENDS        } from '../../modules/local/clip_ends.nf'
 include { HMMER_HMMBUILD   } from '../../modules/nf-core/hmmer/hmmbuild/main'
 include { HMMER_HMMSEARCH  } from '../../modules/nf-core/hmmer/hmmsearch/main'
 include { FILTER_RECRUITED } from '../../modules/local/filter_recruited.nf'
-// TODO include { HMMER_HMMALIGN } from '../../modules/nf-core/hmmer/hmmalign/main'
+include { HMMER_HMMALIGN   } from '../../modules/nf-core/hmmer/hmmalign/main'
 
 workflow GENERATE_FAMILIES {
     take:
@@ -70,15 +70,22 @@ workflow GENERATE_FAMILIES {
         ch_versions = ch_versions.mix( FILTER_RECRUITED.out.versions )
         ch_fasta = FILTER_RECRUITED.out.fasta
 
-        ch_fasta.view()
-        // TODO HMMER_HMMALIGN
-        // ch_msa = FILTER_RECRUITED.out.full_msa
+        // Join to ensure in sync
+        ch_input_for_hmmalign = ch_fasta
+            .join(ch_hmm)
+            .multiMap { meta, seqs, hmms ->
+                seq: [ meta, seqs ]
+                hmm: [ hmms ]
+            }
 
+        HMMER_HMMALIGN( ch_input_for_hmmalign.seq, ch_input_for_hmmalign.hmm )
+        ch_versions = ch_versions.mix( HMMER_HMMALIGN.out.versions )
+        ch_msa = HMMER_HMMALIGN.out.sto
     }
 
     emit:
     versions = ch_versions
-    // msa      = ch_msa // TODO update
+    msa      = ch_msa
     fasta    = ch_fasta
     hmm      = ch_hmm
 }
