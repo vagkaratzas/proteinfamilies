@@ -187,6 +187,157 @@
                     "hidden": true
                 }
             }
+        },
+        "clustering_params": {
+            "title": "Clustering parameters",
+            "type": "object",
+            "description": "Use these parameters to control the flow of the clustering subworkflow execution.",
+            "properties": {
+                "save_mmseqs_db": {
+                    "type": "boolean",
+                    "description": "Save the db output folder of mmseqs createdb",
+                    "help_text": "Specify to save the mmseqs formatted database of input fasta sequences."
+                },
+                "clustering_tool": {
+                    "type": "string",
+                    "description": "Choose clustering algorithm. Either simple 'cluster' for medium size inputs, or 'linclust' for less sensitive clustering of larger datasets.",
+                    "help_text": "mmseqs algorithms available: 'cluster' or 'linclust'.",
+                    "enum": ["cluster", "linclust"]
+                },
+                "cluster_seq_identity": {
+                    "type": "number",
+                    "default": 0.5,
+                    "description": "mmseqs parameter for minimum sequence identity"
+                },
+                "cluster_coverage": {
+                    "type": "number",
+                    "default": 0.9,
+                    "description": "mmseqs parameter for minimum sequence coverage ratio"
+                },
+                "cluster_cov_mode": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence"
+                },
+                "save_mmseqs_clustering": {
+                    "type": "boolean",
+                    "description": "Save the clustering output folder of mmseqs cluster or linclust",
+                    "help_text": "Specify to save the mmseqs formatted result clustering."
+                },
+                "cluster_size_threshold": {
+                    "type": "integer",
+                    "default": 25,
+                    "description": "Minimum clustering chunk size threshold to create seed multiple sequence alignments upon."
+                }
+            }
+        },
+        "alignment_params": {
+            "title": "Alignment parameters",
+            "type": "object",
+            "description": "Use these parameters to control the multiple sequence alignment subworkflow execution.",
+            "properties": {
+                "alignment_tool": {
+                    "type": "string",
+                    "description": "Choose alignment tool. FAMSA is recommended as best time-memory-accuracy combination option.",
+                    "help_text": "Available tools: 'famsa' or 'mafft'.",
+                    "enum": ["famsa", "mafft"]
+                },
+                "trim_seed_msa": {
+                    "type": "boolean",
+                    "description": "Boolean whether to trim the seed MSA gaps",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "clipping_tool": {
+                    "type": "string",
+                    "description": "Choose clipping tool. ClipKIT clips gaps throughout the sequence while clip_ends only at the ends.",
+                    "help_text": "Available tools: local module 'clip_ends' or nf-core 'clipkit'.",
+                    "enum": ["clip_ends", "clipkit"]
+                },
+                "gap_threshold": {
+                    "type": "number",
+                    "default": 0.5,
+                    "description": "Seed MSA positions with gappyness greater than this threshold will be trimmed"
+                },
+                "recruit_sequences_with_models": {
+                    "type": "boolean",
+                    "description": "Set to true to recruit additional sequences from the input FASTA file using the family HMMs to refine the alignments",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "hmmsearch_write_target": {
+                    "type": "boolean",
+                    "description": "Boolean whether to generate target results file of hmmsearch",
+                    "default": false,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "hmmsearch_write_domain": {
+                    "type": "boolean",
+                    "description": "Boolean whether to generate domain results file of hmmsearch",
+                    "default": true,
+                    "fa_icon": "fas fa-check-square",
+                    "hidden": true
+                },
+                "hmmsearch_evalue_cutoff": {
+                    "type": "number",
+                    "default": 0.001,
+                    "description": "hmmsearch e-value cutoff threshold for reported results"
+                },
+                "save_hmmsearch_results": {
+                    "type": "boolean",
+                    "description": "Save the output of hmmsearch (stockholm msa and domtblout)",
+                    "help_text": "Specify to save the .sto.gz and .domtbl.gz files generated by running hmmsearch on the family model against the input set of sequences."
+                },
+                "hmmsearch_query_length_threshold": {
+                    "type": "number",
+                    "default": 0.8,
+                    "description": "hmmsearch minimum length percentage filter of hit env vs query length"
+                }
+            }
+        },
+        "redundancy_params": {
+            "title": "Redundancy removal parameters",
+            "type": "object",
+            "description": "Use these parameters to control the redundancy removal subworkflow execution.",
+            "properties": {
+                "remove_family_redundancy": {
+                    "type": "boolean",
+                    "description": "Removal of between-family redundancy via hmmsearch.",
+                    "default": true,
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "hmmsearch_family_length_threshold": {
+                    "type": "number",
+                    "default": 0.8,
+                    "description": "hmmsearch minimum length percentage filter of hit env vs query length, for redundant family removal"
+                },
+                "remove_sequence_redundancy": {
+                    "type": "boolean",
+                    "description": "Removal of inside-family redundancy of sequences via mmseqs clustering.",
+                    "default": true,
+                    "fa_icon": "fas fa-question-circle",
+                    "hidden": true
+                },
+                "cluster_seq_identity_for_redundancy": {
+                    "type": "number",
+                    "default": 0.95,
+                    "description": "mmseqs parameter for minimum sequence identity"
+                },
+                "cluster_coverage_for_redundancy": {
+                    "type": "number",
+                    "default": 0.95,
+                    "description": "mmseqs parameter for minimum sequence coverage ratio"
+                },
+                "cluster_cov_mode_for_redundancy": {
+                    "type": "integer",
+                    "default": 0,
+                    "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence"
+                }
+            }
         }
     },
     "allOf": [
@@ -198,6 +349,15 @@
         },
         {
             "$ref": "#/$defs/generic_options"
+        },
+        {
+            "$ref": "#/$defs/clustering_params"
+        },
+        {
+            "$ref": "#/$defs/alignment_params"
+        },
+        {
+            "$ref": "#/$defs/redundancy_params"
         }
     ]
 }
