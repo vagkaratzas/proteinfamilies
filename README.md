@@ -28,7 +28,8 @@ Optionally, paths to existing family HMMs and MSAs can be given (must have match
     <img src="docs/images/proteinfamilies_workflow.png" alt="nf-core/proteinfamilies workflow overview">
 </p>
 
-A. Create families
+### Create families
+
 1. Cluster sequences ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/))
 2. Perform multiple sequence alignment (MSA) ([`FAMSA`](https://github.com/refresh-bio/FAMSA/) or [`mafft`](https://github.com/GSLBiotech/mafft/))
 3. Optionally, clip gap parts of the MSA ([`ClipKIT`](https://github.com/JLSteenwyk/ClipKIT/))
@@ -37,7 +38,8 @@ A. Create families
 6. Optionally, from the remaining families, remove in-family redundant sequences by strictly clustering with ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/)) and keep cluster representatives
 7. Present QC for remaining/updated families size distributions and representative sequence lengths ([`MultiQC`](http://multiqc.info/))
 
-B. Update families
+### Update families
+
 1. Find which families to update by comparing the input sequences against existing family models with ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
 2. For non hit sequences continue with the above: A. Create families. For hit sequences and families continue to: 3
 3. Extract family sequences ([`SeqKit`](https://github.com/shenwei356/seqkit/)) and concatenate with filtered hit sequences of each family
