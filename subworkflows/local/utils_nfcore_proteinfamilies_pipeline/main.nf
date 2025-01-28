@@ -69,22 +69,6 @@ workflow PIPELINE_INITIALISATION {
 
     Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
-        .map {
-            meta, fastq_1, fastq_2 ->
-                if (!fastq_2) {
-                    return [ meta.id, meta + [ single_end:true ], [ fastq_1 ] ]
-                } else {
-                    return [ meta.id, meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
-                }
-        }
-        .groupTuple()
-        .map { samplesheet ->
-            validateInputSamplesheet(samplesheet)
-        }
-        .map {
-            meta, fastqs ->
-                return [ meta, fastqs.flatten() ]
-        }
         .set { ch_samplesheet }
 
     emit:
@@ -164,7 +148,6 @@ def validateInputSamplesheet(input) {
 // Generate methods description for MultiQC
 //
 def toolCitationText() {
-    // TODO nf-core: Optionally add in-text citation tools to this list.
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def citation_text = [
@@ -177,7 +160,6 @@ def toolCitationText() {
 }
 
 def toolBibliographyText() {
-    // TODO nf-core: Optionally add bibliographic entries to this list.
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
     def reference_text = [
@@ -211,7 +193,7 @@ def methodsDescriptionText(mqc_methods_yaml) {
     meta["tool_citations"] = ""
     meta["tool_bibliography"] = ""
 
-    // TODO nf-core: Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
+    // Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
     // meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
     // meta["tool_bibliography"] = toolBibliographyText()
 
@@ -224,3 +206,29 @@ def methodsDescriptionText(mqc_methods_yaml) {
     return description_html.toString()
 }
 
+//
+// Validate that two folders (HMMs and MSAs for update) contain the same number of files and matching base filenames
+//
+def validateMatchingFolders(channel1, channel2) {
+    // Fetch the contents of the channels
+    channel1
+        .join(channel2)
+        .map { meta, folder1, folder2 ->
+            def files1 = folder1.listFiles()
+            def files2 = folder2.listFiles()
+
+            // Check if the number of files matches
+            if (files1.size() != files2.size()) {
+                error("Folder mismatch: ${folder1} has ${files1.size()} files, but ${folder2} has ${files2.size()} files.")
+            }
+
+            // Extract base filenames (without extensions) and sort
+            def baseNames1 = files1.collect { it.getSimpleName() }.sort()
+            def baseNames2 = files2.collect { it.getSimpleName() }.sort()
+
+            // Check if base filenames match one to one
+            if (baseNames1 != baseNames2) {
+                error("Filename mismatch: Expected matching files in ${folder1} and ${folder2}. Base filenames do not match.")
+            }
+    }
+}
