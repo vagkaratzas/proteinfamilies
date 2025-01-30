@@ -3,8 +3,7 @@
 import sys
 import os
 import argparse
-import csv
-from collections import defaultdict
+import polars as pl
 from Bio import SeqIO
 
 
@@ -18,50 +17,52 @@ def parse_args(args=None):
 
 
 def collect_clusters(clustering_file, threshold):
-    """Load clusters from file and filter by threshold."""
-    clusters = defaultdict(set)  # Use sets for fast lookups
+    """Load clusters efficiently using Polars and filter by threshold."""
+    df = pl.read_csv(
+        clustering_file,
+        separator="\t",
+        has_header=False,
+        new_columns=["rep", "member"],
+        schema_overrides={"rep": pl.Utf8, "member": pl.Utf8},  # Treat both columns as strings
+    )
 
-    with open(clustering_file) as f:
-        csv_reader = csv.reader(f, delimiter="\t")
-        for rep, member in csv_reader:
-            clusters[rep].add(member)
+    # Group by representative, collect members, filter by threshold
+    clusters = (
+        df.group_by("rep")
+        .agg(pl.col("member"))
+        .filter(pl.col("member").list.len() >= threshold)
+    )
 
-    # Filter clusters by threshold
-    return {rep: members for rep, members in clusters.items() if len(members) >= threshold}
-
-
-def load_sequences(fasta_file):
-    """Load all sequences into a dictionary (ID -> SeqRecord)."""
-    return {record.id: record for record in SeqIO.parse(fasta_file, "fasta")}
-
-
-def write_fasta(output_file, records):
-    """Write multiple FASTA records efficiently."""
-    with open(output_file, "w") as fasta_out:
-        SeqIO.write(records, fasta_out, "fasta")
+    # Convert to dictionary {rep: frozenset(members)}
+    return {row["rep"]: frozenset(row["member"]) for row in clusters.iter_rows(named=True)}
 
 
-def main(args=None):
-    args = parse_args(args)
+def process_clusters(clusters, fasta_file, out_folder):
+    """Write FASTA sequences efficiently using an indexed approach."""
+    os.makedirs(out_folder, exist_ok=True)
 
-    # Ensure output directory exists
-    os.makedirs(args.out_folder, exist_ok=True)
+    # Use SeqIO.index() to create an indexed FASTA dictionary
+    seq_dict = SeqIO.index(fasta_file, "fasta")
 
-    # Collect valid clusters
-    clusters = collect_clusters(args.clustering, args.threshold)
-
-    # Load all sequences into memory for fast lookups
-    seq_dict = load_sequences(args.sequences)
-
-    # Process clusters in one pass
     for chunk_num, (rep, members) in enumerate(clusters.items(), start=1):
-        output_file = os.path.join(args.out_folder, f"{chunk_num}.fasta")
+        output_file = os.path.join(out_folder, f"{chunk_num}.fasta")
 
         # Collect sequences that belong to this cluster
         cluster_seqs = [seq_dict[member] for member in members if member in seq_dict]
 
         if cluster_seqs:
-            write_fasta(output_file, cluster_seqs)
+            with open(output_file, "w") as fasta_out:
+                SeqIO.write(cluster_seqs, fasta_out, "fasta")
+
+
+def main(args=None):
+    args = parse_args(args)
+
+    # Collect valid clusters with Polars
+    clusters = collect_clusters(args.clustering, args.threshold)
+
+    # Process and write FASTA sequences
+    process_clusters(clusters, args.sequences, args.out_folder)
 
 
 if __name__ == "__main__":

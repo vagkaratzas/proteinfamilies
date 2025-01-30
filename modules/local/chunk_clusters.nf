@@ -2,10 +2,10 @@ process CHUNK_CLUSTERS {
     tag "$meta.id"
     label 'process_single'
 
-    conda "conda-forge::biopython=1.84"
+    conda "conda-forge::biopython=1.84 conda-forge::polars=1.21.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/eb/eb3700531c7ec639f59f084ab64c05e881d654dcf829db163539f2f0b095e09d/data' :
-        'community.wave.seqera.io/library/biopython:1.84--3318633dad0031e7' }"
+        'https://community-cr-prod.seqera.io/docker/registry/v2/blobs/sha256/92/9266f998993b43dd4ac4ee5f75aa3217cd05b0d2f38df1dc110ec9c5832627fd/data' :
+        'community.wave.seqera.io/library/biopython_polars:42dc770aaa311a0c' }"
 
     input:
     tuple val(meta) , path(clustering)
@@ -36,7 +36,8 @@ process CHUNK_CLUSTERS {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version 2>&1 | sed 's/Python //g')
-        biopython: \$(python -c "import pkg_resources; print(pkg_resources.get_distribution('biopython').version)")
+        biopython: \$(python -c "import importlib.metadata; print(importlib.metadata.version('biopython'))")
+        polars: \$(python -c "import importlib.metadata; print(importlib.metadata.version('polars'))")
     END_VERSIONS
     """
 }
