@@ -3,83 +3,65 @@
 import sys
 import os
 import argparse
-from collections import defaultdict
 import csv
+from collections import defaultdict
 from Bio import SeqIO
 
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-c",
-        "--clustering",
-        required=True,
-        metavar="FILE",
-        type=str,
-        help="TSV clustering file input.",
-    )
-    parser.add_argument(
-        "-s",
-        "--sequences",
-        required=True,
-        metavar="FILE",
-        type=str,
-        help="Initial sequences FASTA file.",
-    )
-    parser.add_argument(
-        "-t",
-        "--threshold",
-        required=True,
-        metavar="INT",
-        type=int,
-        help="Minimum cluster size to keep.",
-    )
-    parser.add_argument(
-        "-o",
-        "--out_folder",
-        required=True,
-        metavar="FOLDER",
-        type=str,
-        help="Name of the output folder to be created.",
-    )
+    parser.add_argument("-c", "--clustering", required=True, type=str, help="TSV clustering file input.")
+    parser.add_argument("-s", "--sequences" , required=True, type=str, help="Initial sequences FASTA file.")
+    parser.add_argument("-t", "--threshold" , required=True, type=int, help="Minimum cluster size to keep.")
+    parser.add_argument("-o", "--out_folder", required=True, type=str, help="Output folder to store FASTA files.")
     return parser.parse_args(args)
 
 
 def collect_clusters(clustering_file, threshold):
-    # Collect clusters with a size threshold, storing in a defaultdict
-    clusters = defaultdict(list)
+    """Load clusters from file and filter by threshold."""
+    clusters = defaultdict(set)  # Use sets for fast lookups
 
     with open(clustering_file) as f:
         csv_reader = csv.reader(f, delimiter="\t")
-        for row in csv_reader:
-            rep, member = row
-            clusters[rep].append(member)
+        for rep, member in csv_reader:
+            clusters[rep].add(member)
 
     # Filter clusters by threshold
-    return {
-        rep: members for rep, members in clusters.items() if len(members) >= threshold
-    }
+    return {rep: members for rep, members in clusters.items() if len(members) >= threshold}
+
+
+def load_sequences(fasta_file):
+    """Load all sequences into a dictionary (ID -> SeqRecord)."""
+    return {record.id: record for record in SeqIO.parse(fasta_file, "fasta")}
+
+
+def write_fasta(output_file, records):
+    """Write multiple FASTA records efficiently."""
+    with open(output_file, "w") as fasta_out:
+        SeqIO.write(records, fasta_out, "fasta")
 
 
 def main(args=None):
     args = parse_args(args)
 
-    # Create output directory if it doesn't exist
+    # Ensure output directory exists
     os.makedirs(args.out_folder, exist_ok=True)
 
-    # Collect clusters that meet the threshold
-    clusters = collect_clusters(args.clustering, int(args.threshold))
+    # Collect valid clusters
+    clusters = collect_clusters(args.clustering, args.threshold)
 
-    # Stream through the FASTA file and write out sequences that match clusters
-    chunk_num = 1
-    for rep, members in clusters.items():
+    # Load all sequences into memory for fast lookups
+    seq_dict = load_sequences(args.sequences)
+
+    # Process clusters in one pass
+    for chunk_num, (rep, members) in enumerate(clusters.items(), start=1):
         output_file = os.path.join(args.out_folder, f"{chunk_num}.fasta")
-        with open(output_file, "w") as fasta_out:
-            with open(args.sequences) as seq_file:
-                for record in SeqIO.parse(seq_file, "fasta"):
-                    if record.id in members:
-                        SeqIO.write(record, fasta_out, "fasta")
-        chunk_num += 1
+
+        # Collect sequences that belong to this cluster
+        cluster_seqs = [seq_dict[member] for member in members if member in seq_dict]
+
+        if cluster_seqs:
+            write_fasta(output_file, cluster_seqs)
 
 
 if __name__ == "__main__":
