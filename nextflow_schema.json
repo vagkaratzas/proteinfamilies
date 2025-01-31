@@ -258,7 +258,7 @@
                 "gap_threshold": {
                     "type": "number",
                     "default": 0.5,
-                    "description": "Seed MSA positions with gappyness greater than this threshold will be trimmed"
+                    "description": "Seed MSA positions with gappiness greater than this threshold will be trimmed"
                 },
                 "recruit_sequences_with_models": {
                     "type": "boolean",

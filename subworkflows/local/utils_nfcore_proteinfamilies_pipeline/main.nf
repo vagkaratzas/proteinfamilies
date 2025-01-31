@@ -219,7 +219,7 @@ def validateMatchingFolders(channel1, channel2) {
 
             // Check if the number of files matches
             if (files1.size() != files2.size()) {
-                error("Folder mismatch: ${folder1} has ${files1.size()} files, but ${folder2} has ${files2.size()} files.")
+                error("[nf-core/proteinfamilies] ERROR: Folder mismatch: ${folder1} has ${files1.size()} files, but ${folder2} has ${files2.size()} files.")
             }
 
             // Extract base filenames (without extensions) and sort
