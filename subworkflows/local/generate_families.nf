@@ -24,7 +24,7 @@ workflow GENERATE_FAMILIES {
     fasta_chunks
         .transpose()
         .map { meta, file_path ->
-            [ [id: meta.id, chunk: file(file_path).baseName], file_path ]
+            [ [id: meta.id, chunk: file(file_path, checkIfExists: true).baseName], file_path ]
         }
         .set { ch_fasta }
 

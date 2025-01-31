@@ -47,7 +47,7 @@ workflow UPDATE_FAMILIES {
     validateMatchingFolders(ch_folders_to_validate.hmm_folder_ch, ch_folders_to_validate.msa_folder_ch)
 
     // Squeeze the HMMs into a single file
-    CAT_HMM( UNTAR_HMM.out.untar.map { meta, folder -> [meta, file("$folder/*")] } )
+    CAT_HMM( UNTAR_HMM.out.untar.map { meta, folder -> [meta, file("$folder/*", checkIfExists: true)] } )
     ch_versions = ch_versions.mix( CAT_HMM.out.versions )
 
     // Prep the sequences to search against the HMM concatenated model of families
@@ -80,7 +80,7 @@ workflow UPDATE_FAMILIES {
 
     UNTAR_MSA.out.untar
         .map { meta, folder ->
-            [meta, file("$folder/*")]
+            [meta, file("$folder/*", checkIfExists: true)]
         }
         .transpose()
         .map { meta, file ->
