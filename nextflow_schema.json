@@ -242,9 +242,9 @@
                     "help_text": "Available tools: 'famsa' or 'mafft'.",
                     "enum": ["famsa", "mafft"]
                 },
-                "trim_seed_msa": {
+                "trim_msa": {
                     "type": "boolean",
-                    "description": "Boolean whether to trim the seed MSA gaps",
+                    "description": "Boolean whether to trim the MSA gaps",
                     "default": true,
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
@@ -258,7 +258,7 @@
                 "gap_threshold": {
                     "type": "number",
                     "default": 0.5,
-                    "description": "Seed MSA positions with gappiness greater than this threshold will be trimmed"
+                    "description": "MSA positions with gappiness greater than this threshold will be trimmed"
                 },
                 "recruit_sequences_with_models": {
                     "type": "boolean",
@@ -324,12 +324,12 @@
                 },
                 "cluster_seq_identity_for_redundancy": {
                     "type": "number",
-                    "default": 0.95,
+                    "default": 0.97,
                     "description": "mmseqs parameter for minimum sequence identity"
                 },
                 "cluster_coverage_for_redundancy": {
                     "type": "number",
-                    "default": 0.95,
+                    "default": 0.97,
                     "description": "mmseqs parameter for minimum sequence coverage ratio"
                 },
                 "cluster_cov_mode_for_redundancy": {

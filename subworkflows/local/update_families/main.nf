@@ -114,7 +114,7 @@ workflow UPDATE_FAMILIES {
     ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
     ch_msa = ALIGN_SEQUENCES.out.alignments
 
-    if (params.trim_seed_msa) {
+    if (params.trim_msa) {
         if (params.clipping_tool == 'clipkit') {
             CLIPKIT( ch_msa )
             ch_versions = ch_versions.mix( CLIPKIT.out.versions )
