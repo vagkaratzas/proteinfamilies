@@ -2,14 +2,14 @@
     REMOVAL OF REDUNDANT SEQUENCES AND FAMILIES
 */
 
-include { EXTRACT_FAMILY_REPS       } from '../../modules/local/extract_family_reps.nf'
-include { CAT_CAT                   } from '../../modules/nf-core/cat/cat'
-include { HMMER_HMMSEARCH           } from '../../modules/nf-core/hmmer/hmmsearch/main'
-include { REMOVE_REDUNDANT_FAMS     } from '../../modules/local/remove_redundant_fams.nf'
-include { FILTER_NON_REDUNDANT_HMMS } from '../../modules/local/filter_non_redundant_hmms.nf'
-include { EXECUTE_CLUSTERING        } from '../../subworkflows/local/execute_clustering'
-include { REMOVE_REDUNDANT_SEQS     } from '../../modules/local/remove_redundant_seqs.nf'
-include { ALIGN_SEQUENCES           } from '../../subworkflows/local/align_sequences'
+include { EXTRACT_FAMILY_REPS       } from '../../../modules/local/extract_family_reps/main'
+include { CAT_CAT                   } from '../../../modules/nf-core/cat/cat'
+include { HMMER_HMMSEARCH           } from '../../../modules/nf-core/hmmer/hmmsearch/main'
+include { REMOVE_REDUNDANT_FAMS     } from '../../../modules/local/remove_redundant_fams/main'
+include { FILTER_NON_REDUNDANT_HMMS } from '../../../modules/local/filter_non_redundant_hmms/main'
+include { EXECUTE_CLUSTERING        } from '../../../subworkflows/local/execute_clustering'
+include { REMOVE_REDUNDANT_SEQS     } from '../../../modules/local/remove_redundant_seqs/main'
+include { ALIGN_SEQUENCES           } from '../../../subworkflows/local/align_sequences'
 
 workflow REMOVE_REDUNDANCY {
     take:

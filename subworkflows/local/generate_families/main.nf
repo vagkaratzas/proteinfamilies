@@ -2,13 +2,13 @@
     FAMILY MODEL GENERATION
 */
 
-include { ALIGN_SEQUENCES  } from '../../subworkflows/local/align_sequences'
-include { CLIPKIT          } from '../../modules/nf-core/clipkit/main'
-include { CLIP_ENDS        } from '../../modules/local/clip_ends.nf'
-include { HMMER_HMMBUILD   } from '../../modules/nf-core/hmmer/hmmbuild/main'
-include { HMMER_HMMSEARCH  } from '../../modules/nf-core/hmmer/hmmsearch/main'
-include { FILTER_RECRUITED } from '../../modules/local/filter_recruited.nf'
-include { HMMER_HMMALIGN   } from '../../modules/nf-core/hmmer/hmmalign/main'
+include { ALIGN_SEQUENCES  } from '../../../subworkflows/local/align_sequences'
+include { CLIPKIT          } from '../../../modules/nf-core/clipkit/main'
+include { CLIP_ENDS        } from '../../../modules/local/clip_ends/main'
+include { HMMER_HMMBUILD   } from '../../../modules/nf-core/hmmer/hmmbuild/main'
+include { HMMER_HMMSEARCH  } from '../../../modules/nf-core/hmmer/hmmsearch/main'
+include { FILTER_RECRUITED } from '../../../modules/local/filter_recruited/main'
+include { HMMER_HMMALIGN   } from '../../../modules/nf-core/hmmer/hmmalign/main'
 
 workflow GENERATE_FAMILIES {
     take:

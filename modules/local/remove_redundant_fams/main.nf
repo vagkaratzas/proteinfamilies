@@ -2,7 +2,7 @@ process REMOVE_REDUNDANT_FAMS {
     tag "$meta.id"
     label 'process_single'
 
-    conda "conda-forge::pandas=1.4.3"
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/pandas:1.4.3' :
         'biocontainers/pandas:1.4.3' }"
@@ -32,7 +32,7 @@ process REMOVE_REDUNDANT_FAMS {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version 2>&1 | sed 's/Python //g')
-        pandas: \$(python -c "import pkg_resources; print(pkg_resources.get_distribution('pandas').version)")
+        pandas: \$(python -c "import importlib.metadata; print(importlib.metadata.version('pandas'))")
     END_VERSIONS
     """
 }

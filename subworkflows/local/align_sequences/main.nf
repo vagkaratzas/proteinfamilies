@@ -2,8 +2,8 @@
     MULTIPLE SEQUENCE ALIGNMENT
 */
 
-include { FAMSA_ALIGN } from '../../modules/nf-core/famsa/align/main'
-include { MAFFT_ALIGN } from '../../modules/nf-core/mafft/align/main'
+include { FAMSA_ALIGN } from '../../../modules/nf-core/famsa/align/main'
+include { MAFFT_ALIGN } from '../../../modules/nf-core/mafft/align/main'
 
 workflow ALIGN_SEQUENCES {
     take:

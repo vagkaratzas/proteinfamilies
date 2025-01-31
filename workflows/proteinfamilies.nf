@@ -26,8 +26,8 @@ include { REMOVE_REDUNDANCY  } from '../subworkflows/local/remove_redundancy'
 //
 // MODULE: Local to the pipeline
 //
-include { CHUNK_CLUSTERS      } from '../modules/local/chunk_clusters.nf'
-include { EXTRACT_FAMILY_REPS } from '../modules/local/extract_family_reps.nf'
+include { CHUNK_CLUSTERS      } from '../modules/local/chunk_clusters/main'
+include { EXTRACT_FAMILY_REPS } from '../modules/local/extract_family_reps/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
