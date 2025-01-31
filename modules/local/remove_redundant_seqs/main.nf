@@ -21,6 +21,7 @@ process REMOVE_REDUNDANT_SEQS {
     script:
     def is_compressed = sequences.getName().endsWith(".gz") ? true : false
     def fasta_name    = sequences.name.replace(".gz", "")
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     if [ "$is_compressed" == "true" ]; then
         gzip -c -d $sequences > $fasta_name
@@ -29,7 +30,7 @@ process REMOVE_REDUNDANT_SEQS {
     remove_redundant_seqs.py \\
         --clustering ${clustering} \\
         --sequences ${fasta_name} \\
-        --out_fasta ${meta.id}_reps.fa
+        --out_fasta ${prefix}_reps.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -19,11 +19,12 @@ process EXTRACT_FAMILY_REPS {
     task.ext.when == null || task.ext.when
 
     script:
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     extract_family_reps.py \\
         --full_msa_folder aln \\
-        --metadata ${meta.id}_meta_mqc.csv \\
-        --out_fasta ${meta.id}_reps.fa
+        --metadata ${prefix}_meta_mqc.csv \\
+        --out_fasta ${prefix}_reps.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
