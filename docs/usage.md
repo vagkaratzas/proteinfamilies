@@ -29,6 +29,19 @@ CONTROL_REP2,amino_acid_sequences_extra.fa.gz,existing_hmms.tar.gz,existing_msas
 | `existing_hmms_to_update`   | Full path to compressed archive with existing family HMMs. Allowed extension should be ".tar.gz".                                 |
 | `existing_msas_to_update`   | Full path to compressed archive with existing family MSAs. Allowed extension should be ".tar.gz".                                 |
 
+## Parameter specifications
+Here we provide guidance regarding some parameter choices.
+
+- clustering_tool ["cluster", "linclust"]: The mmseqs algorithm used for clustering.
+The 'cluster' option is very slow and should only be used for small or medium size inputs.
+The 'linclust' option is somewhat less sensitive, but extremely fast for clustering larger datasets.
+- alignment_tool ["famsa", "mafft"]: Multiple Sequence Alignment (MSA) options.
+The 'famsa' option is generally recommended as best time-memory-accuracy combination.
+The 'mafft' option is also very fast and may still produce better alignments in some edge cases.
+- clipping_tool ["clip_ends", "clipkit"]: Options for MSA gap trimming.
+The 'clipkit' options clips gaps throughout the sequence while 'clip_ends' only at the ends.
+The authors suggest using 'clip_ends', since the gaps inside the sequences may still carry evolutionary significance.
+
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:

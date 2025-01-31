@@ -202,7 +202,7 @@
                     "type": "string",
                     "description": "Choose clustering algorithm. Either simple 'cluster' for medium size inputs, or 'linclust' for less sensitive clustering of larger datasets.",
                     "help_text": "mmseqs algorithms available: 'cluster' or 'linclust'.",
-                    "enum": ["cluster", "linclust"]
+                    "enum": ["linclust", "cluster"]
                 },
                 "cluster_seq_identity": {
                     "type": "number",
