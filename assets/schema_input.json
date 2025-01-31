@@ -25,7 +25,7 @@
                 "format": "file-path",
                 "exists": true,
                 "pattern": "^\\S+\\.tar\\.gz$",
-                "description": "Tarball file containing existing protein family HMMs. These models will be used to 'fish' new sequences from the input and then be updated accordingly."
+                "description": "Gzipped tarball file containing existing protein family HMMs. These models will be used to 'fish' new sequences from the input and then be updated accordingly."
             },
             "existing_msas_to_update": {
                 "type": "string",
