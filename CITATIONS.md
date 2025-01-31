@@ -34,6 +34,10 @@
 
 > Shen W, Sipos B, Zhao L. SeqKit2: A Swiss army knife for sequence and alignment processing. iMeta. 2024 Apr 5:e191. doi: 10.1002/imt2.191. PubMed PMID: 38898985; PubMed Central PMCID: PMC11183193.
 
+- [Biopython](https://pubmed.ncbi.nlm.nih.gov/19304878/)
+
+> Cock PJ, Antao T, Chang JT, Chapman BA, Cox CJ, Dalke A, Friedberg I, Hamelryck T, Kauff F, Wilczynski B, De Hoon MJ. Biopython: freely available Python tools for computational molecular biology and bioinformatics. Bioinformatics. 2009 Jun 6;25(11):1422. doi: 10.1093/bioinformatics/btp163. PubMed PMID: 19304878; PubMed Central PMCID: PMC2682512.
+
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
 
 > Ewels P, Magnusson M, Lundin S, Käller M. MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics. 2016 Oct 1;32(19):3047-8. doi: 10.1093/bioinformatics/btw354. Epub 2016 Jun 16. PubMed PMID: 27312411; PubMed Central PMCID: PMC5039924.

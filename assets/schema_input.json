@@ -17,8 +17,8 @@
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.f(ast)?a(\\.gz)?$",
-                "errorMessage": "Fasta file for amino acid sequences must be provided, cannot contain spaces and must have extension '.fa', '.fasta', '.fa.gz' or '.fasta.gz'"
+                "pattern": "^\\S+\\.(fa|fasta|faa|fas)(\\.gz)?$",
+                "errorMessage": "Fasta file for amino acid sequences must be provided, cannot contain spaces and must have extension '.fa', '.fasta', '.faa', '.fas', '.fa.gz', '.fasta.gz', '.faa.gz' or '.fas.gz'"
             },
             "existing_hmms_to_update": {
                 "type": "string",

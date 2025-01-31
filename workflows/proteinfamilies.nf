@@ -26,8 +26,8 @@ include { REMOVE_REDUNDANCY  } from '../subworkflows/local/remove_redundancy'
 //
 // MODULE: Local to the pipeline
 //
-include { CHUNK_CLUSTERS      } from '../modules/local/chunk_clusters.nf'
-include { EXTRACT_FAMILY_REPS } from '../modules/local/extract_family_reps.nf'
+include { CHUNK_CLUSTERS      } from '../modules/local/chunk_clusters/main'
+include { EXTRACT_FAMILY_REPS } from '../modules/local/extract_family_reps/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,12 +48,11 @@ workflow PROTEINFAMILIES {
     ch_samplesheet_for_create = Channel.empty()
     ch_samplesheet_for_update = Channel.empty()
 
-    ch_samplesheet
+    ch_branch_result = ch_samplesheet
         .branch { _meta, _fasta, existing_hmms_to_update, existing_msas_to_update ->
             to_create: !existing_hmms_to_update?.size() && !existing_msas_to_update?.size()
             to_update: existing_hmms_to_update?.size() && existing_msas_to_update?.size()
         }
-        .set { branch_result }
 
     /************************************/
     /* Splitting the samplesheet into 2 */
@@ -63,11 +62,14 @@ workflow PROTEINFAMILIES {
     /*   families (existing HMM models  */
     /*   and MSAs)                      */
     /************************************/
-    ch_samplesheet_for_create = branch_result.to_create.map { meta, fasta, _existing_hmms, _existing_msas -> [meta, fasta] }
-    ch_samplesheet_for_update = branch_result.to_update
+    ch_samplesheet_for_create = ch_branch_result.to_create
+        .map { meta, fasta, _existing_hmms, _existing_msas ->
+            [meta, fasta]
+        }
+    ch_samplesheet_for_update = ch_branch_result.to_update
 
     // Updating existing families
-    if (branch_result.to_update) {
+    if (ch_branch_result.to_update) {
         UPDATE_FAMILIES( ch_samplesheet_for_update )
         ch_versions = ch_versions.mix( UPDATE_FAMILIES.out.versions )
 
@@ -92,10 +94,9 @@ workflow PROTEINFAMILIES {
     ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
 
     // Post-processing
-    REMOVE_REDUNDANCY.out.msa
+    ch_msa = REMOVE_REDUNDANCY.out.msa
         .map { meta, aln -> [ [id: meta.id], aln ] }
         .groupTuple(by: 0)
-        .set { ch_msa }
 
     EXTRACT_FAMILY_REPS( ch_msa )
     ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )

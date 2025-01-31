@@ -202,22 +202,25 @@
                     "type": "string",
                     "description": "Choose clustering algorithm. Either simple 'cluster' for medium size inputs, or 'linclust' for less sensitive clustering of larger datasets.",
                     "help_text": "mmseqs algorithms available: 'cluster' or 'linclust'.",
-                    "enum": ["cluster", "linclust"]
+                    "enum": ["linclust", "cluster"]
                 },
                 "cluster_seq_identity": {
                     "type": "number",
                     "default": 0.5,
-                    "description": "mmseqs parameter for minimum sequence identity"
+                    "description": "mmseqs parameter for minimum sequence identity",
+                    "help_text": "Minimum sequence identity required for clustering. The mmseqs default is 0.9, but protein families contain way more diverse sequences."
                 },
                 "cluster_coverage": {
                     "type": "number",
                     "default": 0.9,
-                    "description": "mmseqs parameter for minimum sequence coverage ratio"
+                    "description": "mmseqs parameter for minimum sequence coverage ratio",
+                    "help_text": "Minimum sequence length coverage required for clustering"
                 },
                 "cluster_cov_mode": {
                     "type": "integer",
                     "default": 0,
-                    "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence"
+                    "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence",
+                    "help_text": "Defined by the number of aligned residue pairs divided by 0: the maximum of the length of query/centre and target/non-centre sequences, 1: the length of the target/non-centre sequence, 2: the length of the query/centre"
                 },
                 "save_mmseqs_clustering": {
                     "type": "boolean",
@@ -227,7 +230,8 @@
                 "cluster_size_threshold": {
                     "type": "integer",
                     "default": 25,
-                    "description": "Minimum clustering chunk size threshold to create seed multiple sequence alignments upon."
+                    "description": "Minimum clustering chunk size threshold to create seed multiple sequence alignments upon.",
+                    "help_text": "This is an initial filter for the mmseqs clustering results. The lower the threshold, the more families will be generated. Additional sequences may be later recruited in the families."
                 }
             }
         },
@@ -242,9 +246,9 @@
                     "help_text": "Available tools: 'famsa' or 'mafft'.",
                     "enum": ["famsa", "mafft"]
                 },
-                "trim_seed_msa": {
+                "trim_msa": {
                     "type": "boolean",
-                    "description": "Boolean whether to trim the seed MSA gaps",
+                    "description": "Boolean whether to trim the MSA gaps",
                     "default": true,
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
@@ -258,28 +262,31 @@
                 "gap_threshold": {
                     "type": "number",
                     "default": 0.5,
-                    "description": "Seed MSA positions with gappiness greater than this threshold will be trimmed"
+                    "description": "MSA positions with gappiness greater than this threshold will be trimmed"
                 },
                 "recruit_sequences_with_models": {
                     "type": "boolean",
                     "description": "Set to true to recruit additional sequences from the input FASTA file using the family HMMs to refine the alignments",
                     "default": true,
                     "fa_icon": "fas fa-check-square",
-                    "hidden": true
+                    "hidden": true,
+                    "help_text": "If this is set to true, the hmmer/hmmsearch module will be used to recruit additional sequences from the input fasta file into the family (above the hmmsearch_query_length_threshold), resulting in bigger but better described families"
                 },
                 "hmmsearch_write_target": {
                     "type": "boolean",
                     "description": "Boolean whether to generate target results file of hmmsearch",
                     "default": false,
                     "fa_icon": "fas fa-check-square",
-                    "hidden": true
+                    "hidden": true,
+                    "help_text": "Specify to calculate the hmmsearch tabular (space-delimited) summary of per-target output (*.tbl.gz)."
                 },
                 "hmmsearch_write_domain": {
                     "type": "boolean",
                     "description": "Boolean whether to generate domain results file of hmmsearch",
                     "default": true,
                     "fa_icon": "fas fa-check-square",
-                    "hidden": true
+                    "hidden": true,
+                    "help_text": "Specify to calculate the hmmsearch tabular (space-delimited) summary of per-domain output (*.domtbl.gz)."
                 },
                 "hmmsearch_evalue_cutoff": {
                     "type": "number",
@@ -288,13 +295,14 @@
                 },
                 "save_hmmsearch_results": {
                     "type": "boolean",
-                    "description": "Save the output of hmmsearch (stockholm msa and domtblout)",
-                    "help_text": "Specify to save the .sto.gz and .domtbl.gz files generated by running hmmsearch on the family model against the input set of sequences."
+                    "description": "Save the output of hmmsearch (.domtbl.gz and .tbl.gz)",
+                    "help_text": "Specify to save the .domtbl.gz and .tbl.gz files generated by running hmmsearch on the family model against the input set of sequences."
                 },
                 "hmmsearch_query_length_threshold": {
                     "type": "number",
                     "default": 0.8,
-                    "description": "hmmsearch minimum length percentage filter of hit env vs query length"
+                    "description": "hmmsearch minimum length percentage filter of hit env vs query length",
+                    "help_text": "This length threshold should be quite high to make sure that small, fragmented sequences are not recruited in the family models"
                 }
             }
         },
@@ -308,7 +316,8 @@
                     "description": "Removal of between-family redundancy via hmmsearch.",
                     "default": true,
                     "fa_icon": "fas fa-question-circle",
-                    "hidden": true
+                    "hidden": true,
+                    "help_text": "Similar families should not be further processed, for better resource management and to avoid duplication of families."
                 },
                 "hmmsearch_family_length_threshold": {
                     "type": "number",
@@ -320,22 +329,26 @@
                     "description": "Removal of inside-family redundancy of sequences via mmseqs clustering.",
                     "default": true,
                     "fa_icon": "fas fa-question-circle",
-                    "hidden": true
+                    "hidden": true,
+                    "help_text": "Highly similar sequences within the same family should be removed, while making sure that the protein family diversity is still well captured."
                 },
                 "cluster_seq_identity_for_redundancy": {
                     "type": "number",
-                    "default": 0.95,
-                    "description": "mmseqs parameter for minimum sequence identity"
+                    "default": 0.97,
+                    "description": "mmseqs parameter for minimum sequence identity",
+                    "help_text": "Need to be quite high, to make sure that the diversity is still well captured, well highly similar sequences are removed"
                 },
                 "cluster_coverage_for_redundancy": {
                     "type": "number",
-                    "default": 0.95,
-                    "description": "mmseqs parameter for minimum sequence coverage ratio"
+                    "default": 0.97,
+                    "description": "mmseqs parameter for minimum sequence coverage ratio",
+                    "help_text": "Need to be quite high, to make sure that the diversity is still well captured, well highly similar sequences are removed"
                 },
                 "cluster_cov_mode_for_redundancy": {
                     "type": "integer",
                     "default": 0,
-                    "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence"
+                    "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence",
+                    "help_text": "Defined by the number of aligned residue pairs divided by 0: the maximum of the length of query/centre and target/non-centre sequences, 1: the length of the target/non-centre sequence, 2: the length of the query/centre"
                 }
             }
         }

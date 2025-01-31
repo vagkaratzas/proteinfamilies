@@ -58,19 +58,24 @@ Reporting:
       - `<samplename>.tsv`: tab-separated table containing 2 columns; the first one with the cluster representative sequences, and the second with the cluster members
     - `mmseqs_createdb/`
       - `<samplename>/`
-        - `*`: (optional) mmseqs format db of fasta sequences
+        - `*`: (optional) mmseqs format db of fasta sequences. Can be turned on with --save_mmseqs_db
     - `mmseqs_linclust/`
       - `<samplename>/`
-        - `*`: (optional) mmseqs format clustered db
+        - `*`: (optional) mmseqs format clustered db. Can be turned on with --save_mmseqs_clustering
     - `mmseqs_cluster/`
       - `<samplename>/`
-        - `*`: (optional) mmseqs format clustered db
+        - `*`: (optional) mmseqs format clustered db. Can be turned on with --save_mmseqs_clustering
     - `filtered_fasta_chunks/`
       - `<samplename>/`
         - `chunked_fasta/`
           - `*.fasta`: (optional) fasta files with amino acid sequences of each cluster above the membership threshold
 
 </details>
+
+The `mmseqs_createtsv/<samplename>.tsv` contains the mmseqs clustering of sequences, which will then be filtered by size and split into chunks for further parallel processing.
+The optionally saved `chunked_fasta` folder contains these fasta files of sequences for each cluster.
+These per cluster fasta files act as input to produce downstream families in the next steps of the pipeline.
+The original mmseqs db and the clustered mmseqs db can be optional saved to the output folder, but they won't be further utilised in this pipeline.
 
 [MMseqs2](https://github.com/soedinglab/MMseqs2) clusters amino acid fasta files via either the 'cluster' or the 'linclust' algorithms.
 
@@ -86,6 +91,9 @@ Reporting:
 
 </details>
 
+This folder contains the generated seed MSA family files, if `famsa` was chosen as the `--alignment_tool`.
+These MSA files only contain the original sequences of each cluster as calculated by mmseqs.
+
 [FAMSA](https://github.com/refresh-bio/FAMSA) is a progressive algorithm for large-scale multiple sequence alignments.
 
 ### mafft aligner
@@ -99,6 +107,9 @@ Reporting:
       - `<samplename>_*.fas`: fasta files with aligned amino acid sequences
 
 </details>
+
+This folder contains the generated seed MSA family files, if `mafft` was chosen as the `--alignment_tool`.
+These MSA files only contain the original sequences of each cluster as calculated by mmseqs.
 
 [mafft](https://github.com/GSLBiotech/mafft) is a fast but not very sensitive multiple sequence alignment tool.
 
@@ -117,6 +128,11 @@ Reporting:
 
 </details>
 
+If the `--trim_msa` parameter was set to `true`, then depending on the `--clipping_tool`, and according to the `--gap_threshold` either
+`clipkit` is run and gaps (above threshold) are removed throughout the alignment,
+or `clip_ends` is run and gaps (above threshold) are removed only at the ends.
+Results are stored in the `seed_msa` folder.
+
 [ClipKIT](https://github.com/JLSteenwyk/ClipKIT) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
 
 ### hmmer
@@ -131,14 +147,19 @@ Reporting:
       - `<samplename>_*.hmmbuild.txt`: (optional) hmmbuild execution log
   - `hmmsearch/`
     - `<samplename>/`
-      - `<samplename>_*.domtbl.gz`: (optional) hmmsearch results along parameters info
-      - `<samplename>_*.txt.gz`: (optional) hmmsearch execution log
+      - `<samplename>_*.domtbl.gz`: (optional) hmmsearch results along parameters info. Can be turned on with --save_hmmsearch_results
+      - `<samplename>_*.txt.gz`: (optional) hmmsearch execution log. Can be turned on with --save_hmmsearch_results
 - `full_msa/`
   - `pre_non_redundant/`
     - `<samplename>/`
       - `<samplename>_*.sto.gz`: compressed family full MSA produced by hmmalign (before checking for redundancy)
 
 </details>
+
+The `hmmer/hmmbuild` folder contains all originally created family HMMs. These models will be used downstream used to 'fish' extra sequences
+in each family if `--recruit_sequences_with_models` is set to true, and/or to remove between-families redundancy if `--remove_family_redundancy` is set to true.
+The models can also be used in the `update_families` execution mode of the pipeline,
+along with the families' respective MSAs, to recruit sequences from a new input fasta file into the families, updating both family HMM and MSA files.
 
 [hmmer](https://github.com/EddyRivasLab/hmmer) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
 
@@ -164,6 +185,11 @@ Reporting:
         - `<samplename>_*.fasta.gz`: (optional) compressed family full MSA (after checking for family redundancy)
 
 </details>
+
+If `--remove_family_redundancy` is set to true, the `hmmer/hmmsearch` module is used
+to identify family representative sequences that are highly identical to other family HMMs.
+In these cases, the smaller sized families are deemed redundant and flagged for removal.
+These `remove_redundancy` optional folders only contain intermediate pipeline results that by default are not saved in the output results.
 
 [hmmer](https://github.com/EddyRivasLab/hmmer) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
 
@@ -192,6 +218,11 @@ Reporting:
 
 </details>
 
+If `--remove_sequence_redundancy` is set to true, the mmseqs clustering subworkflow will be executed
+to very strictly cluster (`--cluster_seq_identity_for_redundancy` = 0.97, `cluster_coverage_for_redundancy` = 0.97,
+`cluster_cov_mode_for_redundancy` = 0 -meaning both strands) in-family sequences, keeping only cluster representatives
+before recalculating the family MSAs.
+
 [MMseqs2](https://github.com/soedinglab/MMseqs2) clusters amino acid fasta files via either the 'cluster' or the 'linclust' algorithms.
 
 ### FAMSA for redundancy removal
@@ -207,6 +238,9 @@ Reporting:
 
 </details>
 
+If `--remove_sequence_redundancy` is set to true, then the MSAs will be recalculated after in-family sequence redundancy is removed.
+If the `--alignment_tool` is `famsa`, then this `famsa_align` folder will be created, containing the final MSA files.
+
 [FAMSA](https://github.com/refresh-bio/FAMSA) is a progressive algorithm for large-scale multiple sequence alignments.
 
 ### mafft for redundancy removal
@@ -221,6 +255,9 @@ Reporting:
         - `<samplename>_*.fas`: fasta files with aligned amino acid sequences (after checking for sequence redundancy)
 
 </details>
+
+If `--remove_sequence_redundancy` is set to true, then the MSAs will be recalculated after in-family sequence redundancy is removed.
+If the `--alignment_tool` is `mafft`, then this `mafft_align` folder will be created, containing the final MSA files.
 
 [mafft](https://github.com/GSLBiotech/mafft) is a fast but not very sensitive multiple sequence alignment tool.
 
@@ -266,6 +303,11 @@ Reporting:
 
 </details>
 
+The `update_families` execution mode is run if paths to `existing_hmms_to_update` and `existing_msas_to_update` are provided in the input samplesheet.csv.
+The `hmmer/hmmsearch` module is used to match new incoming sequences in the existing family models.
+If there were hits, the new sequences are reclustered along their matching family existing ones, and new models are build with `hmmer/hmmbuild`
+in the `update_families/hmmer/hmmbuild` folder, from the respective new MSAs.
+
 [hmmer](https://github.com/EddyRivasLab/hmmer) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
 
 ### SeqKit
@@ -280,6 +322,11 @@ Reporting:
     - `<samplename>_<family_id>.fastq`: (optional) concatenated family fasta with newly recruited sequences
 
 </details>
+
+The seqkit module is mainly used during the `update_families` mode
+to extract sequences from family MSA, into intermediate fasta files (`seqkit` output folder).
+The intermediate `update_families/fasta` folder contains the aggregation of existing family sequences along with their newly matching ones,
+that will together produce the updated family MSA.
 
 [SeqKit](https://github.com/shenwei356/seqkit) is a cross-platform and ultrafast toolkit for FASTA/Q file manipulation.
 
@@ -307,6 +354,10 @@ Reporting:
 
 </details>
 
+Similarly to the in-family sequence redundancy removal mechanism, the mmseqs suite is used to strictly cluster
+existing family sequences along newly recruited ones, keeping a non redundant set.
+The new family representative sequences can now be found in the intermediate `mmseqs/reps_fasta` folder.
+
 [MMseqs2](https://github.com/soedinglab/MMseqs2) clusters amino acid fasta files via either the 'cluster' or the 'linclust' algorithms.
 
 ### FAMSA for updating families
@@ -321,6 +372,11 @@ Reporting:
       - `<family_id>.aln`: family full MSA (after updating with new sequences)
 
 </details>
+
+In the `update_families` mode, if new sequences are added in an existing family,
+and after (optionally) removing in-family sequence redundacny, if `--remove_sequence_redundancy` is set to `true`,
+then the family MSA is recalculated.
+If the `--alignment_tool` is `famsa`, then this `famsa_align` folder will be created, containing the updated family MSA files.
 
 [FAMSA](https://github.com/refresh-bio/FAMSA) is a progressive algorithm for large-scale multiple sequence alignments.
 
@@ -337,6 +393,11 @@ Reporting:
       - `<family_id>.fas`: family full MSA (after updating with new sequences)
 
 </details>
+
+In the `update_families` mode, if new sequences are added in an existing family,
+and after (optionally) removing in-family sequence redundacny, if `--remove_sequence_redundancy` is set to `true`,
+then the family MSA is recalculated.
+If the `--alignment_tool` is `mafft`, then this `mafft_align` folder will be created, containing the updated family MSA files.
 
 [mafft](https://github.com/GSLBiotech/mafft) is a fast but not very sensitive multiple sequence alignment tool.
 
@@ -356,6 +417,11 @@ Reporting:
 
 </details>
 
+If the `--trim_msa` parameter was set to `true`, then depending on the `--clipping_tool`, and according to the `--gap_threshold` either
+`clipkit` is run and gaps (above threshold) are removed throughout the alignment,
+or `clip_ends` is run and gaps (above threshold) are removed only at the ends.
+Results are stored in the `update_families/full_msa` folder.
+
 [ClipKIT](https://github.com/JLSteenwyk/ClipKIT) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
 
 ### Extract family representatives
@@ -374,6 +440,12 @@ Reporting:
       - `<samplename>_reps.fa`: fasta file of all family representative sequences (one sequence per family)
 
 </details>
+
+The final report of the nf-core/proteinfamilies pipeline.
+The `*_meta_mqc.csv` file are used to report family metadata and statistics in the browser, via the MultiQC software.
+The `*_reps.fa` protein fasta file contains all family representative sequence in one place.
+This file can be further used as input in other pipelines such as nf-core/proteinfold for structural prediction
+or in fasta annotation pipelines.
 
 ### MultiQC
 
