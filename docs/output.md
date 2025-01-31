@@ -58,13 +58,13 @@ Reporting:
       - `<samplename>.tsv`: tab-separated table containing 2 columns; the first one with the cluster representative sequences, and the second with the cluster members
     - `mmseqs_createdb/`
       - `<samplename>/`
-        - `*`: (optional) mmseqs format db of fasta sequences
+        - `*`: (optional) mmseqs format db of fasta sequences. Can be turned on with --save_mmseqs_db
     - `mmseqs_linclust/`
       - `<samplename>/`
-        - `*`: (optional) mmseqs format clustered db
+        - `*`: (optional) mmseqs format clustered db. Can be turned on with --save_mmseqs_clustering
     - `mmseqs_cluster/`
       - `<samplename>/`
-        - `*`: (optional) mmseqs format clustered db
+        - `*`: (optional) mmseqs format clustered db. Can be turned on with --save_mmseqs_clustering
     - `filtered_fasta_chunks/`
       - `<samplename>/`
         - `chunked_fasta/`
@@ -131,8 +131,8 @@ Reporting:
       - `<samplename>_*.hmmbuild.txt`: (optional) hmmbuild execution log
   - `hmmsearch/`
     - `<samplename>/`
-      - `<samplename>_*.domtbl.gz`: (optional) hmmsearch results along parameters info
-      - `<samplename>_*.txt.gz`: (optional) hmmsearch execution log
+      - `<samplename>_*.domtbl.gz`: (optional) hmmsearch results along parameters info. Can be turned on with --save_hmmsearch_results
+      - `<samplename>_*.txt.gz`: (optional) hmmsearch execution log. Can be turned on with --save_hmmsearch_results
 - `full_msa/`
   - `pre_non_redundant/`
     - `<samplename>/`

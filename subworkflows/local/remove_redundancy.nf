@@ -21,32 +21,28 @@ workflow REMOVE_REDUNDANCY {
     ch_versions = Channel.empty()
 
     if (params.remove_family_redundancy) {
-        msa
+        ch_msa = msa
             .map { meta, aln -> [[id: meta.id], aln] }
             .groupTuple(by: 0)
-            .set { ch_msa }
         EXTRACT_FAMILY_REPS( ch_msa )
         ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
 
-        hmm
+        ch_hmm = hmm
             .map { meta, model -> [[id: meta.id], model] }
             .groupTuple(by: 0)
-            .set { ch_hmm }
         CAT_CAT( ch_hmm )
         ch_versions = ch_versions.mix( CAT_CAT.out.versions )
 
-        CAT_CAT.out.file_out
+        ch_input_for_hmmsearch = CAT_CAT.out.file_out
             .combine(EXTRACT_FAMILY_REPS.out.fasta, by: 0)
             .map { meta, model, seqs -> [meta, model, seqs, false, false, true] }
-            .set { ch_input_for_hmmsearch }
 
         HMMER_HMMSEARCH( ch_input_for_hmmsearch )
         ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
 
-        fasta
+        fasta = fasta
             .map { meta, fas -> [[id: meta.id], fas] }
             .groupTuple(by: 0)
-            .set { fasta }
 
         // Join to ensure in sync
         ch_input_for_fam_removal = EXTRACT_FAMILY_REPS.out.map
@@ -72,12 +68,11 @@ workflow REMOVE_REDUNDANCY {
         FILTER_NON_REDUNDANT_HMMS( ch_input_for_hmm_filtering.seqs, ch_input_for_hmm_filtering.models )
         ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_HMMS.out.versions )
 
-        fasta
+        fasta = fasta
             .transpose()
             .map { meta, file ->
                 [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
             }
-            .set { fasta }
     }
 
     if (params.remove_sequence_redundancy) {

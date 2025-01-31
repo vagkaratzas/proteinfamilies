@@ -23,12 +23,11 @@ workflow UPDATE_FAMILIES {
     ch_updated_family_reps = Channel.empty()
     ch_no_hit_seqs         = Channel.empty()
 
-    ch_samplesheet_for_update
+    ch_input_for_untar = ch_samplesheet_for_update
         .multiMap { meta, _fasta, existing_hmms_to_update, existing_msas_to_update ->
             hmm: [ meta, existing_hmms_to_update ]
             msa: [ meta, existing_msas_to_update ]
         }
-        .set { ch_input_for_untar }
 
     UNTAR_HMM( ch_input_for_untar.hmm )
     ch_versions = ch_versions.mix( UNTAR_HMM.out.versions )
@@ -51,10 +50,9 @@ workflow UPDATE_FAMILIES {
     ch_versions = ch_versions.mix( CAT_HMM.out.versions )
 
     // Prep the sequences to search against the HMM concatenated model of families
-    CAT_HMM.out.file_out
+    ch_input_for_hmmsearch = CAT_HMM.out.file_out
         .combine(ch_samplesheet_for_update, by: 0)
         .map { meta, concatenated_hmm, fasta, _existing_hmms_to_update, _existing_msas_to_update -> [meta, concatenated_hmm, fasta, false, false, true] }
-        .set { ch_input_for_hmmsearch }
 
     HMMER_HMMSEARCH( ch_input_for_hmmsearch )
     ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
@@ -71,14 +69,13 @@ workflow UPDATE_FAMILIES {
     ch_versions = ch_versions.mix( BRANCH_HITS_FASTA.out.versions )
     ch_no_hit_seqs = BRANCH_HITS_FASTA.out.non_hit_fasta
 
-    BRANCH_HITS_FASTA.out.hits
+    ch_hits_fasta = BRANCH_HITS_FASTA.out.hits
         .transpose()
         .map { meta, file ->
             [[id: meta.id, family: file.getSimpleName()], file]
         }
-        .set { hits_fasta }
 
-    UNTAR_MSA.out.untar
+    ch_family_msas = UNTAR_MSA.out.untar
         .map { meta, folder ->
             [meta, file("$folder/*", checkIfExists: true)]
         }
@@ -86,19 +83,17 @@ workflow UPDATE_FAMILIES {
         .map { meta, file ->
             [[id: meta.id, family: file.getSimpleName()], file]
         }
-        .set { family_msas }
 
     // Keep fasta with family sequences by removing gaps
-    SEQKIT_SEQ( family_msas )
+    SEQKIT_SEQ( ch_family_msas )
     ch_versions = ch_versions.mix(SEQKIT_SEQ.out.versions)
 
     // Match newly recruited sequences with existing ones for each family
-    SEQKIT_SEQ.out.fastx
-        .combine(hits_fasta, by: 0)
+    ch_input_for_cat = SEQKIT_SEQ.out.fastx
+        .combine(ch_hits_fasta, by: 0)
         .map { meta, family_fasta, new_fasta  ->
             [meta, [family_fasta, new_fasta]]
         }
-        .set { ch_input_for_cat }
 
     // Aggregate each family's MSA sequences with the newly recruited ones
     CAT_FASTA( ch_input_for_cat )
@@ -134,10 +129,9 @@ workflow UPDATE_FAMILIES {
     HMMER_HMMBUILD( ch_msa, [] )
     ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
 
-    ch_msa
+    ch_msa = ch_msa
         .map { meta, aln -> [ [id: meta.id], aln ] }
         .groupTuple(by: 0)
-        .set { ch_msa }
     EXTRACT_FAMILY_REPS( ch_msa )
     ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
     ch_updated_family_reps = ch_updated_family_reps.mix( EXTRACT_FAMILY_REPS.out.map )
