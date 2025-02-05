@@ -212,9 +212,9 @@ These `remove_redundancy` optional folders only contain intermediate pipeline re
       - `<samplename>/`
         - `*`: (optional) mmseqs format clustered db
 - `remove_redundancy/`
-    - `reps_fasta/`
-      - `<samplename>/`
-        - `<samplename>_reps.fa`: (optional) fasta file of all family representative sequences (one sequence per family)
+  - `reps_fasta/`
+    - `<samplename>/`
+      - `<samplename>_reps.fa`: (optional) fasta file of all family representative sequences (one sequence per family)
 
 </details>
 
@@ -384,7 +384,6 @@ If the `--alignment_tool` is `famsa`, then this `famsa_align` folder will be cre
 
 <details markdown="1">
 <summary>Output files</summary>
-
 
 - `update_families/`
   - `full_msa/`
