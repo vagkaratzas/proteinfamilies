@@ -10,7 +10,33 @@
 
 ## Pipeline tools
 
+- [MMseqs2](https://pubmed.ncbi.nlm.nih.gov/33734313/)
 
+> Mirdita M, Steinegger M, Breitwieser F, Söding J, Levy Karin E. Fast and sensitive taxonomic assignment to metagenomic contigs. Bioinformatics. 2021 Sep 15;37(18):3029-31. doi: 10.1093/bioinformatics/btab184. PubMed PMID: 33734313; PubMed Central PMCID: PMC8479651.
+
+- [FAMSA](https://pubmed.ncbi.nlm.nih.gov/27670777/)
+
+> Deorowicz S, Debudaj-Grabysz A, Gudyś A. FAMSA: Fast and accurate multiple sequence alignment of huge protein families. Scientific reports. 2016 Sep 27;6(1):33964. doi: 10.1038/srep33964. PubMed PMID: 27670777; PubMed Central PMCID: PMC5037421.
+
+- [mafft](https://pubmed.ncbi.nlm.nih.gov/23329690/)
+
+> Katoh K, Standley DM. MAFFT multiple sequence alignment software version 7: improvements in performance and usability. Molecular biology and evolution. 2013 Jan 16;30(4):772-80. doi: 10.1093/molbev/mst010. PubMed PMID: 23329690; PubMed Central PMCID: PMC3603318.
+
+- [ClipKIT](https://pubmed.ncbi.nlm.nih.gov/33264284/)
+
+> Steenwyk JL, Buida III TJ, Li Y, Shen XX, Rokas A. ClipKIT: a multiple sequence alignment trimming software for accurate phylogenomic inference. PLoS biology. 2020 Dec 2;18(12):e3001007. doi: 10.1371/journal.pbio.3001007. PubMed PMID: 33264284; PubMed Central PMCID: PMC7735675.
+
+- [hmmer](https://pubmed.ncbi.nlm.nih.gov/29905871/)
+
+> Potter SC, Luciani A, Eddy SR, Park Y, Lopez R, Finn RD. Nucleic acids research. 2018 Jul 2;46(W1):W200-4. doi: 10.1093/nar/gky448. PubMed PMID: 29905871; PubMed Central PMCID: PMC6030962.
+
+- [SeqKit](https://pubmed.ncbi.nlm.nih.gov/38898985/)
+
+> Shen W, Sipos B, Zhao L. SeqKit2: A Swiss army knife for sequence and alignment processing. iMeta. 2024 Apr 5:e191. doi: 10.1002/imt2.191. PubMed PMID: 38898985; PubMed Central PMCID: PMC11183193.
+
+- [Biopython](https://pubmed.ncbi.nlm.nih.gov/19304878/)
+
+> Cock PJ, Antao T, Chang JT, Chapman BA, Cox CJ, Dalke A, Friedberg I, Hamelryck T, Kauff F, Wilczynski B, De Hoon MJ. Biopython: freely available Python tools for computational molecular biology and bioinformatics. Bioinformatics. 2009 Jun 6;25(11):1422. doi: 10.1093/bioinformatics/btp163. PubMed PMID: 19304878; PubMed Central PMCID: PMC2682512.
 
 - [MultiQC](https://pubmed.ncbi.nlm.nih.gov/27312411/)
 

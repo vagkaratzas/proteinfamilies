@@ -1,24 +1,21 @@
-bump_version: null
 lint:
   files_exist:
-  - conf/igenomes.config
-  - conf/igenomes_ignored.config
-  - conf/igenomes.config
-  - conf/igenomes_ignored.config
-nf_core_version: 3.0.3.dev0
-org_path: null
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+nf_core_version: 3.2.0
 repository_type: pipeline
 template:
   author: Evangelos Karatzas
   description: Generate protein family level models (MSAs, HMMs) starting from a FASTA
     amino acid sequence file.
-  force: true
+  force: false
   is_nfcore: true
   name: proteinfamilies
   org: nf-core
   outdir: .
   skip_features:
-  - igenomes
-  - fastqc
-  version: 1.0.0dev
-update: null
+    - igenomes
+    - fastqc
+  version: 1.0.0
