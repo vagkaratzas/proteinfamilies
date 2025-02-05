@@ -227,7 +227,7 @@ def validateMatchingFolders(channel1, channel2) {
 
             // Check if base filenames match one to one
             if (baseNames1 != baseNames2) {
-                error("Filename mismatch: Expected matching files in ${folder1} and ${folder2}. Base filenames do not match.")
+                error("nf-core/proteinfamilies] ERROR: Filename mismatch: Expected matching files in ${folder1} and ${folder2}. Base filenames do not match.")
             }
     }
 }
