@@ -12,7 +12,7 @@ process FILTER_RECRUITED {
     val(length_threshold)
 
     output:
-    tuple val(meta), path("*.fasta.gz"), emit: fasta
+    tuple val(meta), path("*.fasta.gz"), emit: fasta, optional: true
     path "versions.yml"                , emit: versions
 
     when:

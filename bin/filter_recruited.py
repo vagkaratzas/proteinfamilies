@@ -103,32 +103,35 @@ def validate_and_parse_hit_name(hit):
 
 
 def extract_fasta_subset(filtered_sequences, fasta, out_fasta):
-    open_func = gzip.open if fasta.endswith(".gz") else open
-    with open_func(fasta, "rt") as in_fasta:
-        fasta_dict = {record.id: str(record.seq) for record in SeqIO.parse(in_fasta, "fasta")}
+    if filtered_sequences:
+        open_func = gzip.open if fasta.endswith(".gz") else open
+        with open_func(fasta, "rt") as in_fasta:
+            fasta_dict = {record.id: str(record.seq) for record in SeqIO.parse(in_fasta, "fasta")}
 
-    with gzip.open(out_fasta, "wt") as out_file:
-        for filtered_sequence in filtered_sequences:
-            try:
-                sequence_name, env_from, env_to = validate_and_parse_hit_name(filtered_sequence)
+        with gzip.open(out_fasta, "wt") as out_file:
+            for filtered_sequence in filtered_sequences:
+                try:
+                    sequence_name, env_from, env_to = validate_and_parse_hit_name(filtered_sequence)
 
-                # Get the original sequence
-                original_record = fasta_dict[sequence_name]
+                    # Get the original sequence
+                    original_record = fasta_dict[sequence_name]
 
-                # Extract the specific range (adjust indices for 0-based indexing)
-                extracted_seq = original_record[env_from-1:env_to]
+                    # Extract the specific range (adjust indices for 0-based indexing)
+                    extracted_seq = original_record[env_from-1:env_to]
 
-                # Determine the new sequence ID
-                if len(extracted_seq) == len(original_record):
-                    new_id = sequence_name  # Omit range if full-length
-                else:
-                    new_id = f"{sequence_name}/{env_from}-{env_to}"
+                    # Determine the new sequence ID
+                    if len(extracted_seq) == len(original_record):
+                        new_id = sequence_name  # Omit range if full-length
+                    else:
+                        new_id = f"{sequence_name}/{env_from}-{env_to}"
 
-                out_file.write(f">{new_id}\n{extracted_seq}\n")
-            except KeyError:
-                print(f"Sequence {sequence_name} not found in the input FASTA.", file=sys.stderr)
-            except ValueError as e:
-                print(e, file=sys.stderr)
+                    out_file.write(f">{new_id}\n{extracted_seq}\n")
+                except KeyError:
+                    print(f"Sequence {sequence_name} not found in the input FASTA.", file=sys.stderr)
+                except ValueError as e:
+                    print(e, file=sys.stderr)
+    else:
+        print("No filtered sequences remained to write out. Skipping out_fasta file creation.")
 
 
 def filter_recruited(domtbl, fasta, length_threshold, out_fasta):
