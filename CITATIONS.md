@@ -28,7 +28,7 @@
 
 - [hmmer](https://pubmed.ncbi.nlm.nih.gov/29905871/)
 
-> Potter SC, Luciani A, Eddy SR, Park Y, Lopez R, Finn RD. Nucleic acids research. 2018 Jul 2;46(W1):W200-4. doi: 10.1093/nar/gky448. PubMed PMID: 29905871; PubMed Central PMCID: PMC6030962.
+> Potter SC, Luciani A, Eddy SR, Park Y, Lopez R, Finn RD. HMMER web server: 2018 update. Nucleic acids research. 2018 Jul 2;46(W1):W200-4. doi: 10.1093/nar/gky448. PubMed PMID: 29905871; PubMed Central PMCID: PMC6030962.
 
 - [SeqKit](https://pubmed.ncbi.nlm.nih.gov/38898985/)
 
