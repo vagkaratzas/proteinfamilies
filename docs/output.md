@@ -121,16 +121,12 @@ These MSA files only contain the original sequences of each cluster as calculate
 - `seed_msa/`
   - `clipkit/`
     - `<samplename>/`
-      - `<samplename>_*.clipkit`: gap-clipped (start, middle, end) fasta files of aligned amino acid sequences
-  - `clip_ends/`
-    - `<samplename>/`
-      - `<samplename>_*.clipends`: gap-clipped (only start and end) fasta files of aligned amino acid sequences
+      - `<samplename>_*.clipkit`: gap-clipped fasta files of aligned amino acid sequences
 
 </details>
 
-If the `--trim_msa` parameter was set to `true`, then depending on the `--clipping_tool`, and according to the `--gap_threshold` either
-`clipkit` is run and gaps (above threshold) are removed throughout the alignment,
-or `clip_ends` is run and gaps (above threshold) are removed only at the ends.
+If the `--trim_msa` parameter was set to `true`, then `clipkit` runs, and according to the `--gap_threshold` parameter,
+gaps (above that threshold, across all aligned sequences) are either removed only at the ends of the MSA if `trim_ends_only` is set to `true`, or throughout the alignment otherwise.
 Results are stored in the `seed_msa` folder.
 
 [ClipKIT](https://github.com/JLSteenwyk/ClipKIT) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
@@ -409,16 +405,12 @@ If the `--alignment_tool` is `mafft`, then this `mafft_align` folder will be cre
   - `full_msa/`
     - `clipkit/`
       - `<samplename>/`
-        - `<family_id>.clipkit`: gap-clipped (start, middle, end) fasta files of aligned amino acid sequences
-    - `clip_ends/`
-      - `<samplename>/`
-        - `<family_id>.clipends`: gap-clipped (only start and end) fasta files of aligned amino acid sequences
+        - `<family_id>.clipkit`: gap-clipped fasta files of aligned amino acid sequences
 
 </details>
 
-If the `--trim_msa` parameter was set to `true`, then depending on the `--clipping_tool`, and according to the `--gap_threshold` either
-`clipkit` is run and gaps (above threshold) are removed throughout the alignment,
-or `clip_ends` is run and gaps (above threshold) are removed only at the ends.
+If the `--trim_msa` parameter was set to `true`, then `clipkit` runs, and according to the `--gap_threshold` parameter,
+gaps (above that threshold, across all aligned sequences) are either removed only at the ends of the MSA if `trim_ends_only` is set to `true`, or throughout the alignment otherwise.
 Results are stored in the `update_families/full_msa` folder.
 
 [ClipKIT](https://github.com/JLSteenwyk/ClipKIT) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.

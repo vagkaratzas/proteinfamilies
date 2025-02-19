@@ -12,7 +12,7 @@
                     },
                     "clipkit": {
                         "branch": "master",
-                        "git_sha": "3ef36024bb95d306c63c7bf9014132e62c7b4755",
+                        "git_sha": "ac53dfd517b0466f5179180113167d00bd508d35",
                         "installed_by": ["modules"]
                     },
                     "famsa/align": {
