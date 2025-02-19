@@ -166,7 +166,7 @@ def toolCitationText() {
     def citation_text = [
         clustering_text,
         alignment_text,
-        (params.trim_msa && params.clipping_tool == "clipkit") ? clipping_text : "",
+        params.trim_msa ? clipping_text : "",
         model_text,
         postprocessing_text
     ].join(' ').trim()
@@ -193,7 +193,7 @@ def toolBibliographyText() {
     def reference_text = [
         clustering_text,
         alignment_text,
-        (params.trim_msa && params.clipping_tool == "clipkit") ? clipping_text : "",
+        params.trim_msa ? clipping_text : "",
         model_text,
         postprocessing_text
     ].join(' ').trim()
