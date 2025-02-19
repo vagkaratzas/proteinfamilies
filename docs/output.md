@@ -405,7 +405,7 @@ If the `--alignment_tool` is `mafft`, then this `mafft_align` folder will be cre
   - `full_msa/`
     - `clipkit/`
       - `<samplename>/`
-        - `<family_id>.clipkit`: gap-clipped (start, middle, end) fasta files of aligned amino acid sequences
+        - `<family_id>.clipkit`: gap-clipped fasta files of aligned amino acid sequences
 
 </details>
 
