@@ -33,7 +33,7 @@ workflow GENERATE_FAMILIES {
 
     if (params.trim_msa) {
         if (params.clipping_tool == 'clipkit') {
-            CLIPKIT( ch_msa )
+            CLIPKIT( ch_msa, params.clipkit_out_format )
             ch_versions = ch_versions.mix( CLIPKIT.out.versions )
             ch_msa = CLIPKIT.out.clipkit
         } else { // fallback: local module clip_ends
