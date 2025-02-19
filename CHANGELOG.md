@@ -15,9 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Dependencies`
 
-| Tool      | Previous version | New version |
-| --------- | ---------------- | ----------- |
-| ClipKIT   | 2.4.0            | 2.4.1       |
+| Tool    | Previous version | New version |
+| ------- | ---------------- | ----------- |
+| ClipKIT | 2.4.0            | 2.4.1       |
 
 ### `Deprecated`
 
