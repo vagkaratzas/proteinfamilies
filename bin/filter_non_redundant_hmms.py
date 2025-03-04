@@ -49,7 +49,7 @@ def filter_non_redundant_hmms(seqs, models, out_folder):
         if model_file.endswith(".hmm.gz"):
             model_basename = os.path.basename(model_file).split(".")[0]
             model_chunk = model_basename.split("_")[-1] # for the case where we didn't fish additional sequences, fastas only have the chunk id for name
-            if (model_basename or model_chunk) in seq_basenames:
+            if model_basename in seq_basenames or model_chunk in seq_basenames:
                 src = os.path.join(models, model_file)
                 dst = os.path.join(out_folder, model_file)
                 shutil.copy(src, dst)
