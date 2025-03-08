@@ -26,8 +26,9 @@ include { REMOVE_REDUNDANCY  } from '../subworkflows/local/remove_redundancy'
 //
 // MODULE: Local to the pipeline
 //
-include { CHUNK_CLUSTERS      } from '../modules/local/chunk_clusters/main'
-include { EXTRACT_FAMILY_REPS } from '../modules/local/extract_family_reps/main'
+include { EXTRACT_UNIQUE_CLUSTER_REPS  } from "../modules/local/extract_unique_cluster_reps/main"
+include { CHUNK_CLUSTERS               } from '../modules/local/chunk_clusters/main'
+include { EXTRACT_FAMILY_REPS          } from '../modules/local/extract_family_reps/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -81,6 +82,9 @@ workflow PROTEINFAMILIES {
     // Clustering
     EXECUTE_CLUSTERING( ch_samplesheet_for_create )
     ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+
+    EXTRACT_UNIQUE_CLUSTER_REPS( EXECUTE_CLUSTERING.out.clusters, params.cluster_size_threshold )
+    ch_versions = ch_versions.mix( EXTRACT_UNIQUE_CLUSTER_REPS.out.versions )
 
     CHUNK_CLUSTERS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs, params.cluster_size_threshold )
     ch_versions = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
