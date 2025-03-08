@@ -8,7 +8,7 @@ import os
 import argparse
 from collections import defaultdict
 import csv
-from Bio import SeqIO
+import pyfastx
 
 
 def parse_args(args=None):
@@ -64,11 +64,6 @@ def collect_clusters(clustering_file, threshold):
     }
 
 
-def load_fasta(sequences_file):
-    """Load all sequences into a dictionary."""
-    return {record.id: record for record in SeqIO.parse(sequences_file, "fasta")}
-
-
 def main(args=None):
     args = parse_args(args)
 
@@ -78,14 +73,16 @@ def main(args=None):
     # Collect clusters that meet the threshold
     clusters = collect_clusters(args.clustering, int(args.threshold))
 
-    # Load sequences once into memory
-    seq_dict = load_fasta(args.sequences)
+    # Use pyfastx for indexed FASTA access (no need to load sequences into memory)
+    fasta = pyfastx.Fasta(args.sequences)
 
     # Write output files
     for chunk_num, (rep, members) in enumerate(clusters.items(), start=1):
         output_file = os.path.join(args.out_folder, f"{chunk_num}.fasta")
         with open(output_file, "w") as fasta_out:
-            SeqIO.write([seq_dict[m] for m in members if m in seq_dict], fasta_out, "fasta")
+            for member in members:
+                if member in fasta:
+                    fasta_out.write(f">{member}\n{fasta[member]}\n")
 
 
 if __name__ == "__main__":
