@@ -64,6 +64,11 @@ def collect_clusters(clustering_file, threshold):
     }
 
 
+def load_fasta(sequences_file):
+    """Load all sequences into a dictionary."""
+    return {record.id: record for record in SeqIO.parse(sequences_file, "fasta")}
+
+
 def main(args=None):
     args = parse_args(args)
 
@@ -73,16 +78,14 @@ def main(args=None):
     # Collect clusters that meet the threshold
     clusters = collect_clusters(args.clustering, int(args.threshold))
 
-    # Stream through the FASTA file and write out sequences that match clusters
-    chunk_num = 1
-    for rep, members in clusters.items():
+    # Load sequences once into memory
+    seq_dict = load_fasta(args.sequences)
+
+    # Write output files
+    for chunk_num, (rep, members) in enumerate(clusters.items(), start=1):
         output_file = os.path.join(args.out_folder, f"{chunk_num}.fasta")
         with open(output_file, "w") as fasta_out:
-            with open(args.sequences) as seq_file:
-                for record in SeqIO.parse(seq_file, "fasta"):
-                    if record.id in members:
-                        SeqIO.write(record, fasta_out, "fasta")
-        chunk_num += 1
+            SeqIO.write([seq_dict[m] for m in members if m in seq_dict], fasta_out, "fasta")
 
 
 if __name__ == "__main__":
