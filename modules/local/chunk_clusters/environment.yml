@@ -4,4 +4,4 @@ channels:
 dependencies:
   - pip
   - pip:
-    - pyfastx==2.2.0
+      - pyfastx==2.2.0
