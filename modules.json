@@ -7,7 +7,7 @@
                 "nf-core": {
                     "cat/cat": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "clipkit": {
@@ -17,65 +17,65 @@
                     },
                     "famsa/align": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "hmmer/hmmalign": {
                         "branch": "master",
-                        "git_sha": "03a9f356a1a333923c1177c2912fa7bc61bb46f3",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "hmmer/hmmbuild": {
                         "branch": "master",
-                        "git_sha": "03a9f356a1a333923c1177c2912fa7bc61bb46f3",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "hmmer/hmmsearch": {
                         "branch": "master",
-                        "git_sha": "666652151335353eef2fcd58880bcef5bc2928e1",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "mafft/align": {
                         "branch": "master",
-                        "git_sha": "868cb0d7fc4862991fb7c2b4cd7289806cd53f81",
+                        "git_sha": "fa92936611247ca647ddee970f94d83f1bcb0ffe",
                         "installed_by": ["modules"]
                     },
                     "mmseqs/cluster": {
                         "branch": "master",
-                        "git_sha": "2dc4c0474a77f5f8709eb970d890ad102e92af6f",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/mmseqs/cluster/mmseqs-cluster.diff"
                     },
                     "mmseqs/createdb": {
                         "branch": "master",
-                        "git_sha": "2dc4c0474a77f5f8709eb970d890ad102e92af6f",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "mmseqs/createtsv": {
                         "branch": "master",
-                        "git_sha": "2dc4c0474a77f5f8709eb970d890ad102e92af6f",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/mmseqs/createtsv/mmseqs-createtsv.diff"
                     },
                     "mmseqs/linclust": {
                         "branch": "master",
-                        "git_sha": "2dc4c0474a77f5f8709eb970d890ad102e92af6f",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/mmseqs/linclust/mmseqs-linclust.diff"
                     },
                     "multiqc": {
                         "branch": "master",
-                        "git_sha": "f0719ae309075ae4a291533883847c3f7c441dad",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "seqkit/seq": {
                         "branch": "master",
-                        "git_sha": "60645c2b45e56579de0a0c89416805cae44c1f46",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     },
                     "untar": {
                         "branch": "master",
-                        "git_sha": "3e548877f25a5980a177cc4f81d2d2e8c24164ef",
+                        "git_sha": "81880787133db07d9b4c1febd152c090eb8325dc",
                         "installed_by": ["modules"]
                     }
                 }
