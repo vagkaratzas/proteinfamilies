@@ -4,14 +4,14 @@ nextflow_process {
     script "../main.nf"
     process "CALCULATE_CLUSTER_DISTRIBUTION"
 
-    test("clustering - tsv") {
+    test("proteinfamilies - tsv") {
 
         when {
             process {
                 """
                 input[0] = Channel.of([
-                    [ id: 'clustering' ], // meta map
-                    file('https://raw.githubusercontent.com/nf-core/test-datasets/proteinfamilies/test_data/modules/clustering.tsv', checkIfExists: true)
+                    [ id: 'test' ], // meta map
+                    file(params.pipelines_testdata_base_path + 'proteinfamilies/test_data/modules/clustering.tsv', checkIfExists: true)
                 ])
                 """
             }
@@ -25,7 +25,7 @@ nextflow_process {
         }
     }
 
-    test("clustering - tsv - stub") {
+    test("proteinfamilies - tsv - stub") {
 
         options "-stub"
 
@@ -33,8 +33,8 @@ nextflow_process {
             process {
                 """
                 input[0] = Channel.of([
-                    [ id: 'clustering' ], // meta map
-                    file('https://raw.githubusercontent.com/nf-core/test-datasets/proteinfamilies/test_data/modules/clustering.tsv', checkIfExists: true)
+                    [ id: 'test' ], // meta map
+                    file(params.pipelines_testdata_base_path + 'proteinfamilies/test_data/modules/clustering.tsv', checkIfExists: true)
                 ])
                 """
             }

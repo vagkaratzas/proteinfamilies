@@ -1,28 +1,28 @@
 {
-    "clustering - tsv": {
+    "proteinfamilies - tsv": {
         "content": [
             {
                 "0": [
                     [
                         {
-                            "id": "clustering"
+                            "id": "test"
                         },
-                        "clustering_clustering_distribution_mqc.csv:md5,dc4ff1f6c598621bbb48b667646e3665"
+                        "test_clustering_distribution_mqc.csv:md5,53d7b52b9ff993372a1153b2ff8ac639"
                     ]
                 ],
                 "1": [
-                    "versions.yml:md5,88b6cac847ae3f6da84dbe86c343b4fe"
+                    "versions.yml:md5,21017052f4c8e826f6d6ab9fdffe11f5"
                 ],
                 "mqc": [
                     [
                         {
-                            "id": "clustering"
+                            "id": "test"
                         },
-                        "clustering_clustering_distribution_mqc.csv:md5,dc4ff1f6c598621bbb48b667646e3665"
+                        "test_clustering_distribution_mqc.csv:md5,53d7b52b9ff993372a1153b2ff8ac639"
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,88b6cac847ae3f6da84dbe86c343b4fe"
+                    "versions.yml:md5,21017052f4c8e826f6d6ab9fdffe11f5"
                 ]
             }
         ],
@@ -30,32 +30,32 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.5"
         },
-        "timestamp": "2025-03-24T12:34:03.02050904"
+        "timestamp": "2025-03-24T14:43:56.858435601"
     },
-    "clustering - tsv - stub": {
+    "proteinfamilies - tsv - stub": {
         "content": [
             {
                 "0": [
                     [
                         {
-                            "id": "clustering"
+                            "id": "test"
                         },
-                        "clustering_clustering_distribution_mqc.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "test_clustering_distribution_mqc.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "1": [
-                    "versions.yml:md5,88b6cac847ae3f6da84dbe86c343b4fe"
+                    "versions.yml:md5,21017052f4c8e826f6d6ab9fdffe11f5"
                 ],
                 "mqc": [
                     [
                         {
-                            "id": "clustering"
+                            "id": "test"
                         },
-                        "clustering_clustering_distribution_mqc.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                        "test_clustering_distribution_mqc.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,88b6cac847ae3f6da84dbe86c343b4fe"
+                    "versions.yml:md5,21017052f4c8e826f6d6ab9fdffe11f5"
                 ]
             }
         ],
@@ -63,6 +63,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.5"
         },
-        "timestamp": "2025-03-24T12:34:07.675502895"
+        "timestamp": "2025-03-24T14:44:05.560229782"
     }
 }
