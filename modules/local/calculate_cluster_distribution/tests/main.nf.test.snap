@@ -1,0 +1,68 @@
+{
+    "clustering - tsv": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "clustering"
+                        },
+                        "clustering_clustering_distribution_mqc.csv:md5,29f1f4ec7c3dea5a29c8a940e176a98a"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,88b6cac847ae3f6da84dbe86c343b4fe"
+                ],
+                "mqc": [
+                    [
+                        {
+                            "id": "clustering"
+                        },
+                        "clustering_clustering_distribution_mqc.csv:md5,29f1f4ec7c3dea5a29c8a940e176a98a"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,88b6cac847ae3f6da84dbe86c343b4fe"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.5"
+        },
+        "timestamp": "2025-03-24T10:57:56.61144415"
+    },
+    "clustering - tsv - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "clustering"
+                        },
+                        "clustering_clustering_distribution_mqc.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,88b6cac847ae3f6da84dbe86c343b4fe"
+                ],
+                "mqc": [
+                    [
+                        {
+                            "id": "clustering"
+                        },
+                        "clustering_clustering_distribution_mqc.csv:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,88b6cac847ae3f6da84dbe86c343b4fe"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.5"
+        },
+        "timestamp": "2025-03-24T10:57:59.970091309"
+    }
+}

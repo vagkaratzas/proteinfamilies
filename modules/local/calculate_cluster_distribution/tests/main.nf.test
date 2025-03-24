@@ -1,0 +1,51 @@
+nextflow_process {
+
+    name "Test Process CALCULATE_CLUSTER_DISTRIBUTION"
+    script "../main.nf"
+    process "CALCULATE_CLUSTER_DISTRIBUTION"
+
+    test("clustering - tsv") {
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'clustering' ], // meta map
+                    file('${moduleDir}/../../../assets/test_datasets/clustering.tsv', checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+    }
+
+    test("clustering - tsv - stub") {
+
+        options "-stub"
+
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    [ id: 'clustering' ], // meta map
+                    file('${moduleDir}/../../../assets/test_datasets/clustering.tsv', checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out).match() }
+            )
+        }
+
+    }
+}
