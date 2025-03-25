@@ -22,7 +22,7 @@ workflow EXECUTE_CLUSTERING {
     if (clustering_tool == 'cluster') {
         cluster_res = MMSEQS_CLUSTER( MMSEQS_CREATEDB.out.db )
         ch_versions = ch_versions.mix( MMSEQS_CLUSTER.out.versions )
-    } else { // fallback: linclust
+    } else if (clustering_tool == 'linclust') {
         cluster_res = MMSEQS_LINCLUST( MMSEQS_CREATEDB.out.db )
         ch_versions = ch_versions.mix( MMSEQS_LINCLUST.out.versions )
     }
