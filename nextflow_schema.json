@@ -27,6 +27,7 @@
                     "type": "string",
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
+                    "help_text": "You will need to define where your results will be sabed. Use this parameter to specify the directory of the desired location.",
                     "fa_icon": "fas fa-folder-open"
                 },
                 "email": {
