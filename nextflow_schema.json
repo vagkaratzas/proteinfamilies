@@ -27,7 +27,7 @@
                     "type": "string",
                     "format": "directory-path",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-                    "help_text": "You will need to define where your results will be sabed. Use this parameter to specify the directory of the desired location.",
+                    "help_text": "You will need to define where your results will be saved. Use this parameter to specify the location.",
                     "fa_icon": "fas fa-folder-open"
                 },
                 "email": {
@@ -209,7 +209,7 @@
                     "type": "number",
                     "default": 0.5,
                     "description": "mmseqs parameter for minimum sequence identity",
-                    "help_text": "Minimum sequence identity required for clustering. The mmseqs default is 0.9, but protein families contain way more diverse sequences."
+                    "help_text": "Minimum sequence identity required for clustering. The mmseqs default is 0.9, but protein families contain way more diverse sequences (https://doi.org/10.1093/protein/12.2.85)."
                 },
                 "cluster_coverage": {
                     "type": "number",
