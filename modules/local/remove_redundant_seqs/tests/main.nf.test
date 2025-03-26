@@ -29,7 +29,7 @@ nextflow_process {
         }
     }
 
-    test("proteinfamilies - stub") {
+    test("proteinfamilies - tsv - stub") {
 
         options "-stub"
 
