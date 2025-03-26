@@ -1,7 +1,7 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "chunk_clusters"
-description: Chunk clustering files by processing a clustering TSV file and corresponding FASTA sequences, applying a size threshold to generate chunked FASTA outputs.
+description: Chunk an input amino acid sequence file, according to a given clustering TSV and a minimum members' threshold.
 keywords:
   - chunking
   - clusters
