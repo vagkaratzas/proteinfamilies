@@ -208,12 +208,16 @@
                 "cluster_seq_identity": {
                     "type": "number",
                     "default": 0.5,
+                    "minimum": 0.0,
+                    "maximum": 1.0,
                     "description": "mmseqs parameter for minimum sequence identity",
                     "help_text": "Minimum sequence identity required for clustering. The mmseqs default is 0.9, but protein families contain way more diverse sequences (https://doi.org/10.1093/protein/12.2.85)."
                 },
                 "cluster_coverage": {
                     "type": "number",
                     "default": 0.9,
+                    "minimum": 0.0,
+                    "maximum": 1.0,
                     "description": "mmseqs parameter for minimum sequence coverage ratio",
                     "help_text": "Minimum sequence length coverage required for clustering"
                 },
@@ -263,6 +267,8 @@
                 "gap_threshold": {
                     "type": "number",
                     "default": 0.5,
+                    "minimum": 0.0,
+                    "maximum": 1.0,
                     "description": "Multiple Sequence Alignment (MSA) positions with gappiness greater than this threshold will be trimmed"
                 },
                 "recruit_sequences_with_models": {
@@ -302,6 +308,8 @@
                 "hmmsearch_query_length_threshold": {
                     "type": "number",
                     "default": 0.8,
+                    "minimum": 0.0,
+                    "maximum": 1.0,
                     "description": "hmmsearch minimum length percentage filter of hit env vs query length",
                     "help_text": "This length threshold should be quite high to make sure that small, fragmented sequences are not recruited in the family models"
                 }
@@ -323,6 +331,8 @@
                 "hmmsearch_family_length_threshold": {
                     "type": "number",
                     "default": 0.8,
+                    "minimum": 0.0,
+                    "maximum": 1.0,
                     "description": "hmmsearch minimum length percentage filter of hit env vs query length, for redundant family removal"
                 },
                 "remove_sequence_redundancy": {
@@ -336,12 +346,16 @@
                 "cluster_seq_identity_for_redundancy": {
                     "type": "number",
                     "default": 0.97,
+                    "minimum": 0.0,
+                    "maximum": 1.0,
                     "description": "mmseqs parameter for minimum sequence identity",
                     "help_text": "Need to be quite high, to make sure that the diversity is still well captured, well highly similar sequences are removed"
                 },
                 "cluster_coverage_for_redundancy": {
                     "type": "number",
                     "default": 0.97,
+                    "minimum": 0.0,
+                    "maximum": 1.0,
                     "description": "mmseqs parameter for minimum sequence coverage ratio",
                     "help_text": "Need to be quite high, to make sure that the diversity is still well captured, well highly similar sequences are removed"
                 },
