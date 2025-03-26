@@ -29,7 +29,7 @@ input:
         type: file
         description: An amino acid sequence fasta file.
         pattern: "*.{fa,fa.gz,fasta,fasta.gz}"
-  - -length_threshold:
+  - - length_threshold:
         type: float
         description: The minimum fraction of the hit sequence envelope coords [start, end] against the query HMM's length.
 output:
@@ -41,7 +41,7 @@ output:
             e.g. `[ id:'sample1', single_end:false ]`
       - ${prefix}.fasta.gz:
           type: file
-          description: a filtered fasta file  
+          description: a filtered fasta file
           pattern: "*.fasta.gz"
   - versions:
       - "versions.yml":
