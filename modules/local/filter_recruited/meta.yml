@@ -4,8 +4,8 @@ name: "filter_recruited"
 description: Keep the hit sequences from the input fasta file. Use a threshold in [0, 1] to filter the hits.
 keywords:
   - filtering
-  - clustering
-  - threshold
+  - hmmsearch
+  - domtbl
 tools:
   - "filter_recruited":
       description: "Keep the hit sequences from the input fasta file. Use a threshold in [0, 1] to filter the hits."
