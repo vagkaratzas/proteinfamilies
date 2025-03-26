@@ -27,7 +27,7 @@ input:
         pattern: "*.domtbl.gz"
     - fa:
         type: file
-        description: a fasta file.
+        description: An amino acid sequence fasta file.
         pattern: "*.fa"
   - -length_threshold:
         type: float
