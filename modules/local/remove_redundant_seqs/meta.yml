@@ -1,0 +1,51 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "remove_redundant_seqs"
+description: Remove redundant families.
+keywords:
+  - clustering
+  - distribution
+  - multiqc
+tools:
+  - "remove_redundant_seqs":
+      description: "Parse a mapping CSV file with family metadata, HMM output and fasta files to generate a list of non-redundant families"
+      homepage: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/remove_redundant_seqs/"
+      documentation: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/remove_redundant_seqs/"
+      tool_dev_url: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/remove_redundant_seqs/"
+      doi: "10.5281/zenodo.14881993"
+      licence: ["MIT"]
+      identifier: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing family information.
+          e.g. `[ id:'sample1', single_end:false ]`
+    - clustering:
+        type: file
+        description: 2-column TSV file mapping sequences to clusters (e.g. `${prefix}_*.tsv`).
+        pattern: "*.tsv"
+    - sequences:
+        type: file
+        description: fasta file containing sequences in this cluster (e.g. `${prefix}_*.fasta`).
+        pattern: "*.fasta"
+output:
+  - fasta:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing family information
+            e.g. `[ id:'sample1', single_end:false ]`
+      - ${prefix}_reps.fa:
+          type: file
+          description: fasta file containing non-redundant, representative sequences
+          pattern: "*_reps.fa"
+  - versions:
+      - "versions.yml":
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+authors:
+  - "@vagkaratzas"
+maintainers:
+  - "@vagkaratzas"
