@@ -30,7 +30,7 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.5"
         },
-        "timestamp": "2025-03-26T12:45:05.857546"
+        "timestamp": "2025-03-26T14:21:29.462327"
     },
     "proteinfamilies - hmmsearch - fasta - stub": {
         "content": [
@@ -40,22 +40,22 @@
                         {
                             "id": "filtering"
                         },
-                        "filtering_null.fasta.gz:md5,ccf5eb969a8751fe21a8fec277f30953"
+                        "filtering_null.fasta.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
                     ]
                 ],
                 "1": [
-                    "versions.yml:md5,5e0f31b0b22786628a3de9b3eed436c9"
+                    "versions.yml:md5,5be0dd6b387b34ae84f6e08313d51e00"
                 ],
                 "fasta": [
                     [
                         {
                             "id": "filtering"
                         },
-                        "filtering_null.fasta.gz:md5,ccf5eb969a8751fe21a8fec277f30953"
+                        "filtering_null.fasta.gz:md5,68b329da9893e34099c7d8ad5cb9c940"
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,5e0f31b0b22786628a3de9b3eed436c9"
+                    "versions.yml:md5,5be0dd6b387b34ae84f6e08313d51e00"
                 ]
             }
         ],
@@ -63,6 +63,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.5"
         },
-        "timestamp": "2025-03-26T12:45:43.891092"
+        "timestamp": "2025-03-26T14:22:07.37947"
     }
 }
