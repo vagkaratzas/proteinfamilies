@@ -42,7 +42,7 @@ output:
       - ${prefix}_*.fasta.gz:
           type: file
           description: a filtered fasta file  
-          pattern: "*.fasta"
+          pattern: "*.fasta.gz"
   - versions:
       - "versions.yml":
           type: file
