@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
+- [#55](https://github.com/nf-core/proteinfamilies/pull/55) - Added nf-test and `meta.yml` file for local module `FILTER_RECRUITED`
 - [#54](https://github.com/nf-core/proteinfamilies/pull/54) - Added nf-test for local subworkflow `ALIGN_SEQUENCES`
 - [#53](https://github.com/nf-core/proteinfamilies/pull/53) - Added nf-test for local subworkflow `EXECUTE_CLUSTERING`
 - [#51](https://github.com/nf-core/proteinfamilies/pull/51) - Added nf-test and `meta.yml` file for local module `CALCULATE_CLUSTER_DISTRIBUTION`
