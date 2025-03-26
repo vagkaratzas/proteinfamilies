@@ -38,7 +38,7 @@ nextflow_process {
             process {
                 """
                 input[0] = Channel.of([
-                    [ id: 'test' ], // meta map
+                    [ id: 'test_tsv' ], // meta map
                     file(params.pipelines_testdata_base_path + 'proteinfamilies/test_data/modules/clustering.tsv', checkIfExists: true)
                 ])
                 input[1] = Channel.of([
