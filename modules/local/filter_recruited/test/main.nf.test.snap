@@ -11,7 +11,7 @@
                     ]
                 ],
                 "1": [
-                    "versions.yml:md5,5e0f31b0b22786628a3de9b3eed436c9"
+                    "versions.yml:md5,b9ebaa78156a9cdd16c4ea79dae93950"
                 ],
                 "fasta": [
                     [
@@ -22,7 +22,7 @@
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,5e0f31b0b22786628a3de9b3eed436c9"
+                    "versions.yml:md5,b9ebaa78156a9cdd16c4ea79dae93950"
                 ]
             }
         ],
@@ -30,7 +30,7 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.5"
         },
-        "timestamp": "2025-03-26T14:21:29.462327"
+        "timestamp": "2025-03-26T12:49:18.246171832"
     },
     "proteinfamilies - hmmsearch - fasta - stub": {
         "content": [
@@ -44,7 +44,7 @@
                     ]
                 ],
                 "1": [
-                    "versions.yml:md5,5be0dd6b387b34ae84f6e08313d51e00"
+                    "versions.yml:md5,b9ebaa78156a9cdd16c4ea79dae93950"
                 ],
                 "fasta": [
                     [
@@ -55,7 +55,7 @@
                     ]
                 ],
                 "versions": [
-                    "versions.yml:md5,5be0dd6b387b34ae84f6e08313d51e00"
+                    "versions.yml:md5,b9ebaa78156a9cdd16c4ea79dae93950"
                 ]
             }
         ],
@@ -63,6 +63,6 @@
             "nf-test": "0.9.2",
             "nextflow": "24.10.5"
         },
-        "timestamp": "2025-03-26T14:22:07.37947"
+        "timestamp": "2025-03-26T12:49:39.946682352"
     }
 }

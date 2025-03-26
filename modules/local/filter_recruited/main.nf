@@ -41,7 +41,8 @@ stub:
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        sed: \$(sed --version 2>&1 | sed -n 1p | sed 's/sed (GNU sed) //')
+        python: \$(python --version 2>&1 | sed 's/Python //g')
+        biopython: \$(python -c "import importlib.metadata; print(importlib.metadata.version('biopython'))")
     END_VERSIONS
     """
 
