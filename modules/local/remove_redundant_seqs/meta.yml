@@ -1,14 +1,14 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
 name: "remove_redundant_seqs"
-description: Remove redundant families.
+description: Remove redundant sequences.
 keywords:
   - clustering
   - distribution
   - multiqc
 tools:
   - "remove_redundant_seqs":
-      description: "Parse a mapping CSV file with family metadata, HMM output and fasta files to generate a list of non-redundant families"
+      description: "Parse a mapping CSV file with cluster data and fasta files to generate a list of non-redundant sequences"
       homepage: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/remove_redundant_seqs/"
       documentation: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/remove_redundant_seqs/"
       tool_dev_url: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/remove_redundant_seqs/"
@@ -19,7 +19,7 @@ input:
   - - meta:
         type: map
         description: |
-          Groovy Map containing family information.
+          Groovy Map containing mapping information.
           e.g. `[ id:'sample1', single_end:false ]`
     - clustering:
         type: file
@@ -34,7 +34,7 @@ output:
       - meta:
           type: map
           description: |
-            Groovy Map containing family information
+            Groovy Map containing mapping information
             e.g. `[ id:'sample1', single_end:false ]`
       - ${prefix}_reps.fa:
           type: file
@@ -47,5 +47,6 @@ output:
           pattern: "versions.yml"
 authors:
   - "@vagkaratzas"
+  - "@sillitoe"
 maintainers:
   - "@vagkaratzas"
