@@ -17,26 +17,26 @@ tools:
       identifier: ""
 input:
   - - meta:
-         type: map
-         description: |
-           Groovy Map containing sample information.
-           e.g. `[ id:'sample1', single_end:false ]`
+        type: map
+        description: |
+          Groovy Map containing sample information.
+          e.g. `[ id:'sample1', single_end:false ]`
     - clustering:
-         type: file
-         description: 2-column TSV file containing clustering information (e.g., cluster_rep\tcluster_member).
-         pattern: "*.tsv"
+        type: file
+        description: 2-column TSV file containing clustering information (e.g., cluster_rep\tcluster_member).
+        pattern: "*.tsv"
   - - meta2:
-         type: map
-         description: |
-           Groovy Map containing additional sample information.
-           e.g. `[ id: 'sample1', single_end:false ]`
+        type: map
+        description: |
+          Groovy Map containing additional sample information.
+          e.g. `[ id: 'sample1', single_end:false ]`
     - sequences:
-         type: file
-         description: FASTA file containing sequences.
-         pattern: "*.fa*"
-  - size_threshold:
-         type: number
-         description: Numeric value representing the minimum cluster size threshold.
+        type: file
+        description: FASTA file containing amino acid sequences
+        pattern: "*.{fa,fa.gz,fasta,fasta.gz}"
+  - - size_threshold:
+      type: integer
+      description: Integer value representing the minimum allowed cluster size to chunk.
 output:
   - fasta_chunks:
       - meta:
@@ -44,7 +44,7 @@ output:
           description: |
             Groovy Map containing sample information.
             e.g. `[ id:'sample1', single_end:false ]`
-      - chunked_fasta:
+      - chunked_fasta/*:
           type: file
           description: Directory containing chunked FASTA files produced from the clustering process.
           pattern: "chunked_fasta/*"
