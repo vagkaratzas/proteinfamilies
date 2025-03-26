@@ -1,0 +1,61 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/modules/meta-schema.json
+name: "chunk_clusters"
+description: Chunk clustering files by processing a clustering TSV file and corresponding FASTA sequences, applying a size threshold to generate chunked FASTA outputs.
+keywords:
+  - chunking
+  - clusters
+  - fasta
+tools:
+  - "chunk_clusters":
+      description: "Chunk clustering files by processing a clustering TSV file and corresponding FASTA sequences, applying a size threshold to generate chunked FASTA outputs."
+      homepage: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/chunk_clusters/"
+      documentation: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/chunk_clusters/"
+      tool_dev_url: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/chunk_clusters/"
+      doi: "10.5281/zenodo.14881993"
+      licence: ["MIT"]
+      identifier: ""
+input:
+  - - meta:
+         type: map
+         description: |
+           Groovy Map containing sample information.
+           e.g. `[ id:'sample1', single_end:false ]`
+    - clustering:
+         type: file
+         description: 2-column TSV file containing clustering information (e.g., cluster_rep\tcluster_member).
+         pattern: "*.tsv"
+  - - meta2:
+         type: map
+         description: |
+           Groovy Map containing additional sample information.
+           e.g. `[ id: 'sample1', single_end:false ]`
+    - sequences:
+         type: file
+         description: FASTA file containing sequences.
+         pattern: "*.fa*"
+  - size_threshold:
+         type: number
+         description: Numeric value representing the minimum cluster size threshold.
+output:
+  - fasta_chunks:
+      - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information.
+            e.g. `[ id:'sample1', single_end:false ]`
+      - chunked_fasta:
+          type: file
+          description: Directory containing chunked FASTA files produced from the clustering process.
+          pattern: "chunked_fasta/*"
+  - versions:
+      - "versions.yml":
+          type: file
+          description: File containing software versions
+          pattern: "versions.yml"
+authors:
+  - "@GiatrasKon"
+  - "@marchasapi"
+maintainers:
+  - "@GiatrasKon"
+  - "@marchasapi"
