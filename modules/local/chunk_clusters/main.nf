@@ -39,4 +39,17 @@ process CHUNK_CLUSTERS {
         biopython: \$(python -c "import importlib.metadata; print(importlib.metadata.version('biopython'))")
     END_VERSIONS
     """
+
+    stub:
+    """
+    mkdir -p chunked_fasta
+    touch chunked_fasta/1.fasta
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version 2>&1 | sed 's/Python //g')
+        biopython: \$(python -c "import importlib.metadata; print(importlib.metadata.version('biopython'))")
+    END_VERSIONS
+    """
+
 }
