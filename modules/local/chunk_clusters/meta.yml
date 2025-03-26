@@ -8,7 +8,7 @@ keywords:
   - fasta
 tools:
   - "chunk_clusters":
-      description: Chunk an input amino acid sequence file, according to a given clustering TSV and a minimum members' threshold.
+      description: "Chunk an input amino acid sequence file, according to a given clustering TSV and a minimum members' threshold"
       homepage: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/chunk_clusters/"
       documentation: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/chunk_clusters/"
       tool_dev_url: "https://github.com/nf-core/proteinfamilies/tree/dev/modules/local/chunk_clusters/"
@@ -19,20 +19,20 @@ input:
   - - meta:
         type: map
         description: |
-          Groovy Map containing sample information.
+          Groovy Map containing sample information
           e.g. `[ id:'sample1', single_end:false ]`
     - clustering:
         type: file
-        description: 2-column TSV file containing clustering information (e.g., cluster_rep\tcluster_member).
+        description: 2-column TSV clustering file (e.g., cluster_rep\tcluster_member).
         pattern: "*.tsv"
   - - meta2:
         type: map
         description: |
-          Groovy Map containing additional sample information.
-          e.g. `[ id: 'sample1', single_end:false ]`
+          Groovy Map containing sample information
+          e.g. `[ id:'sample1', single_end:false ]`
     - sequences:
         type: file
-        description: FASTA file containing amino acid sequences
+        description: FASTA file containing amino acid sequences.
         pattern: "*.{fa,fa.gz,fasta,fasta.gz}"
   - - size_threshold:
         type: integer
@@ -42,7 +42,7 @@ output:
       - meta:
           type: map
           description: |
-            Groovy Map containing sample information.
+            Groovy Map containing sample information
             e.g. `[ id:'sample1', single_end:false ]`
       - chunked_fasta/*:
           type: file
