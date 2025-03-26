@@ -31,7 +31,7 @@ input:
         pattern: "*.{fa,fa.gz,fasta,fasta.gz}"
   - -length_threshold:
         type: float
-        description: is the minimum fraction of a sequence covered by envelope coordinates in HMMER's domain table.
+        description: The minimum fraction of the hit sequence envelope coords [start, end] against the query HMM's length.
 output:
   - fasta:
       - meta:
