@@ -23,7 +23,7 @@ input:
           e.g. `[ id:'sample1', single_end:false ]`
     - domtbl:
         type: file
-        description: a domtable file.
+        description: The domtbl output format file of hmmsearch.
         pattern: "*.domtbl.gz"
     - fa:
         type: file
