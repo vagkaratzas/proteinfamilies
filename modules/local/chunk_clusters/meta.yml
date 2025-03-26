@@ -47,7 +47,7 @@ output:
       - chunked_fasta/*:
           type: file
           description: Directory containing chunked FASTA files produced from the clustering process.
-          pattern: "chunked_fasta/*"
+          pattern: "chunked_fasta/*.fasta"
   - versions:
       - "versions.yml":
           type: file
@@ -57,5 +57,4 @@ authors:
   - "@GiatrasKon"
   - "@marchasapi"
 maintainers:
-  - "@GiatrasKon"
-  - "@marchasapi"
+  - "@vagkaratzas"
