@@ -23,7 +23,7 @@ input:
           e.g. `[ id:'sample1', single_end:false ]`
     - clustering:
         type: file
-        description: 2-column TSV file mapping sequences to clusters (e.g. `${prefix}_*.tsv`).
+        description: 2-column TSV file mapping sequences to clusters
         pattern: "*.tsv"
   - - meta2:
         type: map
@@ -32,8 +32,8 @@ input:
           e.g. `[ id:'sample1', single_end:false ]`
     - sequences:
         type: file
-        description: fasta file containing sequences in this cluster (e.g. `${prefix}_*.fasta`).
-        pattern: "*.fasta"
+        description: fasta file containing amino acid sequences in this family
+        pattern: "*.{fa,fa.gz,fasta,fasta.gz}"
 output:
   - fasta:
       - meta:

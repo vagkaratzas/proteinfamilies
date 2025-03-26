@@ -34,7 +34,7 @@ process FILTER_RECRUITED {
     END_VERSIONS
     """
 
-stub:
+    stub:
     prefix = task.ext.prefix ?: "${meta.id}"
     """
     echo "" | gzip > ${prefix}.fasta.gz
@@ -45,5 +45,4 @@ stub:
         biopython: \$(python -c "import importlib.metadata; print(importlib.metadata.version('biopython'))")
     END_VERSIONS
     """
-
 }
