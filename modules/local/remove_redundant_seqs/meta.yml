@@ -25,7 +25,7 @@ input:
         type: file
         description: 2-column TSV file mapping sequences to clusters (e.g. `${prefix}_*.tsv`).
         pattern: "*.tsv"
-    - meta2:
+  - - meta2:
         type: map
         description: |
           Groovy Map containing mapping information.
