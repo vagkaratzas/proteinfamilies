@@ -35,8 +35,8 @@ input:
         description: FASTA file containing amino acid sequences
         pattern: "*.{fa,fa.gz,fasta,fasta.gz}"
   - - size_threshold:
-      type: integer
-      description: Integer value representing the minimum allowed cluster size to chunk.
+        type: integer
+        description: Integer value representing the minimum allowed cluster size to chunk.
 output:
   - fasta_chunks:
       - meta:
