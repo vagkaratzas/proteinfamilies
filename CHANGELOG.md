@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Added`
 
-- [#58](https://github.com/nf-core/proteinfamilies/pull/58) - Added nf-test for local subworkflow `REMOVE_REDUNDANCY_SEQS`
+- [#58](https://github.com/nf-core/proteinfamilies/pull/58) - Added nf-test and `meta.yml` file for local module `REMOVE_REDUNDANCY_SEQS`
 - [#56](https://github.com/nf-core/proteinfamilies/pull/56) - Added nf-test and `meta.yml` file for local module `FILTER_RECRUITED`
 - [#55](https://github.com/nf-core/proteinfamilies/pull/55) - Added nf-test and `meta.yml` file for local module `CHUNK_CLUSTERS`
 - [#54](https://github.com/nf-core/proteinfamilies/pull/54) - Added nf-test for local subworkflow `ALIGN_SEQUENCES`
