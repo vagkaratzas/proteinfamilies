@@ -16,3 +16,14 @@ Initial release of nf-core/proteinfamilies, created with the [nf-core](https://n
 - In-family sequence redundancy removal (mmseqs)
 - Family updating (hmmer, seqkit, mmseqs, famsa, mafft, clipkit)
 - Family statistics presentation (multiqc)
+
+## v1.0.1 - [2025/03/26]
+
+Hackathon 2025 - JSON schema improvements
+
+### `Changed`
+
+- slight improvements of 'nextflow_schema.json'
+- slight improtmenets of 'assets/schema_input.json'.
+
+
