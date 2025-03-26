@@ -28,7 +28,7 @@ input:
     - fa:
         type: file
         description: An amino acid sequence fasta file.
-        pattern: "*.fa"
+        pattern: "*.{fa,fa.gz,fasta,fasta.gz}"
   - -length_threshold:
         type: float
         description: is the minimum fraction of a sequence covered by envelope coordinates in HMMER's domain table.
