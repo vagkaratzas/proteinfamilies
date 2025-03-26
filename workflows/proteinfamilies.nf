@@ -26,8 +26,9 @@ include { REMOVE_REDUNDANCY  } from '../subworkflows/local/remove_redundancy'
 //
 // MODULE: Local to the pipeline
 //
-include { CHUNK_CLUSTERS      } from '../modules/local/chunk_clusters/main'
-include { EXTRACT_FAMILY_REPS } from '../modules/local/extract_family_reps/main'
+include { CALCULATE_CLUSTER_DISTRIBUTION } from "../modules/local/calculate_cluster_distribution/main"
+include { CHUNK_CLUSTERS                 } from '../modules/local/chunk_clusters/main'
+include { EXTRACT_FAMILY_REPS            } from '../modules/local/extract_family_reps/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,8 +80,11 @@ workflow PROTEINFAMILIES {
 
     // Creating new families
     // Clustering
-    EXECUTE_CLUSTERING( ch_samplesheet_for_create )
+    EXECUTE_CLUSTERING( ch_samplesheet_for_create, params.clustering_tool )
     ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+
+    CALCULATE_CLUSTER_DISTRIBUTION( EXECUTE_CLUSTERING.out.clusters )
+    ch_versions = ch_versions.mix( CALCULATE_CLUSTER_DISTRIBUTION.out.versions )
 
     CHUNK_CLUSTERS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs, params.cluster_size_threshold )
     ch_versions = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
@@ -144,6 +148,7 @@ workflow PROTEINFAMILIES {
         )
     )
 
+    ch_multiqc_files = ch_multiqc_files.mix(CALCULATE_CLUSTER_DISTRIBUTION.out.mqc.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(ch_family_reps.collect { it[1] }.ifEmpty([]))
 
     MULTIQC (

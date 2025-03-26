@@ -4,7 +4,6 @@
 
 include { ALIGN_SEQUENCES  } from '../../../subworkflows/local/align_sequences'
 include { CLIPKIT          } from '../../../modules/nf-core/clipkit/main'
-include { CLIP_ENDS        } from '../../../modules/local/clip_ends/main'
 include { HMMER_HMMBUILD   } from '../../../modules/nf-core/hmmer/hmmbuild/main'
 include { HMMER_HMMSEARCH  } from '../../../modules/nf-core/hmmer/hmmsearch/main'
 include { FILTER_RECRUITED } from '../../../modules/local/filter_recruited/main'
@@ -27,20 +26,14 @@ workflow GENERATE_FAMILIES {
             [ [id: meta.id, chunk: file(file_path, checkIfExists: true).baseName], file_path ]
         }
 
-    ALIGN_SEQUENCES( ch_fasta )
+    ALIGN_SEQUENCES( ch_fasta, params.alignment_tool )
     ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
     ch_msa = ALIGN_SEQUENCES.out.alignments
 
     if (params.trim_msa) {
-        if (params.clipping_tool == 'clipkit') {
-            CLIPKIT( ch_msa )
-            ch_versions = ch_versions.mix( CLIPKIT.out.versions )
-            ch_msa = CLIPKIT.out.clipkit
-        } else { // fallback: local module clip_ends
-            CLIP_ENDS( ch_msa, params.gap_threshold )
-            ch_versions = ch_versions.mix( CLIP_ENDS.out.versions )
-            ch_msa = CLIP_ENDS.out.fas
-        }
+        CLIPKIT( ch_msa, params.clipkit_out_format )
+        ch_versions = ch_versions.mix( CLIPKIT.out.versions )
+        ch_msa = CLIPKIT.out.clipkit
     }
 
     HMMER_HMMBUILD( ch_msa, [] )

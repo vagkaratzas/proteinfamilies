@@ -100,7 +100,7 @@ def remove_redundant_fams(mapping, domtbl, fasta_folder, length_threshold, out_f
 
     redundant_fam_names = set()
     for _, row in domtbl_df.iterrows():
-        if row["query size"] < row["target size"]:
+        if int(row["query size"]) < int(row["target size"]):
             redundant_fam_names.add(row["query name"])
         else:
             redundant_fam_names.add(row["target name"])
