@@ -13,7 +13,7 @@ process CHUNK_CLUSTERS {
     val(size_threshold)
 
     output:
-    tuple val(meta), path("chunked_fasta/*"), emit: fasta_chunks
+    tuple val(meta), path("chunked_fasta/*"), emit: fasta_chunks, optional: true
     path "versions.yml"                     , emit: versions
 
     when:
@@ -36,7 +36,7 @@ process CHUNK_CLUSTERS {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version 2>&1 | sed 's/Python //g')
-        biopython: \$(python -c "import importlib.metadata; print(importlib.metadata.version('biopython'))")
+        pyfastx: \$(python -c "import importlib.metadata; print(importlib.metadata.version('pyfastx'))")
     END_VERSIONS
     """
 
@@ -48,7 +48,7 @@ process CHUNK_CLUSTERS {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         python: \$(python --version 2>&1 | sed 's/Python //g')
-        biopython: \$(python -c "import importlib.metadata; print(importlib.metadata.version('biopython'))")
+        pyfastx: \$(python -c "import importlib.metadata; print(importlib.metadata.version('pyfastx'))")
     END_VERSIONS
     """
 
