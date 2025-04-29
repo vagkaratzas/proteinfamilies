@@ -12,8 +12,8 @@ process FILTER_NON_REDUNDANT_HMMS {
     tuple val(meta2), path(models, stageAs: "models/*")
 
     output:
-    tuple val(meta), path("non_redundant/*"), emit: hmm
-    path "versions.yml"                     , emit: versions
+    tuple val(meta), path("*.hmm.gz"), emit: hmm
+    path "versions.yml"              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -22,8 +22,7 @@ process FILTER_NON_REDUNDANT_HMMS {
     """
     filter_non_redundant_hmms.py \\
         --seqs seqs \\
-        --models models \\
-        --out_folder non_redundant
+        --models models
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

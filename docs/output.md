@@ -139,9 +139,13 @@ Results are stored in the `seed_msa` folder.
 
 - `hmmer/`
   - `hmmbuild/`
-    - `<samplename>/`
-      - `<samplename>_*.hmm.gz`: compressed hmm model for the family
-      - `<samplename>_*.hmmbuild.txt`: (optional) hmmbuild execution log
+    - `non_redundant/`
+      - `<samplename>/`
+        - `<samplename>_*.hmm.gz`: filtered non-redundant compressed hmm model for the family
+    - `pre_non_redundant/`
+      - `<samplename>/`
+        - `<samplename>_*.hmm.gz`: compressed hmm model for the family
+        - `<samplename>_*.hmmbuild.txt`: (optional) hmmbuild execution log
   - `hmmsearch/`
     - `<samplename>/`
       - `<samplename>_*.domtbl.gz`: (optional) hmmsearch results along parameters info. Can be turned on with --save_hmmsearch_results
