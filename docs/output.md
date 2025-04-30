@@ -138,18 +138,18 @@ Results are stored in the `seed_msa` folder.
 <summary>Output files</summary>
 
 - `hmmer/`
-  - `hmmbuild/`
-    - `non_redundant/`
-      - `<samplename>/`
-        - `<samplename>_*.hmm.gz`: filtered non-redundant compressed hmm model for the family
-    - `pre_non_redundant/`
-      - `<samplename>/`
-        - `<samplename>_*.hmm.gz`: compressed hmm model for the family
-        - `<samplename>_*.hmmbuild.txt`: (optional) hmmbuild execution log
   - `hmmsearch/`
     - `<samplename>/`
       - `<samplename>_*.domtbl.gz`: (optional) hmmsearch results along parameters info. Can be turned on with --save_hmmsearch_results
       - `<samplename>_*.txt.gz`: (optional) hmmsearch execution log. Can be turned on with --save_hmmsearch_results
+- `hmm/`
+  - `filtered/`
+    - `<samplename>/`
+      - `<samplename>_*.hmm.gz`: filtered non-redundant compressed hmm model for the family
+  - `raw/`
+    - `<samplename>/`
+      - `<samplename>_*.hmm.gz`: compressed hmm model for the family
+      - `<samplename>_*.hmmbuild.txt`: (optional) hmmbuild execution log
 - `full_msa/`
   - `pre_non_redundant/`
     - `<samplename>/`
@@ -157,10 +157,11 @@ Results are stored in the `seed_msa` folder.
 
 </details>
 
-The `hmmer/hmmbuild` folder contains all originally created family HMMs. These models will be used downstream used to 'fish' extra sequences
-in each family if `--recruit_sequences_with_models` is set to true, and/or to remove between-families redundancy if `--remove_family_redundancy` is set to true.
-The models can also be used in the `update_families` execution mode of the pipeline,
-along with the families' respective MSAs, to recruit sequences from a new input fasta file into the families, updating both family HMM and MSA files.
+The `hmm/raw` folder contains all originally created family HMMs. These models will be used downstream to recruit additional sequences in families, to compute
+full MSAs if `--recruit_sequences_with_models` is set to `true`, and/or to remove among-families redundancy if `--remove_family_redundancy` is set to `true`.
+When `--remove_family_redundancy` is set to `true`, the `hmm/filtered` folder will also be produced with the filtered subset of the original raw HMMs.
+The HMMs (raw or filtered) can also be used in the `update_families` execution mode of the pipeline,
+along with the families' respective full MSAs, to recruit sequences from a new input fasta file into the families, updating both family HMM and full MSA files.
 
 [hmmer](https://github.com/EddyRivasLab/hmmer) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
 
@@ -289,10 +290,10 @@ If the `--alignment_tool` is `mafft`, then this `mafft_align` folder will be cre
     - `hmmsearch/`
       - `<samplename>/`
         - `<samplename>.domtbl.gz`: (optional) hmmsearch results of input fasta file against existing families' HMMs
-    - `hmmbuild/`
-      - `<samplename>/`
-        - `<family_id>.hmm.gz`: (optional) compressed family HMM after the update
-        - `<family_id>.hmmbuild.txt`: (optional) hmmbuild execution log
+  - `hmm/`
+    - `<samplename>/`
+      - `<family_id>.hmm.gz`: (optional) compressed family HMM after the update
+      - `<family_id>.hmmbuild.txt`: (optional) hmmbuild execution log
   - `branch_fasta/`
     - `hits/`
       - `<family_id>.fasta`: (optional) subset of the input FASTA with hit sequences for each existing family
@@ -306,7 +307,7 @@ If the `--alignment_tool` is `mafft`, then this `mafft_align` folder will be cre
 
 The `update_families` execution mode is run if paths to `existing_hmms_to_update` and `existing_msas_to_update` are provided in the input samplesheet.csv.
 The `hmmer/hmmsearch` module is used to match new incoming sequences in the existing family models.
-If there were hits, the new sequences are reclustered along their matching family existing ones, and new models are build with `hmmer/hmmbuild`
+In case of hits, the new sequences are reclustered along their matching family existing ones, and new models are build with `hmmer/hmmbuild`
 in the `update_families/hmmer/hmmbuild` folder, from the respective new MSAs.
 
 [hmmer](https://github.com/EddyRivasLab/hmmer) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
