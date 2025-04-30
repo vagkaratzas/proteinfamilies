@@ -94,15 +94,15 @@ workflow PROTEINFAMILIES {
     ch_versions = ch_versions.mix( GENERATE_FAMILIES.out.versions )
 
     // Remove redundant sequences and families
-    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.msa, GENERATE_FAMILIES.out.fasta, GENERATE_FAMILIES.out.hmm )
+    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.seed_msa, GENERATE_FAMILIES.out.full_msa, GENERATE_FAMILIES.out.fasta, GENERATE_FAMILIES.out.hmm )
     ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
 
     // Post-processing
-    ch_msa = REMOVE_REDUNDANCY.out.msa
+    ch_full_msa = REMOVE_REDUNDANCY.out.full_msa
         .map { meta, aln -> [ [id: meta.id], aln ] }
         .groupTuple(by: 0)
 
-    EXTRACT_FAMILY_REPS( ch_msa )
+    EXTRACT_FAMILY_REPS( ch_full_msa )
     ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
     ch_family_reps = ch_family_reps.mix( EXTRACT_FAMILY_REPS.out.map )
 

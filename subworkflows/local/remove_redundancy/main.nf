@@ -15,15 +15,16 @@ include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_RAW      } from '../../../modules
 
 workflow REMOVE_REDUNDANCY {
     take:
-    msa   // tuple val(meta), path(fas)
-    fasta // tuple val(meta), path(fasta)
-    hmm   // tuple val(meta), path(hmm)
+    seed_msa // tuple val(meta), path(fas)
+    full_msa // tuple val(meta), path(fas)
+    fasta    // tuple val(meta), path(fasta)
+    hmm      // tuple val(meta), path(hmm)
 
     main:
     ch_versions = Channel.empty()
 
     if (params.remove_family_redundancy) {
-        ch_msa = msa
+        ch_msa = full_msa
             .map { meta, aln -> [[id: meta.id], aln] }
             .groupTuple(by: 0)
         EXTRACT_FAMILY_REPS( ch_msa )
@@ -86,7 +87,7 @@ workflow REMOVE_REDUNDANCY {
 
         ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta, params.alignment_tool )
         ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
-        msa = ALIGN_SEQUENCES.out.alignments
+        full_msa = ALIGN_SEQUENCES.out.alignments
     } else {
         if (params.remove_family_redundancy) {
             // fasta.view()
@@ -95,7 +96,7 @@ workflow REMOVE_REDUNDANCY {
             //     .map { meta, file_path ->
             //         [[id: meta.id, chunk: file_path.getSimpleName().split('_')[-1]], file_path]
             //     }
-            HHSUITE_REFORMAT_FILTERED( msa, "sto", "fas" ) // TODO only filtered
+            HHSUITE_REFORMAT_FILTERED( full_msa, "sto", "fas" ) // TODO only filtered
         } else {
             // ch_hmm = ch_hmm
             //     .transpose()
@@ -105,17 +106,17 @@ workflow REMOVE_REDUNDANCY {
             // HHSUITE_REFORMAT(ch_hmm, "sto", "fas") // TODO test
         }
         ch_versions = ch_versions.mix( HHSUITE_REFORMAT_FILTERED.out.versions )
-        msa = HHSUITE_REFORMAT_FILTERED.out.msa
+        full_msa = HHSUITE_REFORMAT_FILTERED.out.msa
     }
 
     if (!params.remove_family_redundancy && !params.remove_sequence_redundancy) {
-        HHSUITE_REFORMAT_RAW(msa, "sto", "fas")
+        HHSUITE_REFORMAT_RAW(full_msa, "sto", "fas")
         ch_versions = ch_versions.mix( HHSUITE_REFORMAT_RAW.out.versions )
-        msa = HHSUITE_REFORMAT_RAW.out.msa
+        full_msa = HHSUITE_REFORMAT_RAW.out.msa
     }
 
     // msa.view() // TODO remove
     emit:
     versions = ch_versions
-    msa      = msa
+    full_msa = full_msa
 }
