@@ -6,8 +6,7 @@ include { EXTRACT_FAMILY_REPS                           } from '../../../modules
 include { CAT_CAT                                       } from '../../../modules/nf-core/cat/cat'
 include { HMMER_HMMSEARCH                               } from '../../../modules/nf-core/hmmer/hmmsearch/main'
 include { IDENTIFY_REDUNDANT_FAMS                       } from '../../../modules/local/identify_redundant_fams/main'
-//  include { REMOVE_REDUNDANT_FAMS                         } from '../../../modules/local/remove_redundant_fams/main'
-include { FILTER_NON_REDUNDANT_HMMS                     } from '../../../modules/local/filter_non_redundant_hmms/main'
+include { FILTER_NON_REDUNDANT_FAMS                     } from '../../../modules/local/filter_non_redundant_fams/main'
 include { EXECUTE_CLUSTERING                            } from '../../../subworkflows/local/execute_clustering'
 include { REMOVE_REDUNDANT_SEQS                         } from '../../../modules/local/remove_redundant_seqs/main'
 include { ALIGN_SEQUENCES                               } from '../../../subworkflows/local/align_sequences'
@@ -56,39 +55,47 @@ workflow REMOVE_REDUNDANCY {
             ch_input_for_redundant_fam_identification.domtbl, params.hmmsearch_family_length_threshold )
         ch_versions = ch_versions.mix( IDENTIFY_REDUNDANT_FAMS.out.versions )
 
-        // fasta = fasta
-        //     .map { meta, fas -> [[id: meta.id], fas] }
-        //     .groupTuple(by: 0)
+        fasta = fasta
+            .map { meta, fas -> [[id: meta.id], fas] }
+            .groupTuple(by: 0)
+
+        ch_seed_msa = seed_msa
+            .map { meta, fas -> [[id: meta.id], fas] }
+            .groupTuple(by: 0)
+
+        ch_full_msa = full_msa
+            .map { meta, fas -> [[id: meta.id], fas] }
+            .groupTuple(by: 0)
 
         // Join to ensure in sync
-        // ch_input_for_fam_removal = EXTRACT_FAMILY_REPS.out.map
-        //     .join(HMMER_HMMSEARCH.out.domain_summary)
-        //     .join(fasta)
-        //     .multiMap { meta, map, domtbl, seqs ->
-        //         map: [meta, map]
-        //         domtbl: [meta, domtbl]
-        //         seqs: [meta, seqs]
-        //     }
+        ch_input_for_fam_removal = IDENTIFY_REDUNDANT_FAMS.out.redundant_ids
+            .join(fasta)
+            .join(ch_hmm)
+            .join(ch_seed_msa)
+            .join(ch_full_msa)
+            .multiMap { meta, ids, seq, model, seed, full ->
+                ids: [meta, ids]
+                seq: [meta, seq]
+                model: [meta, model]
+                seed: [meta, seed]
+                full: [meta, full]
+            }
 
-        // REMOVE_REDUNDANT_FAMS( ch_input_for_fam_removal.map, ch_input_for_fam_removal.domtbl, ch_input_for_fam_removal.seqs, params.hmmsearch_family_length_threshold )
-        // ch_versions = ch_versions.mix( REMOVE_REDUNDANT_FAMS.out.versions )
-        // fasta = REMOVE_REDUNDANT_FAMS.out.fasta
+        FILTER_NON_REDUNDANT_FAMS( ch_input_for_fam_removal.ids, ch_input_for_fam_removal.seq, \
+            ch_input_for_fam_removal.model, ch_input_for_fam_removal.seed, ch_input_for_fam_removal.full )
+        ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_FAMS.out.versions )
 
-        // // Join to ensure in sync
-        // ch_input_for_hmm_filtering = fasta
-        //     .join(ch_hmm)
-        //     .multiMap { meta, seqs, models ->
-        //         seqs: [meta, seqs]
-        //         models: [meta, models]
-        //     }
-        // FILTER_NON_REDUNDANT_HMMS( ch_input_for_hmm_filtering.seqs, ch_input_for_hmm_filtering.models )
-        // ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_HMMS.out.versions )
+        fasta = FILTER_NON_REDUNDANT_FAMS.out.fasta
+            .transpose()
+            .map { meta, file ->
+                [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
+            }
 
-        // fasta = fasta
-        //     .transpose()
-        //     .map { meta, file ->
-        //         [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
-        //     }
+        full_msa = FILTER_NON_REDUNDANT_FAMS.out.full_msa
+            .transpose()
+            .map { meta, file ->
+                [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
+            }
     }
 
     // if (params.remove_sequence_redundancy) {
@@ -128,7 +135,6 @@ workflow REMOVE_REDUNDANCY {
         full_msa = HHSUITE_REFORMAT_RAW.out.msa
     }
 
-    // msa.view() // TODO remove
     emit:
     versions = ch_versions
     full_msa = full_msa

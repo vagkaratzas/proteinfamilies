@@ -91,6 +91,9 @@ The original mmseqs db and the clustered mmseqs db can be optional saved to the 
     - `famsa_align/`
       - `<samplename>/`
         - `<samplename>_*.aln`: fasta files with aligned amino acid sequences
+  - `filtered/`
+    - `<samplename>/`
+      - `<samplename>_*.*`: filtered seed alignments after family redundancy removal
 
 </details>
 
@@ -109,6 +112,9 @@ These MSA files only contain the original sequences of each cluster as calculate
     - `mafft_align/`
       - `<samplename>/`
         - `<samplename>_*.fas`: fasta files with aligned amino acid sequences
+  - `filtered/`
+    - `<samplename>/`
+      - `<samplename>_*.*`: filtered seed alignments after family redundancy removal
 
 </details>
 
@@ -127,6 +133,9 @@ These MSA files only contain the original sequences of each cluster as calculate
     - `clipkit/`
       - `<samplename>/`
         - `<samplename>_*.clipkit`: gap-clipped fasta files of aligned amino acid sequences
+  - `filtered/`
+    - `<samplename>/`
+      - `<samplename>_*.*`: filtered seed alignments after family redundancy removal
 
 </details>
 
@@ -159,6 +168,9 @@ Results are stored in the `seed_msa/raw` folder.
     - `hmmer_hmmalign/`
       - `<samplename>/`
         - `<samplename>_*.sto.gz`: compressed family full MSA produced by hmmalign (before checking for redundancy)
+  - `filtered/`
+    - `<samplename>/`
+      - `<samplename>_*.*`: filtered full alignments after family redundancy removal
 
 </details>
 
@@ -188,10 +200,6 @@ along with the families' respective full MSAs, to recruit sequences from a new i
     - `<samplename>/`
       - `<samplename>_meta_mqc.csv`: (optional) csv with metadata (Sample Name,Family Id,Size,Representative Length,Representative Id,Sequence)
       - `<samplename>_reps.fa`: (optional) fasta file of all family representative sequences (one sequence per family)
-  - `non_redundant_fams/`
-    - `<samplename>/`
-      - `non_redundant/`
-        - `<samplename>_*.fasta.gz`: (optional) compressed family full MSA (after checking for family redundancy)
 
 </details>
 
