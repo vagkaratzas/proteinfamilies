@@ -2,16 +2,16 @@
     REMOVAL OF REDUNDANT SEQUENCES AND FAMILIES
 */
 
-include { EXTRACT_FAMILY_REPS                               } from '../../../modules/local/extract_family_reps/main'
-include { CAT_CAT                                           } from '../../../modules/nf-core/cat/cat'
-include { HMMER_HMMSEARCH                                   } from '../../../modules/nf-core/hmmer/hmmsearch/main'
-include { REMOVE_REDUNDANT_FAMS                             } from '../../../modules/local/remove_redundant_fams/main'
-include { FILTER_NON_REDUNDANT_HMMS                         } from '../../../modules/local/filter_non_redundant_hmms/main'
-include { EXECUTE_CLUSTERING                                } from '../../../subworkflows/local/execute_clustering'
-include { REMOVE_REDUNDANT_SEQS                             } from '../../../modules/local/remove_redundant_seqs/main'
-include { ALIGN_SEQUENCES                                   } from '../../../subworkflows/local/align_sequences'
-include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_NONREDUNDANT } from '../../../modules/nf-core/hhsuite/reformat/main'
-include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_REDUNDANT    } from '../../../modules/nf-core/hhsuite/reformat/main'
+include { EXTRACT_FAMILY_REPS                           } from '../../../modules/local/extract_family_reps/main'
+include { CAT_CAT                                       } from '../../../modules/nf-core/cat/cat'
+include { HMMER_HMMSEARCH                               } from '../../../modules/nf-core/hmmer/hmmsearch/main'
+include { REMOVE_REDUNDANT_FAMS                         } from '../../../modules/local/remove_redundant_fams/main'
+include { FILTER_NON_REDUNDANT_HMMS                     } from '../../../modules/local/filter_non_redundant_hmms/main'
+include { EXECUTE_CLUSTERING                            } from '../../../subworkflows/local/execute_clustering'
+include { REMOVE_REDUNDANT_SEQS                         } from '../../../modules/local/remove_redundant_seqs/main'
+include { ALIGN_SEQUENCES                               } from '../../../subworkflows/local/align_sequences'
+include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_FILTERED } from '../../../modules/nf-core/hhsuite/reformat/main'
+include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_RAW      } from '../../../modules/nf-core/hhsuite/reformat/main'
 
 workflow REMOVE_REDUNDANCY {
     take:
@@ -95,7 +95,7 @@ workflow REMOVE_REDUNDANCY {
             //     .map { meta, file_path ->
             //         [[id: meta.id, chunk: file_path.getSimpleName().split('_')[-1]], file_path]
             //     }
-            HHSUITE_REFORMAT_NONREDUNDANT( msa, "sto", "fas" ) // TODO only filtered
+            HHSUITE_REFORMAT_FILTERED( msa, "sto", "fas" ) // TODO only filtered
         } else {
             // ch_hmm = ch_hmm
             //     .transpose()
@@ -104,14 +104,14 @@ workflow REMOVE_REDUNDANCY {
             //     }
             // HHSUITE_REFORMAT(ch_hmm, "sto", "fas") // TODO test
         }
-        ch_versions = ch_versions.mix( HHSUITE_REFORMAT_NONREDUNDANT.out.versions )
-        msa = HHSUITE_REFORMAT_NONREDUNDANT.out.msa
+        ch_versions = ch_versions.mix( HHSUITE_REFORMAT_FILTERED.out.versions )
+        msa = HHSUITE_REFORMAT_FILTERED.out.msa
     }
 
     if (!params.remove_family_redundancy && !params.remove_sequence_redundancy) {
-        HHSUITE_REFORMAT_REDUNDANT(msa, "sto", "fas")
-        ch_versions = ch_versions.mix( HHSUITE_REFORMAT_REDUNDANT.out.versions )
-        msa = HHSUITE_REFORMAT_REDUNDANT.out.msa
+        HHSUITE_REFORMAT_RAW(msa, "sto", "fas")
+        ch_versions = ch_versions.mix( HHSUITE_REFORMAT_RAW.out.versions )
+        msa = HHSUITE_REFORMAT_RAW.out.msa
     }
 
     // msa.view() // TODO remove

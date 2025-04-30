@@ -30,6 +30,7 @@ Removing redundancy:
 - [MMseqs2](#mmseqs2-for-redundancy-removal) to strictly cluster the sequences within each of the remaining families, in order to still capture the evolutionary diversity within a family, but without keeping all the almost identical sequences
 - [FAMSA](#famsa-for-redundancy-removal) aligner option. Re-align full MSA with final set of sequences
 - [mafft](#mafft-for-redundancy-removal) aligner option. Re-align full MSA with final set of sequences
+- [HH-suite3](#hh-suite3) to reformat raw full `.sto` MSAs to `.fas`, in case the user did not select to remove in-family sequence redundancy, that automatically re-aligns sequences with either FAMSA or mafft
 
 Updating families:
 
@@ -154,9 +155,10 @@ Results are stored in the `seed_msa/raw` folder.
       - `<samplename>_*.hmm.gz`: compressed hmm model for the family
       - `<samplename>_*.hmmbuild.txt`: (optional) hmmbuild execution log
 - `full_msa/`
-  - `pre_non_redundant/`
-    - `<samplename>/`
-      - `<samplename>_*.sto.gz`: compressed family full MSA produced by hmmalign (before checking for redundancy)
+  - `raw/`
+    - `hmmer_hmmalign/`
+      - `<samplename>/`
+        - `<samplename>_*.sto.gz`: compressed family full MSA produced by hmmalign (before checking for redundancy)
 
 </details>
 
@@ -236,15 +238,15 @@ before recalculating the family MSAs.
 <summary>Output files</summary>
 
 - `full_msa/`
-  - `non_redundant/`
+  - `filtered/`
     - `famsa_align/`
       - `<samplename>/`
         - `<samplename>_*.aln`: family full MSA (after checking for sequence redundancy)
 
 </details>
 
-If `--remove_sequence_redundancy` is set to true, then the MSAs will be recalculated after in-family sequence redundancy is removed.
-If the `--alignment_tool` is `famsa`, then this `famsa_align` folder will be created, containing the final MSA files.
+If `--remove_sequence_redundancy` is set to `true`, then the full MSAs will be recalculated after in-family sequence redundancy is removed.
+If the `--alignment_tool` is `famsa`, then this `famsa_align` folder will be created, containing the final full MSA files.
 
 [FAMSA](https://github.com/refresh-bio/FAMSA) is a progressive algorithm for large-scale multiple sequence alignments.
 
@@ -254,17 +256,38 @@ If the `--alignment_tool` is `famsa`, then this `famsa_align` folder will be cre
 <summary>Output files</summary>
 
 - `full_msa/`
-  - `non_redundant/`
+  - `filtered/`
     - `mafft_align/`
       - `<samplename>/`
-        - `<samplename>_*.fas`: fasta files with aligned amino acid sequences (after checking for sequence redundancy)
+        - `<samplename>_*.fas`: family full MSA (after checking for sequence redundancy)
 
 </details>
 
-If `--remove_sequence_redundancy` is set to true, then the MSAs will be recalculated after in-family sequence redundancy is removed.
-If the `--alignment_tool` is `mafft`, then this `mafft_align` folder will be created, containing the final MSA files.
+If `--remove_sequence_redundancy` is set to `true`, then the full MSAs will be recalculated after in-family sequence redundancy is removed.
+If the `--alignment_tool` is `mafft`, then this `mafft_align` folder will be created, containing the final full MSA files.
 
 [mafft](https://github.com/GSLBiotech/mafft) is a fast but not very sensitive multiple sequence alignment tool.
+
+### HH-suite3
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `full_msa/`
+  - `filtered/`
+    - `hhsuite_reformat/`
+      - `<samplename>/`
+        - `<samplename>_*.fas`: reformatted filtered full MSA files
+  - `raw/`
+    - `hhsuite_reformat/`
+      - `<samplename>/`
+        - `<samplename>_*.fas`: reformatted raw full MSA files
+
+</details>
+
+If `--remove_sequence_redundancy` is set to `false`, then either the raw (if `--remove_family_redundancy` is set to `false`) or the filtered (if `--remove_family_redundancy` is set to `true`) full `.sto` MSAs will be reformatted to `.fas`.
+
+[HH-suite3](https://github.com/soedinglab/hh-suite) is an open-source software package for sensitive protein sequence searching based on the pairwise alignment of hidden Markov models (HMMs).
 
 ### untar
 

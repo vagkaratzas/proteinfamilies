@@ -35,7 +35,8 @@ Optionally, paths to existing family HMMs and MSAs can be given (must have match
 4. Generate family HMMs and fish additional sequences into the family ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
 5. Optionally, remove redundant families by comparing family representative sequences against family models with ([`hmmer`](https://github.com/EddyRivasLab/hmmer/))
 6. Optionally, from the remaining families, remove in-family redundant sequences by strictly clustering with ([`MMseqs2`](https://github.com/soedinglab/MMseqs2/)) and keep cluster representatives
-7. Present statistics for remaining/updated families size distributions and representative sequence lengths ([`MultiQC`](http://multiqc.info/))
+7. Optionally, if in-family redundancy was not removed, reformat the `.sto` full MSAs to `.fas` with ([`HH-suite3`](https://github.com/soedinglab/hh-suite))
+8. Present statistics for remaining/updated families size distributions and representative sequence lengths ([`MultiQC`](http://multiqc.info/))
 
 ### Update families
 
