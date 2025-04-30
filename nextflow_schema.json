@@ -262,7 +262,7 @@
                     "type": "string",
                     "default": "clipkit",
                     "description": "Choose the output format of the clipped alignment.",
-                    "help_text": "The default value offered by the tool is `clipkit`, but the user can overwrite by changing this variable (e.g., msa, aln, fas, etc.)"
+                    "help_text": "Make sure this is different than the input extension format, otherwise the tool won't run (i.e., != aln for famsa and != fas for mafft)."
                 },
                 "trim_ends_only": {
                     "type": "boolean",

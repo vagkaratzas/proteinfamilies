@@ -86,9 +86,10 @@ The original mmseqs db and the clustered mmseqs db can be optional saved to the 
 <summary>Output files</summary>
 
 - `seed_msa/`
-  - `famsa_align/`
-    - `<samplename>/`
-      - `<samplename>_*.aln`: fasta files with aligned amino acid sequences
+  - `raw/`
+    - `famsa_align/`
+      - `<samplename>/`
+        - `<samplename>_*.aln`: fasta files with aligned amino acid sequences
 
 </details>
 
@@ -103,9 +104,10 @@ These MSA files only contain the original sequences of each cluster as calculate
 <summary>Output files</summary>
 
 - `seed_msa/`
-  - `mafft_align/`
-    - `<samplename>/`
-      - `<samplename>_*.fas`: fasta files with aligned amino acid sequences
+  - `raw/`
+    - `mafft_align/`
+      - `<samplename>/`
+        - `<samplename>_*.fas`: fasta files with aligned amino acid sequences
 
 </details>
 
@@ -120,15 +122,16 @@ These MSA files only contain the original sequences of each cluster as calculate
 <summary>Output files</summary>
 
 - `seed_msa/`
-  - `clipkit/`
-    - `<samplename>/`
-      - `<samplename>_*.clipkit`: gap-clipped fasta files of aligned amino acid sequences
+  - `raw/`
+    - `clipkit/`
+      - `<samplename>/`
+        - `<samplename>_*.clipkit`: gap-clipped fasta files of aligned amino acid sequences
 
 </details>
 
 If the `--trim_msa` parameter was set to `true`, then `clipkit` runs, and according to the `--gap_threshold` parameter,
 gaps (above that threshold, across all aligned sequences) are either removed only at the ends of the MSA if `trim_ends_only` is set to `true`, or throughout the alignment otherwise.
-Results are stored in the `seed_msa` folder.
+Results are stored in the `seed_msa/raw` folder.
 
 [ClipKIT](https://github.com/JLSteenwyk/ClipKIT) is a fast and flexible alignment trimming tool that keeps phylogenetically informative sites and removes others.
 
