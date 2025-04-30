@@ -5,7 +5,8 @@
 include { EXTRACT_FAMILY_REPS                           } from '../../../modules/local/extract_family_reps/main'
 include { CAT_CAT                                       } from '../../../modules/nf-core/cat/cat'
 include { HMMER_HMMSEARCH                               } from '../../../modules/nf-core/hmmer/hmmsearch/main'
-include { REMOVE_REDUNDANT_FAMS                         } from '../../../modules/local/remove_redundant_fams/main'
+include { IDENTIFY_REDUNDANT_FAMS                       } from '../../../modules/local/identify_redundant_fams/main'
+//  include { REMOVE_REDUNDANT_FAMS                         } from '../../../modules/local/remove_redundant_fams/main'
 include { FILTER_NON_REDUNDANT_HMMS                     } from '../../../modules/local/filter_non_redundant_hmms/main'
 include { EXECUTE_CLUSTERING                            } from '../../../subworkflows/local/execute_clustering'
 include { REMOVE_REDUNDANT_SEQS                         } from '../../../modules/local/remove_redundant_seqs/main'
@@ -43,71 +44,83 @@ workflow REMOVE_REDUNDANCY {
         HMMER_HMMSEARCH( ch_input_for_hmmsearch )
         ch_versions = ch_versions.mix( HMMER_HMMSEARCH.out.versions )
 
-        fasta = fasta
-            .map { meta, fas -> [[id: meta.id], fas] }
-            .groupTuple(by: 0)
-
         // Join to ensure in sync
-        ch_input_for_fam_removal = EXTRACT_FAMILY_REPS.out.map
+        ch_input_for_redundant_fam_identification = EXTRACT_FAMILY_REPS.out.map
             .join(HMMER_HMMSEARCH.out.domain_summary)
-            .join(fasta)
-            .multiMap { meta, map, domtbl, seqs ->
+            .multiMap { meta, map, domtbl ->
                 map: [meta, map]
                 domtbl: [meta, domtbl]
-                seqs: [meta, seqs]
             }
 
-        REMOVE_REDUNDANT_FAMS( ch_input_for_fam_removal.map, ch_input_for_fam_removal.domtbl, ch_input_for_fam_removal.seqs, params.hmmsearch_family_length_threshold )
-        ch_versions = ch_versions.mix( REMOVE_REDUNDANT_FAMS.out.versions )
-        fasta = REMOVE_REDUNDANT_FAMS.out.fasta
+        IDENTIFY_REDUNDANT_FAMS( ch_input_for_redundant_fam_identification.map, \
+            ch_input_for_redundant_fam_identification.domtbl, params.hmmsearch_family_length_threshold )
+        ch_versions = ch_versions.mix( IDENTIFY_REDUNDANT_FAMS.out.versions )
+
+        // fasta = fasta
+        //     .map { meta, fas -> [[id: meta.id], fas] }
+        //     .groupTuple(by: 0)
 
         // Join to ensure in sync
-        ch_input_for_hmm_filtering = fasta
-            .join(ch_hmm)
-            .multiMap { meta, seqs, models ->
-                seqs: [meta, seqs]
-                models: [meta, models]
-            }
-        FILTER_NON_REDUNDANT_HMMS( ch_input_for_hmm_filtering.seqs, ch_input_for_hmm_filtering.models )
-        ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_HMMS.out.versions )
+        // ch_input_for_fam_removal = EXTRACT_FAMILY_REPS.out.map
+        //     .join(HMMER_HMMSEARCH.out.domain_summary)
+        //     .join(fasta)
+        //     .multiMap { meta, map, domtbl, seqs ->
+        //         map: [meta, map]
+        //         domtbl: [meta, domtbl]
+        //         seqs: [meta, seqs]
+        //     }
 
-        fasta = fasta
-            .transpose()
-            .map { meta, file ->
-                [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
-            }
+        // REMOVE_REDUNDANT_FAMS( ch_input_for_fam_removal.map, ch_input_for_fam_removal.domtbl, ch_input_for_fam_removal.seqs, params.hmmsearch_family_length_threshold )
+        // ch_versions = ch_versions.mix( REMOVE_REDUNDANT_FAMS.out.versions )
+        // fasta = REMOVE_REDUNDANT_FAMS.out.fasta
+
+        // // Join to ensure in sync
+        // ch_input_for_hmm_filtering = fasta
+        //     .join(ch_hmm)
+        //     .multiMap { meta, seqs, models ->
+        //         seqs: [meta, seqs]
+        //         models: [meta, models]
+        //     }
+        // FILTER_NON_REDUNDANT_HMMS( ch_input_for_hmm_filtering.seqs, ch_input_for_hmm_filtering.models )
+        // ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_HMMS.out.versions )
+
+        // fasta = fasta
+        //     .transpose()
+        //     .map { meta, file ->
+        //         [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
+        //     }
     }
 
-    if (params.remove_sequence_redundancy) {
-        EXECUTE_CLUSTERING( fasta, params.clustering_tool )
-        ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+    // if (params.remove_sequence_redundancy) {
+    //     EXECUTE_CLUSTERING( fasta, params.clustering_tool )
+    //     ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
-        REMOVE_REDUNDANT_SEQS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs )
-        ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
+    //     REMOVE_REDUNDANT_SEQS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs )
+    //     ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
 
-        ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta, params.alignment_tool )
-        ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
-        full_msa = ALIGN_SEQUENCES.out.alignments
-    } else {
-        if (params.remove_family_redundancy) {
-            // fasta.view()
-            // ch_hmm = FILTER_NON_REDUNDANT_HMMS.out.hmm
-            //     .transpose()
-            //     .map { meta, file_path ->
-            //         [[id: meta.id, chunk: file_path.getSimpleName().split('_')[-1]], file_path]
-            //     }
-            HHSUITE_REFORMAT_FILTERED( full_msa, "sto", "fas" ) // TODO only filtered
-        } else {
-            // ch_hmm = ch_hmm
-            //     .transpose()
-            //     .map { meta, file_path ->
-            //         [[id: meta.id, chunk: file_path.getSimpleName().split('_')[-1]], file_path]
-            //     }
-            // HHSUITE_REFORMAT(ch_hmm, "sto", "fas") // TODO test
-        }
-        ch_versions = ch_versions.mix( HHSUITE_REFORMAT_FILTERED.out.versions )
-        full_msa = HHSUITE_REFORMAT_FILTERED.out.msa
-    }
+    //     ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta, params.alignment_tool )
+    //     ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
+    //     full_msa = ALIGN_SEQUENCES.out.alignments
+    // } else {
+    //     if (params.remove_family_redundancy) {
+    //         // fasta.view()
+    //         // ch_hmm = FILTER_NON_REDUNDANT_HMMS.out.hmm
+    //         //     .transpose()
+    //         //     .map { meta, file_path ->
+    //         //         [[id: meta.id, chunk: file_path.getSimpleName().split('_')[-1]], file_path]
+    //         //     }
+    //         HHSUITE_REFORMAT_FILTERED( full_msa, "sto", "fas" ) // TODO only filtered
+    //     } else {
+    //         // ch_hmm = ch_hmm
+    //         //     .transpose()
+    //         //     .map { meta, file_path ->
+    //         //         [[id: meta.id, chunk: file_path.getSimpleName().split('_')[-1]], file_path]
+    //         //     }
+    //         // HHSUITE_REFORMAT(ch_hmm, "sto", "fas") // TODO test
+    //     }
+    //     ch_versions = ch_versions.mix( HHSUITE_REFORMAT_FILTERED.out.versions )
+    //     full_msa = HHSUITE_REFORMAT_FILTERED.out.msa
+    // }
 
     if (!params.remove_family_redundancy && !params.remove_sequence_redundancy) {
         HHSUITE_REFORMAT_RAW(full_msa, "sto", "fas")

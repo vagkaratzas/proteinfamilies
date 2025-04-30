@@ -176,6 +176,8 @@ along with the families' respective full MSAs, to recruit sequences from a new i
 <summary>Output files</summary>
 
 - `remove_redundancy/`
+  - `<samplename>/`
+    - `redundant_fam_ids.txt`: redundant family identifiers that are being dropped
   - `hmmer/`
     - `concatenated/`
       - `<samplename>.hmm.gz`: (optional) concatenated compressed hmm model for all families in a given sample (pre redundancy removal)
