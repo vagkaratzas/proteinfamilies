@@ -2,16 +2,19 @@
     REMOVAL OF REDUNDANT SEQUENCES AND FAMILIES
 */
 
-include { EXTRACT_FAMILY_REPS                           } from '../../../modules/local/extract_family_reps/main'
-include { CAT_CAT                                       } from '../../../modules/nf-core/cat/cat'
-include { HMMER_HMMSEARCH                               } from '../../../modules/nf-core/hmmer/hmmsearch/main'
-include { IDENTIFY_REDUNDANT_FAMS                       } from '../../../modules/local/identify_redundant_fams/main'
-include { FILTER_NON_REDUNDANT_FAMS                     } from '../../../modules/local/filter_non_redundant_fams/main'
-include { EXECUTE_CLUSTERING                            } from '../../../subworkflows/local/execute_clustering'
-include { REMOVE_REDUNDANT_SEQS                         } from '../../../modules/local/remove_redundant_seqs/main'
-include { ALIGN_SEQUENCES                               } from '../../../subworkflows/local/align_sequences'
-include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_FILTERED } from '../../../modules/nf-core/hhsuite/reformat/main'
-include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_RAW      } from '../../../modules/nf-core/hhsuite/reformat/main'
+include { EXTRACT_FAMILY_REPS                                        } from '../../../modules/local/extract_family_reps/main'
+include { CAT_CAT                                                    } from '../../../modules/nf-core/cat/cat'
+include { HMMER_HMMSEARCH                                            } from '../../../modules/nf-core/hmmer/hmmsearch/main'
+include { IDENTIFY_REDUNDANT_FAMS                                    } from '../../../modules/local/identify_redundant_fams/main'
+include { FILTER_NON_REDUNDANT_FAMS as FILTER_NON_REDUNDANT_HMM      } from '../../../modules/local/filter_non_redundant_fams/main'
+include { FILTER_NON_REDUNDANT_FAMS as FILTER_NON_REDUNDANT_SEED_MSA } from '../../../modules/local/filter_non_redundant_fams/main'
+include { FILTER_NON_REDUNDANT_FAMS as FILTER_NON_REDUNDANT_FULL_MSA } from '../../../modules/local/filter_non_redundant_fams/main'
+include { FILTER_NON_REDUNDANT_FAMS as FILTER_NON_REDUNDANT_FASTA    } from '../../../modules/local/filter_non_redundant_fams/main'
+include { EXECUTE_CLUSTERING                                         } from '../../../subworkflows/local/execute_clustering'
+include { REMOVE_REDUNDANT_SEQS                                      } from '../../../modules/local/remove_redundant_seqs/main'
+include { ALIGN_SEQUENCES                                            } from '../../../subworkflows/local/align_sequences'
+include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_FILTERED              } from '../../../modules/nf-core/hhsuite/reformat/main'
+include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_RAW                   } from '../../../modules/nf-core/hhsuite/reformat/main'
 
 workflow REMOVE_REDUNDANCY {
     take:
@@ -81,17 +84,25 @@ workflow REMOVE_REDUNDANCY {
                 full: [meta, full]
             }
 
-        FILTER_NON_REDUNDANT_FAMS( ch_input_for_fam_removal.ids, ch_input_for_fam_removal.seq, \
-            ch_input_for_fam_removal.model, ch_input_for_fam_removal.seed, ch_input_for_fam_removal.full )
-        ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_FAMS.out.versions )
+        FILTER_NON_REDUNDANT_HMM( ch_input_for_fam_removal.model, ch_input_for_fam_removal.ids )
+        ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_HMM.out.versions )
 
-        fasta = FILTER_NON_REDUNDANT_FAMS.out.fasta
+        FILTER_NON_REDUNDANT_SEED_MSA( ch_input_for_fam_removal.seed, ch_input_for_fam_removal.ids )
+        ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_SEED_MSA.out.versions )
+
+        FILTER_NON_REDUNDANT_FULL_MSA( ch_input_for_fam_removal.full, ch_input_for_fam_removal.ids )
+        ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_FULL_MSA.out.versions )
+
+        full_msa = FILTER_NON_REDUNDANT_FULL_MSA.out.filtered
             .transpose()
             .map { meta, file ->
                 [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]
             }
 
-        full_msa = FILTER_NON_REDUNDANT_FAMS.out.full_msa
+        FILTER_NON_REDUNDANT_FASTA( ch_input_for_fam_removal.seq, ch_input_for_fam_removal.ids  )
+        ch_versions = ch_versions.mix( FILTER_NON_REDUNDANT_FASTA.out.versions )
+
+        fasta = FILTER_NON_REDUNDANT_FASTA.out.filtered
             .transpose()
             .map { meta, file ->
                 [[id: meta.id, chunk: file.getSimpleName().split('_')[-1]], file]

@@ -8,30 +8,22 @@ process FILTER_NON_REDUNDANT_FAMS {
         'community.wave.seqera.io/library/python:b1b4b1f458c605bb' }"
 
     input:
-    tuple val(meta) , path(redundant_ids)
-    tuple val(meta2), path(seqs  , stageAs: "input_seqs/*")
-    tuple val(meta3), path(models, stageAs: "input_hmm/*")
-    tuple val(meta4), path(seeds , stageAs: "input_seed_msa/*")
-    tuple val(meta5), path(full  , stageAs: "input_full_msa/*")
+    tuple val(meta) , path(files, stageAs: "input_folder/*")
+    tuple val(meta2), path(redundant_ids)
 
     output:
-    tuple val(meta), path("fasta/*")   , emit: fasta
-    tuple val(meta), path("hmm/*")     , emit: hmm
-    tuple val(meta), path("seed_msa/*"), emit: seed_msa
-    tuple val(meta), path("full_msa/*"), emit: full_msa
-    path "versions.yml"                , emit: versions
+    tuple val(meta), path("*.${extension}"), emit: filtered
+    path "versions.yml"                    , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
+    extension = files[0].extension
     """
     filter_non_redundant_fams.py \\
-        --redundant_ids ${redundant_ids} \\
-        --seqs input_seqs \\
-        --models input_hmm \\
-        --seeds input_seed_msa \\
-        --alns input_full_msa
+        --input_folder input_folder  \\
+        --redundant_ids ${redundant_ids}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
