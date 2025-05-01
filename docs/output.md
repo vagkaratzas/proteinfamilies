@@ -66,11 +66,12 @@ Reporting:
     - `mmseqs_cluster/`
       - `<samplename>/`
         - `*`: (optional) mmseqs format clustered db. Can be turned on with --save_mmseqs_clustering
-    - `filtered_fasta_chunks/`
-      - `<samplename>/`
-        - `chunked_fasta/`
-          - `*.fasta`: (optional) fasta files with amino acid sequences of each cluster above the membership threshold
     - `<samplename>_clustering_distribution_mqc.csv`: csv with initial clustering metadata, from each sample, to print with MultiQC (Id,Cluster Size,Number of Clusters)
+- `fasta/`
+  - `mmseqs_initial_clustering_filtered/`
+    - `<samplename>/`
+      - `chunked_fasta/`
+        - `*.fasta`: (optional) fasta files with amino acid sequences of each cluster above the membership threshold
 
 </details>
 
@@ -169,8 +170,16 @@ Results are stored in the `seed_msa/raw` folder.
       - `<samplename>/`
         - `<samplename>_*.sto.gz`: compressed family full MSA produced by hmmalign (before checking for redundancy)
   - `filtered/`
+    - `hmmsearch/`
+      - `<samplename>/`
+        - `<samplename>_*.*`: filtered full alignments after family redundancy removal
+- `fasta/`
+  - `hmmsearch_filtered_recruited/`
     - `<samplename>/`
-      - `<samplename>_*.*`: filtered full alignments after family redundancy removal
+      - `<samplename>_*.fasta.gz`: (optional) filtered fasta sequences after hmmsearch and applied thresholds
+  - `non_redundant_family_filtered/`
+    - `<samplename>/`
+      - `<samplename>_*.fasta.gz`: (optional) filtered full alignment sequences after family redundancy removal in fasta format
 
 </details>
 
@@ -228,8 +237,8 @@ These `remove_redundancy` optional folders only contain intermediate pipeline re
     - `mmseqs_cluster/`
       - `<samplename>/`
         - `*`: (optional) mmseqs format clustered db
-- `remove_redundancy/`
-  - `reps_fasta/`
+- `fasta/`
+  - `non_redundant_sequences_filtered/`
     - `<samplename>/`
       - `<samplename>_reps.fa`: (optional) fasta file of all family representative sequences (one sequence per family)
 
@@ -287,11 +296,11 @@ If the `--alignment_tool` is `mafft`, then this `mafft_align` folder will be cre
   - `filtered/`
     - `hhsuite_reformat/`
       - `<samplename>/`
-        - `<samplename>_*.fas`: reformatted filtered full MSA files
+        - `<samplename>_*.fas.gz`: reformatted filtered full MSA files
   - `raw/`
     - `hhsuite_reformat/`
       - `<samplename>/`
-        - `<samplename>_*.fas`: reformatted raw full MSA files
+        - `<samplename>_*.fas.gz`: reformatted raw full MSA files
 
 </details>
 
@@ -386,7 +395,7 @@ that will together produce the updated family MSA.
     - `mmseqs_cluster/`
       - `<family_id>/`
         - `*`: (optional) mmseqs format clustered db
-    - `reps_fasta/`
+    - `non_redundant_sequences/`
       - `<samplename>/`
         - `<samplename>_reps.fa`: (optional) fasta file of all family representative sequences (one sequence per family)
 
@@ -394,7 +403,7 @@ that will together produce the updated family MSA.
 
 Similarly to the in-family sequence redundancy removal mechanism, the mmseqs suite is used to strictly cluster
 existing family sequences along newly recruited ones, keeping a non redundant set.
-The new family representative sequences can now be found in the intermediate `mmseqs/reps_fasta` folder.
+The new family representative sequences can now be found in the intermediate `mmseqs/non_redundant_sequences` folder.
 
 [MMseqs2](https://github.com/soedinglab/MMseqs2) clusters amino acid fasta files via either the 'cluster' or the 'linclust' algorithms.
 

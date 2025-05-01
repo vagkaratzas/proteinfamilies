@@ -237,6 +237,11 @@
                     "default": 25,
                     "description": "Minimum clustering chunk size threshold to create seed Multiple Sequence Alignments upon.",
                     "help_text": "This is an initial filter for the mmseqs clustering results. The lower the threshold, the more families will be generated. Additional sequences may be later recruited in the families."
+                },
+                "save_mmseqs_chunked_fasta": {
+                    "type": "boolean",
+                    "description": "Save membership-filtered initial mmseqs clusters in fasta format",
+                    "help_text": "Specify to save the mmseqs clusters in fasta format."
                 }
             }
         },
@@ -318,6 +323,11 @@
                     "maximum": 1.0,
                     "description": "hmmsearch minimum length percentage filter of hit env vs query length",
                     "help_text": "This length threshold should be quite high to make sure that small, fragmented sequences are not recruited in the family models"
+                },
+                "save_hmmsearch_filtered_fasta": {
+                    "type": "boolean",
+                    "description": "Save family fasta files after recruiting sequences with hmmsearch",
+                    "help_text": "Specify to save the extended family fasta files with all hmmsearch recruited sequences."
                 }
             }
         },
@@ -336,10 +346,15 @@
                 },
                 "hmmsearch_family_length_threshold": {
                     "type": "number",
-                    "default": 0.8,
+                    "default": 0.9,
                     "minimum": 0.0,
                     "maximum": 1.0,
                     "description": "hmmsearch minimum length percentage filter of hit env vs query length, for redundant family removal"
+                },
+                "save_non_redundant_fams_fasta": {
+                    "type": "boolean",
+                    "description": "Save only the fasta files of non-redundant families (might still contain redundant sequences)",
+                    "help_text": "Specify to save the fasta files of non-redundant families."
                 },
                 "remove_sequence_redundancy": {
                     "type": "boolean",
@@ -351,7 +366,7 @@
                 },
                 "cluster_seq_identity_for_redundancy": {
                     "type": "number",
-                    "default": 0.97,
+                    "default": 0.9,
                     "minimum": 0.0,
                     "maximum": 1.0,
                     "description": "mmseqs parameter for minimum sequence identity",
@@ -359,7 +374,7 @@
                 },
                 "cluster_coverage_for_redundancy": {
                     "type": "number",
-                    "default": 0.97,
+                    "default": 0.9,
                     "minimum": 0.0,
                     "maximum": 1.0,
                     "description": "mmseqs parameter for minimum sequence coverage ratio",
@@ -370,6 +385,11 @@
                     "default": 0,
                     "description": "mmseqs parameter for coverage mode: 0 for both, 1 for target and 2 for query sequence",
                     "help_text": "Defined by the number of aligned residue pairs divided by 0: the maximum of the length of query/centre and target/non-centre sequences, 1: the length of the target/non-centre sequence, 2: the length of the query/centre"
+                },
+                "save_non_redundant_seqs_fasta": {
+                    "type": "boolean",
+                    "description": "Save the final family fasta files with sequence redundancy removed",
+                    "help_text": "Specify to save the family fasta files with non-redundant sequence sets."
                 }
             }
         }
