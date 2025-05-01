@@ -63,16 +63,16 @@ workflow REMOVE_REDUNDANCY {
             .map { meta, fas -> [[id: meta.id], fas] }
             .groupTuple(by: 0)
 
-        ch_full_msa = full_msa
-            .map { meta, fas -> [[id: meta.id], fas] }
-            .groupTuple(by: 0)
+        full_msa = full_msa
+        .map { meta, fas -> [[id: meta.id], fas] }
+        .groupTuple(by: 0)
 
         // Join to ensure in sync
         ch_input_for_fam_removal = IDENTIFY_REDUNDANT_FAMS.out.redundant_ids
             .join(fasta)
             .join(ch_hmm)
             .join(ch_seed_msa)
-            .join(ch_full_msa)
+            .join(full_msa)
             .multiMap { meta, ids, seq, model, seed, full ->
                 ids: [meta, ids]
                 seq: [meta, seq]
@@ -98,39 +98,22 @@ workflow REMOVE_REDUNDANCY {
             }
     }
 
-    // if (params.remove_sequence_redundancy) {
-    //     EXECUTE_CLUSTERING( fasta, params.clustering_tool )
-    //     ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+    if (params.remove_sequence_redundancy) {
+        EXECUTE_CLUSTERING( fasta, params.clustering_tool )
+        ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
-    //     REMOVE_REDUNDANT_SEQS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs )
-    //     ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
+        REMOVE_REDUNDANT_SEQS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs )
+        ch_versions = ch_versions.mix( REMOVE_REDUNDANT_SEQS.out.versions )
 
-    //     ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta, params.alignment_tool )
-    //     ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
-    //     full_msa = ALIGN_SEQUENCES.out.alignments
-    // } else {
-    //     if (params.remove_family_redundancy) {
-    //         // fasta.view()
-    //         // ch_hmm = FILTER_NON_REDUNDANT_HMMS.out.hmm
-    //         //     .transpose()
-    //         //     .map { meta, file_path ->
-    //         //         [[id: meta.id, chunk: file_path.getSimpleName().split('_')[-1]], file_path]
-    //         //     }
-    //         HHSUITE_REFORMAT_FILTERED( full_msa, "sto", "fas" ) // TODO only filtered
-    //     } else {
-    //         // ch_hmm = ch_hmm
-    //         //     .transpose()
-    //         //     .map { meta, file_path ->
-    //         //         [[id: meta.id, chunk: file_path.getSimpleName().split('_')[-1]], file_path]
-    //         //     }
-    //         // HHSUITE_REFORMAT(ch_hmm, "sto", "fas") // TODO test
-    //     }
-    //     ch_versions = ch_versions.mix( HHSUITE_REFORMAT_FILTERED.out.versions )
-    //     full_msa = HHSUITE_REFORMAT_FILTERED.out.msa
-    // }
-
-    if (!params.remove_family_redundancy && !params.remove_sequence_redundancy) {
-        HHSUITE_REFORMAT_RAW(full_msa, "sto", "fas")
+        ALIGN_SEQUENCES( REMOVE_REDUNDANT_SEQS.out.fasta, params.alignment_tool )
+        ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
+        full_msa = ALIGN_SEQUENCES.out.alignments
+    } else if (params.remove_family_redundancy) {
+        HHSUITE_REFORMAT_FILTERED( full_msa, "sto", "fas" )
+        ch_versions = ch_versions.mix( HHSUITE_REFORMAT_FILTERED.out.versions )
+        full_msa = HHSUITE_REFORMAT_FILTERED.out.msa
+    } else { // both remove_family_redundancy and remove_sequence_redundancy false, different publish dir
+        HHSUITE_REFORMAT_RAW( full_msa, "sto", "fas" )
         ch_versions = ch_versions.mix( HHSUITE_REFORMAT_RAW.out.versions )
         full_msa = HHSUITE_REFORMAT_RAW.out.msa
     }
