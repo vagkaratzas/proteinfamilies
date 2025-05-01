@@ -318,7 +318,7 @@
                 },
                 "hmmsearch_query_length_threshold": {
                     "type": "number",
-                    "default": 0.8,
+                    "default": 0.9,
                     "minimum": 0.0,
                     "maximum": 1.0,
                     "description": "hmmsearch minimum length percentage filter of hit env vs query length",
