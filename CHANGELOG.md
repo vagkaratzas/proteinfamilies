@@ -5,7 +5,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v1.1.0 - [2025/05/06]
 
-
 ### `Added`
 
 - [#69](https://github.com/nf-core/proteinfamilies/pull/69) - Added the `hhsuite/reformat` nf-core module to reformat `.sto` alignments to `.fas` when in-family sequence redundancy is not removed.
