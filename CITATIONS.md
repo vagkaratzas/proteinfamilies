@@ -30,6 +30,10 @@
 
 > Potter SC, Luciani A, Eddy SR, Park Y, Lopez R, Finn RD. HMMER web server: 2018 update. Nucleic acids research. 2018 Jul 2;46(W1):W200-4. doi: 10.1093/nar/gky448. PubMed PMID: 29905871; PubMed Central PMCID: PMC6030962.
 
+- [HH-suite3](https://pubmed.ncbi.nlm.nih.gov/31521110/)
+
+> Steinegger M, Meier M, Mirdita M, Vöhringer H, Haunsberger SJ, Söding J. HH-suite3 for fast remote homology detection and deep protein annotation. BMC bioinformatics. 2019 Dec;20:1-5. doi: 110.1186/s12859-019-3019-7. PubMed PMID: 31521110; PubMed Central PMCID: PMC6744700.
+
 - [SeqKit](https://pubmed.ncbi.nlm.nih.gov/38898985/)
 
 > Shen W, Sipos B, Zhao L. SeqKit2: A Swiss army knife for sequence and alignment processing. iMeta. 2024 Apr 5:e191. doi: 10.1002/imt2.191. PubMed PMID: 38898985; PubMed Central PMCID: PMC11183193.

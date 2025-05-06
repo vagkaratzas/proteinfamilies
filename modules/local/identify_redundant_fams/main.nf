@@ -1,4 +1,4 @@
-process REMOVE_REDUNDANT_FAMS {
+process IDENTIFY_REDUNDANT_FAMS {
     tag "$meta.id"
     label 'process_single'
 
@@ -10,24 +10,22 @@ process REMOVE_REDUNDANT_FAMS {
     input:
     tuple val(meta) , path(mapping)
     tuple val(meta2), path(domtbl)
-    tuple val(meta3), path(fasta, stageAs: "fasta_folder/*")
     val(length_threshold)
 
     output:
-    tuple val(meta), path("non_redundant/*"), emit: fasta
-    path "versions.yml"                     , emit: versions
+    tuple val(meta), path("redundant_fam_ids.txt"), emit: redundant_ids
+    path "versions.yml"                           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
     """
-    remove_redundant_fams.py \\
+    identify_redundant_fams.py \\
         --mapping ${mapping} \\
         --domtbl ${domtbl} \\
-        --fasta_folder fasta_folder \\
         --length_threshold ${length_threshold} \\
-        --out_folder non_redundant
+        --out_file redundant_fam_ids.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

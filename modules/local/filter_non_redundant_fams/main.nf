@@ -1,4 +1,4 @@
-process FILTER_NON_REDUNDANT_HMMS {
+process FILTER_NON_REDUNDANT_FAMS {
     tag "$meta.id"
     label 'process_single'
 
@@ -8,22 +8,22 @@ process FILTER_NON_REDUNDANT_HMMS {
         'community.wave.seqera.io/library/python:b1b4b1f458c605bb' }"
 
     input:
-    tuple val(meta) , path(seqs, stageAs: "seqs/*")
-    tuple val(meta2), path(models, stageAs: "models/*")
+    tuple val(meta) , path(files, stageAs: "input_folder/*")
+    tuple val(meta2), path(redundant_ids)
 
     output:
-    tuple val(meta), path("non_redundant/*"), emit: hmm
-    path "versions.yml"                     , emit: versions
+    tuple val(meta), path("*.${extension}"), emit: filtered
+    path "versions.yml"                    , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
+    extension = files[0].extension
     """
-    filter_non_redundant_hmms.py \\
-        --seqs seqs \\
-        --models models \\
-        --out_folder non_redundant
+    filter_non_redundant_fams.py \\
+        --input_folder input_folder  \\
+        --redundant_ids ${redundant_ids}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

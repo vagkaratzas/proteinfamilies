@@ -3,11 +3,9 @@
 ## Originally written by Evangelos Karatzas and released under the MIT license.
 ## See git repository (https://github.com/nf-core/proteinfamilies) for full license text.
 
-import os
 import sys
 import pandas as pd
 import argparse
-import shutil
 
 
 def parse_args(args=None):
@@ -29,14 +27,6 @@ def parse_args(args=None):
         help="TSV hmmsearch domtbl out results for filtering.",
     )
     parser.add_argument(
-        "-f",
-        "--fasta_folder",
-        required=True,
-        metavar="FOLDER",
-        type=str,
-        help="Name of the input folder file with the pre-filtered fasta.",
-    )
-    parser.add_argument(
         "-l",
         "--length_threshold",
         required=True,
@@ -46,11 +36,11 @@ def parse_args(args=None):
     )
     parser.add_argument(
         "-o",
-        "--out_folder",
+        "--out_file",
         required=True,
-        metavar="FOLDER",
+        metavar="FILE",
         type=str,
-        help="Name of the output folder file with the filtered fasta.",
+        help="Name of the output file with redundant family ids.",
     )
     return parser.parse_args(args)
 
@@ -71,7 +61,7 @@ def filter_by_length(domtbl_df, length_threshold):
     return domtbl_df
 
 
-def remove_redundant_fams(mapping, domtbl, fasta_folder, length_threshold, out_folder):
+def remove_redundant_fams(mapping, domtbl, length_threshold, out_file):
     mapping_df = pd.read_csv(
         mapping, comment="#", usecols=["Family Id", "Size", "Representative Id"]
     )
@@ -105,27 +95,19 @@ def remove_redundant_fams(mapping, domtbl, fasta_folder, length_threshold, out_f
         else:
             redundant_fam_names.add(row["target name"])
 
-    for file_name in os.listdir(fasta_folder):
-        base_name = os.path.basename(file_name).split(".")[0]
-        if base_name not in redundant_fam_names:
-            source_file = os.path.join(fasta_folder, file_name)
-            destination_file = os.path.join(out_folder, file_name)
-
-            # Check if it is a file (not a directory) and copy
-            if os.path.isfile(source_file):
-                shutil.copy2(source_file, destination_file)
+    with open(out_file, "w") as f:
+        for name in sorted(redundant_fam_names):
+            f.write(name + "\n")
 
 
 def main(args=None):
     args = parse_args(args)
 
-    os.makedirs(args.out_folder, exist_ok=True)
     remove_redundant_fams(
         args.mapping,
         args.domtbl,
-        args.fasta_folder,
         args.length_threshold,
-        args.out_folder,
+        args.out_file,
     )
 
 
