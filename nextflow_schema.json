@@ -370,7 +370,7 @@
                     "minimum": 0.0,
                     "maximum": 1.0,
                     "description": "mmseqs parameter for minimum sequence identity",
-                    "help_text": "Need to be quite high, to make sure that the diversity is still well captured, well highly similar sequences are removed"
+                    "help_text": "Need to be quite high, to make sure that the diversity is still well captured, while highly similar sequences are removed"
                 },
                 "cluster_coverage_for_redundancy": {
                     "type": "number",
