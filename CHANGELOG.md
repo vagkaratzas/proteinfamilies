@@ -46,6 +46,7 @@ Initial release of nf-core/proteinfamilies, created with the [nf-core](https://n
 | ClipKIT | 2.4.0            | 2.4.1       |
 | pyfastx |                  | 2.2.0       |
 | hhsuite |                  | 3.3.0       |
+| multiqc | 1.27             | 1.28        |
 
 ### `Deprecated`
 
