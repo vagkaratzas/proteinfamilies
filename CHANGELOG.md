@@ -32,6 +32,7 @@ Initial release of nf-core/proteinfamilies, created with the [nf-core](https://n
 - [#69](https://github.com/nf-core/proteinfamilies/pull/69) - Changed the publish directory architecture for HMMs, seed MSAs, full MSAs and family FASTA files, to make it more intuitive.
   `REMOVE_REDUNDANT_FAMS` local module converted to `IDENTIFY_REDUNDANT_FAMS` to extract redundant family ids which will then be used downstream.
   `FILTER_NON_REDUNDANT_HMMS` local module converted to `FILTER_NON_REDUNDANT_FAMS` and reused four times (HMM, seed MSA, full MSA, FASTA).
+  Changed the output format of the `EXTRACT_FAMILY_REPS` and `REMOVE_REDUNDANT_SEQS` local modules from `.fa` to `.faa`.
   Metro map updated with new `hhsuite/reformat` module.
 - [#57](https://github.com/nf-core/proteinfamilies/pull/57) - slight improvements of `nextflow_schema.json` (Hackathon 2025)
 - [#57](https://github.com/nf-core/proteinfamilies/pull/57) - slight improtmenets of `assets/schema_input.json` (Hackathon 2025)
