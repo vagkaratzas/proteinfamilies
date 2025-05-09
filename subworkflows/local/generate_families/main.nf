@@ -4,7 +4,6 @@
 
 include { ALIGN_SEQUENCES  } from '../../../subworkflows/local/align_sequences'
 include { CLIPKIT          } from '../../../modules/nf-core/clipkit/main'
-include { CLIP_ENDS        } from '../../../modules/local/clip_ends/main'
 include { HMMER_HMMBUILD   } from '../../../modules/nf-core/hmmer/hmmbuild/main'
 include { HMMER_HMMSEARCH  } from '../../../modules/nf-core/hmmer/hmmsearch/main'
 include { FILTER_RECRUITED } from '../../../modules/local/filter_recruited/main'
@@ -17,7 +16,8 @@ workflow GENERATE_FAMILIES {
 
     main:
     ch_versions = Channel.empty()
-    ch_msa      = Channel.empty()
+    ch_seed_msa = Channel.empty()
+    ch_full_msa = Channel.empty()
     ch_fasta    = Channel.empty()
     ch_hmm      = Channel.empty()
 
@@ -27,23 +27,17 @@ workflow GENERATE_FAMILIES {
             [ [id: meta.id, chunk: file(file_path, checkIfExists: true).baseName], file_path ]
         }
 
-    ALIGN_SEQUENCES( ch_fasta )
+    ALIGN_SEQUENCES( ch_fasta, params.alignment_tool )
     ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
-    ch_msa = ALIGN_SEQUENCES.out.alignments
+    ch_seed_msa = ALIGN_SEQUENCES.out.alignments
 
     if (params.trim_msa) {
-        if (params.clipping_tool == 'clipkit') {
-            CLIPKIT( ch_msa )
-            ch_versions = ch_versions.mix( CLIPKIT.out.versions )
-            ch_msa = CLIPKIT.out.clipkit
-        } else { // fallback: local module clip_ends
-            CLIP_ENDS( ch_msa, params.gap_threshold )
-            ch_versions = ch_versions.mix( CLIP_ENDS.out.versions )
-            ch_msa = CLIP_ENDS.out.fas
-        }
+        CLIPKIT( ch_seed_msa, params.clipkit_out_format )
+        ch_versions = ch_versions.mix( CLIPKIT.out.versions )
+        ch_seed_msa = CLIPKIT.out.clipkit
     }
 
-    HMMER_HMMBUILD( ch_msa, [] )
+    HMMER_HMMBUILD( ch_seed_msa, [] )
     ch_versions = ch_versions.mix( HMMER_HMMBUILD.out.versions )
     ch_hmm = HMMER_HMMBUILD.out.hmm
 
@@ -77,12 +71,15 @@ workflow GENERATE_FAMILIES {
 
         HMMER_HMMALIGN( ch_input_for_hmmalign.seq, ch_input_for_hmmalign.hmm )
         ch_versions = ch_versions.mix( HMMER_HMMALIGN.out.versions )
-        ch_msa = HMMER_HMMALIGN.out.sto
+        ch_full_msa = HMMER_HMMALIGN.out.sto
+    } else {
+        ch_full_msa = ch_seed_msa
     }
 
     emit:
     versions = ch_versions
-    msa      = ch_msa
+    seed_msa = ch_seed_msa
+    full_msa = ch_full_msa
     fasta    = ch_fasta
     hmm      = ch_hmm
 }

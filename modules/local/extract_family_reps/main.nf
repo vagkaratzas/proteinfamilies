@@ -11,7 +11,7 @@ process EXTRACT_FAMILY_REPS {
     tuple val(meta), path(aln, stageAs: "aln/*")
 
     output:
-    tuple val(meta), path("${meta.id}_reps.fa")     , emit: fasta
+    tuple val(meta), path("${meta.id}_reps.faa")    , emit: fasta
     tuple val(meta), path("${meta.id}_meta_mqc.csv"), emit: map
     path "versions.yml"                             , emit: versions
 
@@ -24,7 +24,7 @@ process EXTRACT_FAMILY_REPS {
     extract_family_reps.py \\
         --full_msa_folder aln \\
         --metadata ${prefix}_meta_mqc.csv \\
-        --out_fasta ${prefix}_reps.fa
+        --out_fasta ${prefix}_reps.faa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

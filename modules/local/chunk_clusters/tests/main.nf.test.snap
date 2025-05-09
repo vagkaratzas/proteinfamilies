@@ -1,0 +1,76 @@
+{
+    "proteinfamilies - tsv": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test_tsv"
+                        },
+                        [
+                            "1.fasta:md5,f5e1235669a420aa4506197a041c2c21",
+                            "2.fasta:md5,44337cbbd316c799ccbf73119adb99bb",
+                            "3.fasta:md5,1144e5e8ae2e435581622ceca6d4f197"
+                        ]
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,8e351edf0db702a28b5d040af4e4202d"
+                ],
+                "fasta_chunks": [
+                    [
+                        {
+                            "id": "test_tsv"
+                        },
+                        [
+                            "1.fasta:md5,f5e1235669a420aa4506197a041c2c21",
+                            "2.fasta:md5,44337cbbd316c799ccbf73119adb99bb",
+                            "3.fasta:md5,1144e5e8ae2e435581622ceca6d4f197"
+                        ]
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,8e351edf0db702a28b5d040af4e4202d"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.5"
+        },
+        "timestamp": "2025-04-29T12:01:15.017164334"
+    },
+    "proteinfamilies - tsv - stub": {
+        "content": [
+            {
+                "0": [
+                    [
+                        {
+                            "id": "test_tsv"
+                        },
+                        "1.fasta:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "1": [
+                    "versions.yml:md5,8e351edf0db702a28b5d040af4e4202d"
+                ],
+                "fasta_chunks": [
+                    [
+                        {
+                            "id": "test_tsv"
+                        },
+                        "1.fasta:md5,d41d8cd98f00b204e9800998ecf8427e"
+                    ]
+                ],
+                "versions": [
+                    "versions.yml:md5,8e351edf0db702a28b5d040af4e4202d"
+                ]
+            }
+        ],
+        "meta": {
+            "nf-test": "0.9.2",
+            "nextflow": "24.10.5"
+        },
+        "timestamp": "2025-04-29T12:01:29.801491165"
+    }
+}

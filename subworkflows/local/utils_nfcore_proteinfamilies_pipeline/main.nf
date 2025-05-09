@@ -149,11 +149,27 @@ def validateInputSamplesheet(input) {
 def toolCitationText() {
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "Tool (Foo et al. 2023)" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
+    def clustering_text = "Amino acid sequence clustering was performed with MMseqs2 (Mirdita et al. 2021)."
+
+    def alignment_text = [
+        "Multiple Sequence Alignment (MSA) was performed with ",
+        params.alignment_tool == 'famsa' ? "FAMSA (Deorowicz et al. 2026)." : "",
+        params.alignment_tool == 'mafft' ? "mafft (Katoh et al. 2013)." : ""
+    ].join(' ').trim()
+
+    def clipping_text = "MSAs were gap-trimmed with ClipKIT (Steenwyk et al. 2020)."
+
+    def model_text = "Family Hidden Markov Models (HMMs) were built with hmmer (Potter et al. 2018)."
+
+    def postprocessing_text = "Run statistics were reported using MultiQC (Ewels et al. 2016)."
+
     def citation_text = [
-            "Tools used in the workflow included:",
-            "MultiQC (Ewels et al. 2016)",
-            "."
-        ].join(' ').trim()
+        clustering_text,
+        alignment_text,
+        params.trim_msa ? clipping_text : "",
+        model_text,
+        postprocessing_text
+    ].join(' ').trim()
 
     return citation_text
 }
@@ -161,9 +177,26 @@ def toolCitationText() {
 def toolBibliographyText() {
     // Can use ternary operators to dynamically construct based conditions, e.g. params["run_xyz"] ? "<li>Author (2023) Pub name, Journal, DOI</li>" : "",
     // Uncomment function in methodsDescriptionText to render in MultiQC report
+    def clustering_text = '<li>Mirdita, M., Steinegger, M., Breitwieser, F., Söding, J., & Levy Karin, E. (2021). Fast and sensitive taxonomic assignment to metagenomic contigs. Bioinformatics, 37(18), 3029-3031. doi: <a href="https://doi.org/10.1093/bioinformatics/btab184">10.1093/bioinformatics/btab184</a></li>'
+
+    def alignment_text = [
+        params.alignment_tool == 'famsa' ? '<li>Deorowicz, S., Debudaj-Grabysz, A., & Gudyś, A. (2016). FAMSA: Fast and accurate multiple sequence alignment of huge protein families. Scientific reports, 6(1), 33964. doi: <a href="https://doi.org/10.1038/srep33964">10.1038/srep33964</a></li>' : "",
+        params.alignment_tool == 'mafft' ? '<li>Katoh, K., & Standley, D. M. (2013). MAFFT multiple sequence alignment software version 7: improvements in performance and usability. Molecular biology and evolution, 30(4), 772-780. doi: <a href="https://doi.org/10.1093/molbev/mst010">10.1093/molbev/mst010</a></li>' : "",
+    ].join(' ').trim()
+
+    def clipping_text = '<li>Steenwyk, J. L., Buida III, T. J., Li, Y., Shen, X. X., & Rokas, A. (2020). ClipKIT: a multiple sequence alignment trimming software for accurate phylogenomic inference. PLoS biology, 18(12), e3001007. doi: <a href="https://doi.org/10.1371/journal.pbio.3001007">10.1371/journal.pbio.3001007</a></li>'
+
+    def model_text = '<li>Eddy, S. R. (2011). Accelerated profile HMM searches. PLoS computational biology, 7(10), e1002195. doi: <a href="https://doi.org/10.1371/journal.pcbi.1002195">10.1371/journal.pcbi.1002195</a></li>'
+
+    def postprocessing_text = '<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics, 32(19), 3047–3048. doi: <a href="https://doi.org/10.1093/bioinformatics/btw354">10.1093/bioinformatics/btw354</a></li>'
+
     def reference_text = [
-            "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics , 32(19), 3047–3048. doi: /10.1093/bioinformatics/btw354</li>"
-        ].join(' ').trim()
+        clustering_text,
+        alignment_text,
+        params.trim_msa ? clipping_text : "",
+        model_text,
+        postprocessing_text
+    ].join(' ').trim()
 
     return reference_text
 }
@@ -189,12 +222,8 @@ def methodsDescriptionText(mqc_methods_yaml) {
     meta["nodoi_text"] = meta.manifest_map.doi ? "" : "<li>If available, make sure to update the text to include the Zenodo DOI of version of the pipeline used. </li>"
 
     // Tool references
-    meta["tool_citations"] = ""
-    meta["tool_bibliography"] = ""
-
-    // Only uncomment below if logic in toolCitationText/toolBibliographyText has been filled!
-    // meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
-    // meta["tool_bibliography"] = toolBibliographyText()
+    meta["tool_citations"] = toolCitationText().replaceAll(", \\.", ".").replaceAll("\\. \\.", ".").replaceAll(", \\.", ".")
+    meta["tool_bibliography"] = toolBibliographyText()
 
 
     def methods_text = mqc_methods_yaml.text

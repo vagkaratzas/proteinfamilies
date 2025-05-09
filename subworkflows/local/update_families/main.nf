@@ -10,7 +10,6 @@ include { EXECUTE_CLUSTERING      } from '../../../subworkflows/local/execute_cl
 include { REMOVE_REDUNDANT_SEQS   } from '../../../modules/local/remove_redundant_seqs/main'
 include { ALIGN_SEQUENCES         } from '../../../subworkflows/local/align_sequences'
 include { CLIPKIT                 } from '../../../modules/nf-core/clipkit/main'
-include { CLIP_ENDS               } from '../../../modules/local/clip_ends/main'
 include { HMMER_HMMBUILD          } from '../../../modules/nf-core/hmmer/hmmbuild/main'
 include { EXTRACT_FAMILY_REPS     } from '../../../modules/local/extract_family_reps/main'
 
@@ -102,7 +101,7 @@ workflow UPDATE_FAMILIES {
 
     if (params.remove_sequence_redundancy) {
         // Strict clustering to remove redundancy
-        EXECUTE_CLUSTERING( fasta_ch )
+        EXECUTE_CLUSTERING( fasta_ch, params.clustering_tool )
         ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
 
         REMOVE_REDUNDANT_SEQS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs )
@@ -110,20 +109,14 @@ workflow UPDATE_FAMILIES {
         fasta_ch = REMOVE_REDUNDANT_SEQS.out.fasta
     }
 
-    ALIGN_SEQUENCES( fasta_ch )
+    ALIGN_SEQUENCES( fasta_ch, params.alignment_tool )
     ch_versions = ch_versions.mix( ALIGN_SEQUENCES.out.versions )
     ch_msa = ALIGN_SEQUENCES.out.alignments
 
     if (params.trim_msa) {
-        if (params.clipping_tool == 'clipkit') {
-            CLIPKIT( ch_msa )
-            ch_versions = ch_versions.mix( CLIPKIT.out.versions )
-            ch_msa = CLIPKIT.out.clipkit
-        } else { // fallback: local module clip_ends
-            CLIP_ENDS( ch_msa, params.gap_threshold )
-            ch_versions = ch_versions.mix( CLIP_ENDS.out.versions )
-            ch_msa = CLIP_ENDS.out.fas
-        }
+        CLIPKIT( ch_msa, params.clipkit_out_format )
+        ch_versions = ch_versions.mix( CLIPKIT.out.versions )
+        ch_msa = CLIPKIT.out.clipkit
     }
 
     HMMER_HMMBUILD( ch_msa, [] )

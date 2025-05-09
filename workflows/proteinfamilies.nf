@@ -26,8 +26,9 @@ include { REMOVE_REDUNDANCY  } from '../subworkflows/local/remove_redundancy'
 //
 // MODULE: Local to the pipeline
 //
-include { CHUNK_CLUSTERS      } from '../modules/local/chunk_clusters/main'
-include { EXTRACT_FAMILY_REPS } from '../modules/local/extract_family_reps/main'
+include { CALCULATE_CLUSTER_DISTRIBUTION } from "../modules/local/calculate_cluster_distribution/main"
+include { CHUNK_CLUSTERS                 } from '../modules/local/chunk_clusters/main'
+include { EXTRACT_FAMILY_REPS            } from '../modules/local/extract_family_reps/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,8 +80,11 @@ workflow PROTEINFAMILIES {
 
     // Creating new families
     // Clustering
-    EXECUTE_CLUSTERING( ch_samplesheet_for_create )
+    EXECUTE_CLUSTERING( ch_samplesheet_for_create, params.clustering_tool )
     ch_versions = ch_versions.mix( EXECUTE_CLUSTERING.out.versions )
+
+    CALCULATE_CLUSTER_DISTRIBUTION( EXECUTE_CLUSTERING.out.clusters )
+    ch_versions = ch_versions.mix( CALCULATE_CLUSTER_DISTRIBUTION.out.versions )
 
     CHUNK_CLUSTERS( EXECUTE_CLUSTERING.out.clusters, EXECUTE_CLUSTERING.out.seqs, params.cluster_size_threshold )
     ch_versions = ch_versions.mix( CHUNK_CLUSTERS.out.versions )
@@ -90,15 +94,15 @@ workflow PROTEINFAMILIES {
     ch_versions = ch_versions.mix( GENERATE_FAMILIES.out.versions )
 
     // Remove redundant sequences and families
-    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.msa, GENERATE_FAMILIES.out.fasta, GENERATE_FAMILIES.out.hmm )
+    REMOVE_REDUNDANCY( GENERATE_FAMILIES.out.seed_msa, GENERATE_FAMILIES.out.full_msa, GENERATE_FAMILIES.out.fasta, GENERATE_FAMILIES.out.hmm )
     ch_versions = ch_versions.mix( REMOVE_REDUNDANCY.out.versions )
 
     // Post-processing
-    ch_msa = REMOVE_REDUNDANCY.out.msa
+    ch_full_msa = REMOVE_REDUNDANCY.out.full_msa
         .map { meta, aln -> [ [id: meta.id], aln ] }
         .groupTuple(by: 0)
 
-    EXTRACT_FAMILY_REPS( ch_msa )
+    EXTRACT_FAMILY_REPS( ch_full_msa )
     ch_versions = ch_versions.mix( EXTRACT_FAMILY_REPS.out.versions )
     ch_family_reps = ch_family_reps.mix( EXTRACT_FAMILY_REPS.out.map )
 
@@ -144,6 +148,7 @@ workflow PROTEINFAMILIES {
         )
     )
 
+    ch_multiqc_files = ch_multiqc_files.mix(CALCULATE_CLUSTER_DISTRIBUTION.out.mqc.collect{it[1]}.ifEmpty([]))
     ch_multiqc_files = ch_multiqc_files.mix(ch_family_reps.collect { it[1] }.ifEmpty([]))
 
     MULTIQC (
