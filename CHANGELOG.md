@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Changed`
 
-- [#72](https://github.com/nf-core/proteinfamilies/pull/72) - Changed the fasta parsing library of the `CHUNK_CLUSTERS` local module, from `pyfastx` back to the latest version of `biopython`, and parallelized its writing mechanism, achieving decreased execution time.
+- [#73](https://github.com/nf-core/proteinfamilies/pull/73) - Changed the fasta parsing library of the `CHUNK_CLUSTERS` local module, from `pyfastx` back to the latest version of `biopython`, and parallelized its writing mechanism, achieving decreased execution time.
 
 ### `Dependencies`
 
@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Deprecated`
 
-- [#72](https://github.com/nf-core/proteinfamilies/pull/72) - Deprecated `pyfastx` module version of `CHUNK_CLUSTERS`, since it was struggling performance-wise with larger datasets.
+- [#73](https://github.com/nf-core/proteinfamilies/pull/73) - Deprecated `pyfastx` module version of `CHUNK_CLUSTERS`, since it was struggling performance-wise with larger datasets.
 
 ## v1.1.0 - [2025/05/06]
 
