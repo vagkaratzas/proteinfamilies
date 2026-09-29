@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added missing Font Awesome icons to the parameters and parameter groups of `nextflow_schema.json` ([#185](https://github.com/nf-core/proteinfamilies/issues/185)). (by @vagkaratzas)
 - [#189](https://github.com/nf-core/proteinfamilies/pull/189) - nf-core tools template update to 4.1.0. (by @vagkaratzas)
 
+### `Fixed`
+
+- [#193](https://github.com/nf-core/proteinfamilies/pull/193) - Family numbering and member order no longer follow the unstable row order of the MMseqs2 clustering TSV: clusters are sorted by representative ID and members by ID, so repeated runs give identically named families and representatives. (by @vagkaratzas)
+
 ### `Dependencies`
 
 | Tool    | Previous version | New version |
