@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - [#189](https://github.com/nf-core/proteinfamilies/pull/189) - nf-core tools template update to 4.1.0. (by @vagkaratzas)
 - Updated nf-core modules and subworkflows to latest. `mgnifam` 4.0.0 now also writes a `<chunk>_mgnifam_stats.json` run summary, saved with `--save_iterative_family_metadata`, and renames and reorders the columns of `<chunk>_metadata.csv`. (by @vagkaratzas)
+- Added missing Font Awesome icons to the parameters and parameter groups of `nextflow_schema.json` ([#185](https://github.com/nf-core/proteinfamilies/issues/185)). (by @vagkaratzas)
 
 ### `Dependencies`
 
