@@ -206,7 +206,7 @@
             "properties": {
                 "skip_preprocessing": {
                     "type": "boolean",
-                    "fa_icon": "fas fa-ban",
+                    "fa_icon": "fas fa-question-circle",
                     "description": "Skip all default QC steps for sequences (gap trimming, length filtering, validation, duplicate removal).",
                     "help": "Skips input amino acid sequence preprocessing transformations, length filtering, duplicate removal and validation checks."
                 },
@@ -280,7 +280,7 @@
                     "maximum": 1.0,
                     "description": "mmseqs parameter for minimum sequence identity",
                     "help_text": "Minimum sequence identity required for clustering. Metagenomics protein families include diverse sequences, so using the mmseqs default identity (0.9) would oversplit them. A default value of 0.3 allows grouping more distant homologs while still maintaining meaningful functional relationships (https://doi.org/10.1093/protein/12.2.85).",
-                    "fa_icon": "fas fa-percent"
+                    "fa_icon": "fas fa-percentage"
                 },
                 "cluster_coverage": {
                     "type": "number",
@@ -365,7 +365,7 @@
                 "skip_msa_trimming": {
                     "type": "boolean",
                     "description": "Boolean whether to skip the trimming process of gappy positions from Multiple Sequence Alignments (MSAs)",
-                    "fa_icon": "fas fa-check-square",
+                    "fa_icon": "fas fa-question-circle",
                     "hidden": true
                 },
                 "clipkit_out_format": {
@@ -393,7 +393,7 @@
                 "skip_additional_sequence_recruiting": {
                     "type": "boolean",
                     "description": "Skip recruitment of additional sequences from the input FASTA file using the family Hidden Markov Models (HMMs) into the full alignment",
-                    "fa_icon": "fas fa-check-square",
+                    "fa_icon": "fas fa-question-circle",
                     "hidden": true,
                     "help_text": "If this is set to false, the hmmer/hmmsearch module will be used to recruit additional sequences from the input fasta file into the family (above the hmmsearch_query_length_threshold), resulting in bigger but better described families"
                 },
@@ -431,7 +431,7 @@
                     "maximum": 1.0,
                     "description": "hmmsearch minimum length percentage filter of hit env vs query length",
                     "help_text": "This length threshold should be quite high to make sure that small, fragmented sequences are not recruited in the family models",
-                    "fa_icon": "fas fa-ruler-horizontal"
+                    "fa_icon": "fas fa-percentage"
                 },
                 "save_hmmsearch_filtered_fasta": {
                     "type": "boolean",
@@ -467,7 +467,7 @@
                     "minimum": 0.0,
                     "maximum": 1.0,
                     "description": "hmmsearch minimum length percentage filter of hit env vs query length, for redundant family removal",
-                    "fa_icon": "fas fa-ruler-horizontal"
+                    "fa_icon": "fas fa-percentage"
                 },
                 "hmmsearch_family_similarity_length_threshold": {
                     "type": "number",
@@ -476,7 +476,7 @@
                     "maximum": 1.0,
                     "description": "hmmsearch minimum length percentage of hit env vs query length, to flag and report similar families (and to optionally merge)",
                     "help_text": "Must be below the hmmsearch_family_redundancy_length_threshold to be valid.",
-                    "fa_icon": "fas fa-ruler-horizontal"
+                    "fa_icon": "fas fa-percentage"
                 },
                 "save_non_redundant_fams_fasta": {
                     "type": "boolean",
@@ -498,7 +498,7 @@
                     "maximum": 1.0,
                     "description": "mmseqs parameter for minimum sequence identity",
                     "help_text": "Need to be quite high, to make sure that the diversity is still well captured, while highly similar sequences are removed",
-                    "fa_icon": "fas fa-percent"
+                    "fa_icon": "fas fa-percentage"
                 },
                 "cluster_coverage_for_redundancy": {
                     "type": "number",
