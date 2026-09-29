@@ -327,6 +327,7 @@ Only produced when `--family_generation_algorithm iterative` is set, in place of
       - `<samplename>_*_converged.txt`: (optional) clusters that converged during family generation
       - `<samplename>_*_discarded.csv`: (optional) clusters discarded during family generation, with the reason for each
       - `<samplename>_*.log`: (optional) diagnostic log of the family generation run
+      - `<samplename>_*_mgnifam_stats.json`: (optional) MultiQC-ready run summary: family counts, discard reasons, and histograms of seed and full MSA size, model length and representative length
       - `rf/`
         - `<samplename>_*.txt`: (optional) per-family reference annotation (RF) line, marking the match-state columns of the seed alignment
 - `remove_redundancy/`
