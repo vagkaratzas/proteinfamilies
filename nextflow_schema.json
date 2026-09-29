@@ -240,7 +240,6 @@
             "properties": {
                 "save_update_families_pre_clipped_fasta": {
                     "type": "boolean",
-                    "default": false,
                     "description": "Save intermediate FASTA files before clipping gappy ends (non-redundant --if `skip_sequence_redundancy_removal` is false-- or all --if `skip_sequence_redundancy_removal` is true--) in the update_families subworkflow",
                     "help_text": "Specify to save the FASTA files before clipping gappy ends in the update_families path.",
                     "fa_icon": "fas fa-save"
@@ -360,12 +359,12 @@
                     "description": "Choose alignment tool. FAMSA is recommended as best time-memory-accuracy combination option.",
                     "help_text": "Available tools: 'famsa' or 'mafft'.",
                     "enum": ["famsa", "mafft"],
-                    "fa_icon": "fas fa-align-left"
+                    "fa_icon": "fas fa-align-left",
+                    "default": "famsa"
                 },
                 "skip_msa_trimming": {
                     "type": "boolean",
                     "description": "Boolean whether to skip the trimming process of gappy positions from Multiple Sequence Alignments (MSAs)",
-                    "default": false,
                     "fa_icon": "fas fa-check-square",
                     "hidden": true
                 },
@@ -394,7 +393,6 @@
                 "skip_additional_sequence_recruiting": {
                     "type": "boolean",
                     "description": "Skip recruitment of additional sequences from the input FASTA file using the family Hidden Markov Models (HMMs) into the full alignment",
-                    "default": false,
                     "fa_icon": "fas fa-check-square",
                     "hidden": true,
                     "help_text": "If this is set to false, the hmmer/hmmsearch module will be used to recruit additional sequences from the input fasta file into the family (above the hmmsearch_query_length_threshold), resulting in bigger but better described families"
@@ -402,7 +400,6 @@
                 "hmmsearch_write_target": {
                     "type": "boolean",
                     "description": "Boolean whether to generate target results file of hmmsearch",
-                    "default": false,
                     "fa_icon": "fas fa-check-square",
                     "hidden": true,
                     "help_text": "Specify to calculate the hmmsearch tabular (space-delimited) summary of per-target output (*.tbl.gz)."
@@ -453,7 +450,6 @@
                 "skip_family_redundancy_removal": {
                     "type": "boolean",
                     "description": "Skip removal of between-family redundancy via hmmsearch sequence to family model matching.",
-                    "default": false,
                     "fa_icon": "fas fa-question-circle",
                     "hidden": true,
                     "help_text": "Suggested to keep false, so that redundant families are not further processed, for better resource management and to avoid duplication."
@@ -461,7 +457,6 @@
                 "skip_family_merging": {
                     "type": "boolean",
                     "description": "Flag to skip merging of similar families.",
-                    "default": false,
                     "fa_icon": "fas fa-question-circle",
                     "hidden": true,
                     "help_text": "If false, similar families (but not redundant!) will be merged, depending on the hmmsearch_family_similarity_length_threshold parameter."
@@ -492,7 +487,6 @@
                 "skip_sequence_redundancy_removal": {
                     "type": "boolean",
                     "description": "Skip removal of inside-family redundancy of sequences via mmseqs clustering.",
-                    "default": false,
                     "fa_icon": "fas fa-question-circle",
                     "hidden": true,
                     "help_text": "Highly similar sequences within the same family should be removed, while making sure that the protein family diversity is still well captured."
@@ -526,7 +520,8 @@
                     "type": "boolean",
                     "description": "Save the final family fasta files with sequence redundancy removed",
                     "help_text": "Specify to save the family fasta files with non-redundant sequence sets.",
-                    "fa_icon": "fas fa-save"
+                    "fa_icon": "fas fa-save",
+                    "default": true
                 }
             },
             "fa_icon": "fas fa-compress-alt"
