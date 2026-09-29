@@ -7,8 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Changed`
 
-- [#192](https://github.com/nf-core/proteinfamilies/pull/192) - Updated nf-core modules and subworkflows to latest. `mgnifam` 4.0.0 now also writes a `<chunk>_mgnifam_stats.json` run summary, saved with `--save_iterative_family_metadata`, and renames and reorders the columns of `<chunk>_metadata.csv`. Since mgnifam 3.0.0 a chunk in which a family crashed internally exits `3`; the pipeline now retries that chunk from the start instead of stopping. (by @vagkaratzas)
-- [#192](https://github.com/nf-core/proteinfamilies/pull/192) - Added missing Font Awesome icons to the parameters and parameter groups of `nextflow_schema.json` ([#185](https://github.com/nf-core/proteinfamilies/issues/185)). (by @vagkaratzas)
+- [#192](https://github.com/nf-core/proteinfamilies/pull/192)
+  - Updated nf-core modules and subworkflows to latest. `mgnifam` 4.0.0 now also writes a `<chunk>_mgnifam_stats.json` run summary, saved with the existing `--save_iterative_family_metadata`, and renames and reorders the columns of `<chunk>_metadata.csv`. Since mgnifam 3.0.0 a chunk in which a family crashed internally exits `3`; the pipeline now retries that chunk from the start instead of stopping. (by @vagkaratzas)
+  - Added missing Font Awesome icons to the parameters and parameter groups of `nextflow_schema.json` ([#185](https://github.com/nf-core/proteinfamilies/issues/185)). (by @vagkaratzas)
 - [#189](https://github.com/nf-core/proteinfamilies/pull/189) - nf-core tools template update to 4.1.0. (by @vagkaratzas)
 
 ### `Dependencies`
