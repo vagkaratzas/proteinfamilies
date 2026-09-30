@@ -15,10 +15,10 @@
 include { GUNZIP                                          } from '../../../modules/nf-core/gunzip/main'
 include { HMMER_ESLSFETCHINDEX                            } from '../../../modules/nf-core/hmmer/eslsfetchindex/main'
 include { MGNIFAM_GENERATEFAMILIES                        } from '../../../modules/nf-core/mgnifam/generatefamilies/main'
+include { fileStem                                        } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_SEED       } from '../../../modules/nf-core/hhsuite/reformat/main'
 include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_FULL       } from '../../../modules/nf-core/hhsuite/reformat/main'
 include { SEQKIT_SEQ as SEQKIT_SEQ_ITERATIVE_MSA_TO_FASTA } from '../../../modules/nf-core/seqkit/seq/main'
-include { fileStem                                        } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 
 workflow GENERATE_FAMILIES_ITERATIVELY {
     take:

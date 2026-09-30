@@ -15,6 +15,7 @@ include { HMMER_HMMSEARCH                                            } from '../
 include { IDENTIFY_REDUNDANT_FAMS                                    } from '../../../modules/local/identify_redundant_fams/main'
 include { MERGE_FAMILIES                                             } from '../../../subworkflows/local/merge_families/main'
 include { FIND_CONCATENATE as FIND_CONCATENATE_SKIP_IDS              } from '../../../modules/nf-core/find/concatenate'
+include { fileStem                                                   } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 include { FILTER_NON_REDUNDANT_FAMS as FILTER_NON_REDUNDANT_HMM      } from '../../../modules/local/filter_non_redundant_fams/main'
 include { FILTER_NON_REDUNDANT_FAMS as FILTER_NON_REDUNDANT_SEED_MSA } from '../../../modules/local/filter_non_redundant_fams/main'
 include { FILTER_NON_REDUNDANT_FAMS as FILTER_NON_REDUNDANT_FULL_MSA } from '../../../modules/local/filter_non_redundant_fams/main'
@@ -24,7 +25,6 @@ include { REMOVE_REDUNDANT_SEQS                                      } from '../
 include { ALIGN_SEQUENCES                                            } from '../../../subworkflows/local/align_sequences'
 include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_FILTERED              } from '../../../modules/nf-core/hhsuite/reformat/main'
 include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_RAW                   } from '../../../modules/nf-core/hhsuite/reformat/main'
-include { fileStem                                                   } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 
 workflow REMOVE_REDUNDANCY {
     take:

@@ -9,10 +9,10 @@
 */
 
 include { POOL_SIMILAR_COMPONENTS       } from '../../../modules/local/pool_similar_components/main'
+include { fileStem                      } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 include { MERGE_SEEDS                   } from '../../../modules/local/merge_seeds/main'
 include { GENERATE_FAMILIES             } from '../../../subworkflows/local/generate_families'
 include { GENERATE_FAMILIES_ITERATIVELY } from '../../../subworkflows/local/generate_families_iteratively'
-include { fileStem                      } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 
 workflow MERGE_FAMILIES {
     take:

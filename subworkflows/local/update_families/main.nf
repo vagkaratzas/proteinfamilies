@@ -9,10 +9,11 @@
 
 include { UNTAR as UNTAR_HMM                            } from '../../../modules/nf-core/untar/main'
 include { UNTAR as UNTAR_MSA                            } from '../../../modules/nf-core/untar/main'
-include { validateMatchingFolders; fileStem             } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
+include { validateMatchingFolders                       } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 include { FIND_CONCATENATE as CAT_HMM                   } from '../../../modules/nf-core/find/concatenate/main'
 include { HMMER_HMMSEARCH                               } from '../../../modules/nf-core/hmmer/hmmsearch/main'
 include { BRANCH_HITS_FASTA                             } from '../../../modules/local/branch_hits_fasta'
+include { fileStem                                      } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 include { SEQKIT_SEQ                                    } from '../../../modules/nf-core/seqkit/seq/main'
 include { SEQKIT_SEQ as SEQKIT_SEQ_MSA_TO_FASTA         } from '../../../modules/nf-core/seqkit/seq/main'
 include { SEQKIT_SEQ as SEQKIT_SEQ_CLIPPED_MSA_TO_FASTA } from '../../../modules/nf-core/seqkit/seq/main'

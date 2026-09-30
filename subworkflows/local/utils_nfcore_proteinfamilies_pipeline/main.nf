@@ -272,6 +272,15 @@ def methodsDescriptionText(mqc_methods_yaml) {
 }
 
 //
+// Family ID a file belongs to: its name without '.gz' and then without the last extension, so
+// 'run.v2_3.fas.gz' gives 'run.v2_3'. Mirrors alignment_stem() in bin/merge_seeds.py. Not
+// simpleName, which cuts at the first dot, while sample and family names may contain dots.
+//
+def fileStem(file) {
+    return file.name.replaceFirst(/\.gz$/, '').replaceFirst(/\.[^.]+$/, '')
+}
+
+//
 // Validate that an HMM folder and an MSA folder contain the same number of files with matching
 // base names. Aborts early if they diverge — a mismatch would cause silent key-join failures
 // in the per-family combine steps inside UPDATE_FAMILIES.
@@ -298,13 +307,4 @@ def validateMatchingFolders(channel1, channel2) {
                 error("[nf-core/proteinfamilies] ERROR: Filename mismatch: Expected matching files in ${folder1} and ${folder2}. Base filenames do not match.")
             }
     }
-}
-
-//
-// Family ID a file belongs to: its name without '.gz' and then without the last extension, so
-// 'run.v2_3.fas.gz' gives 'run.v2_3'. Mirrors alignment_stem() in bin/merge_seeds.py. Not
-// simpleName, which cuts at the first dot, while sample and family names may contain dots.
-//
-def fileStem(file) {
-    return file.name.replaceFirst(/\.gz$/, '').replaceFirst(/\.[^.]+$/, '')
 }
