@@ -58,10 +58,8 @@ def collect_clusters(clustering_file: str, threshold: int) -> list[tuple[str, li
     so a singleton cluster has size 1.
 
     MMSeqs2 does not guarantee the row order of its TSV, so clusters are sorted by
-    representative ID and members by ID, with the representative kept first. Chunk
-    numbers, and with them family names, are then identical across runs, as is the member
-    order every aligner sees. Only clusters that pass the threshold are sorted, and members
-    in place, so the sort costs a small fraction of parsing the TSV.
+    representative ID and members by ID, representative first. Family names and the
+    member order the aligners see are then identical across runs.
 
     Args:
         clustering_file (str): MMSeqs2 clustering TSV file.
