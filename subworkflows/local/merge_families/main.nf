@@ -58,13 +58,13 @@ workflow MERGE_FAMILIES {
 
     // Pair each pool with its own sample's seeds, keeping only the pool's members: staging every
     // seed of the sample into every task exhausts the head job's heap on large samples.
+    // Seeds are keyed by family ID once per sample, so each pool is a lookup, not a scan.
     ch_input_for_merge_seeds = ch_pooled_components
         .map { meta, components -> [ [id: meta.id], meta, components ] }
-        .combine(seed_msa, by: 0)
-        .multiMap { id, meta, components, seeds ->
-            def members = components.split(',') as Set
+        .combine(seed_msa.map { id, seeds -> [ id, seeds.collectEntries { seed -> [ fileStem(seed), seed ] } ] }, by: 0)
+        .multiMap { id, meta, components, seedsByFamily ->
             components: [ meta, components ]
-            seed_msa  : [ id, seeds.findAll { seed -> fileStem(seed) in members } ]
+            seed_msa  : [ id, seedsByFamily.subMap(components.split(',')).values() as List ]
         }
 
     MERGE_SEEDS( ch_input_for_merge_seeds.components, ch_input_for_merge_seeds.seed_msa )
