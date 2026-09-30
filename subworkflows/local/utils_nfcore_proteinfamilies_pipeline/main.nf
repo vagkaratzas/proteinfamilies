@@ -272,12 +272,11 @@ def methodsDescriptionText(mqc_methods_yaml) {
 }
 
 //
-// Family ID a file belongs to: its name without '.gz' and then without the last extension, so
-// 'run.v2_3.fas.gz' gives 'run.v2_3'. Mirrors alignment_stem() in bin/merge_seeds.py. Not
-// simpleName, which cuts at the first dot, while sample and family names may contain dots.
+// Family ID of a family file: name minus '.gz' and the last extension ('run.v2_3.fas.gz' -> 'run.v2_3').
+// Not simpleName: sample and family names may contain dots. Same rule as the bin/ scripts.
 //
 def fileStem(file) {
-    return file.name.replaceFirst(/\.gz$/, '').replaceFirst(/\.[^.]+$/, '')
+    return file.getBaseName(file.extension == 'gz' ? 2 : 1)
 }
 
 //
