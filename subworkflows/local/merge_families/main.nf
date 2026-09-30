@@ -12,6 +12,7 @@ include { POOL_SIMILAR_COMPONENTS       } from '../../../modules/local/pool_simi
 include { MERGE_SEEDS                   } from '../../../modules/local/merge_seeds/main'
 include { GENERATE_FAMILIES             } from '../../../subworkflows/local/generate_families'
 include { GENERATE_FAMILIES_ITERATIVELY } from '../../../subworkflows/local/generate_families_iteratively'
+include { fileStem                      } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 
 workflow MERGE_FAMILIES {
     take:
@@ -59,16 +60,14 @@ workflow MERGE_FAMILIES {
     // repeats that collection for every group of the sample, without letting one sample's groups
     // consume another sample's seeds. The collection is then narrowed to the group's own members:
     // staging every seed of the sample into every task costs the head job one staging line per
-    // file per task, which exhausts its heap on large samples. Seed file stems match the family
-    // IDs by the same rule as alignment_stem() in bin/merge_seeds.py: strip '.gz', then the
-    // extension ('baseName' alone would leave 'x.fas' for 'x.fas.gz').
+    // file per task, which exhausts its heap on large samples.
     ch_input_for_merge_seeds = ch_pooled_components
         .map { meta, components -> [ [id: meta.id], meta, components ] }
         .combine(seed_msa, by: 0)
         .multiMap { id, meta, components, seeds ->
             def members = components.split(',') as Set
             components: [ meta, components ]
-            seed_msa  : [ id, seeds.findAll { seed -> seed.name.replaceFirst(/\.gz$/, '').replaceFirst(/\.[^.]+$/, '') in members } ]
+            seed_msa  : [ id, seeds.findAll { seed -> fileStem(seed) in members } ]
         }
 
     MERGE_SEEDS( ch_input_for_merge_seeds.components, ch_input_for_merge_seeds.seed_msa )

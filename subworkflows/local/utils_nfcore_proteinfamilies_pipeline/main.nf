@@ -290,12 +290,21 @@ def validateMatchingFolders(channel1, channel2) {
             }
 
             // Extract base filenames (without extensions) and sort
-            def baseNames1 = files1.collect { f -> f.getSimpleName() }.sort()
-            def baseNames2 = files2.collect { f -> f.getSimpleName() }.sort()
+            def baseNames1 = files1.collect { f -> fileStem(f) }.sort()
+            def baseNames2 = files2.collect { f -> fileStem(f) }.sort()
 
             // Check if base filenames match one to one
             if (baseNames1 != baseNames2) {
                 error("[nf-core/proteinfamilies] ERROR: Filename mismatch: Expected matching files in ${folder1} and ${folder2}. Base filenames do not match.")
             }
     }
+}
+
+//
+// Family ID a file belongs to: its name without '.gz' and then without the last extension, so
+// 'run.v2_3.fas.gz' gives 'run.v2_3'. Mirrors alignment_stem() in bin/merge_seeds.py. Not
+// simpleName, which cuts at the first dot, while sample and family names may contain dots.
+//
+def fileStem(file) {
+    return file.name.replaceFirst(/\.gz$/, '').replaceFirst(/\.[^.]+$/, '')
 }

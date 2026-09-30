@@ -65,4 +65,32 @@ nextflow_workflow {
             )
         }
     }
+
+    test("clusters tsv - dotted sample id") {
+        // Regression test for family file names being cut at their first dot: with sample
+        // 'test.v2', 'test.v2_1_1.hmm.gz' became 'test' and splitting it on 'test.v2_'
+        // found no chunk suffix.
+        when {
+            workflow {
+                """
+                input[0] = channel.of([
+                    [ id: 'test.v2' ],
+                    file(params.modules_testdata_base_path + 'proteomics/proteinfamilies/mgnify_proteins.faa', checkIfExists: true)
+                ])
+                input[1] = channel.of([
+                    [ id: 'test.v2', chunk: '1' ],
+                    file(params.modules_testdata_base_path + 'proteomics/proteinfamilies/mgnify_proteins_trimmed_clustering.tsv', checkIfExists: true)
+                ])
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.hmm.size() > 1 },
+                { assert workflow.out.hmm.every { meta, _file -> meta.id == 'test.v2' && meta.chunk ==~ /1_\d+/ } }
+            )
+        }
+    }
 }

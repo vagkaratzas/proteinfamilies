@@ -49,15 +49,16 @@ def read_redundant_ids(filepath: str) -> set[str]:
 
 def filter_files(input_dir: str, redundant_ids: set[str]) -> None:
     """
-    Copy non-redundant files to './' (Nextflow work dir). Family ID is the filename
-    prefix before the first dot, so 'sample_1.hmm.gz' → 'sample_1'.
+    Copy non-redundant files to './' (Nextflow work dir). Family ID is the filename without
+    '.gz' and then without its last extension, so 'run.v2_1.hmm.gz' → 'run.v2_1'. Cutting at
+    the first dot instead would break sample and family names that contain dots.
 
     Args:
         input_dir (str): Directory containing family files to copy.
         redundant_ids (set[str]): Family IDs that should be skipped.
     """
     for file in os.listdir(input_dir):
-        fam_id = file.split(".")[0]
+        fam_id = os.path.splitext(file.removesuffix(".gz"))[0]
         if fam_id not in redundant_ids:
             shutil.copy(
                 os.path.join(input_dir, file),

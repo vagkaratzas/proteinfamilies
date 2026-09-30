@@ -24,6 +24,7 @@ include { REMOVE_REDUNDANT_SEQS                                      } from '../
 include { ALIGN_SEQUENCES                                            } from '../../../subworkflows/local/align_sequences'
 include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_FILTERED              } from '../../../modules/nf-core/hhsuite/reformat/main'
 include { HHSUITE_REFORMAT as HHSUITE_REFORMAT_RAW                   } from '../../../modules/nf-core/hhsuite/reformat/main'
+include { fileStem                                                   } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 
 workflow REMOVE_REDUNDANCY {
     take:
@@ -170,7 +171,7 @@ workflow REMOVE_REDUNDANCY {
         full_msa = FILTER_NON_REDUNDANT_FULL_MSA.out.filtered
             .transpose()
             .map { meta, file ->
-                def filename = file.getSimpleName()
+                def filename = fileStem(file)
                 def chunk = filename.split("${meta.id}_", 2)[1]  // Split by meta.id_ and take remainder, to also match merged ids
                 [[id: meta.id, chunk: chunk], file]
             }
@@ -180,7 +181,7 @@ workflow REMOVE_REDUNDANCY {
         fasta = FILTER_NON_REDUNDANT_FASTA.out.filtered
             .transpose()
             .map { meta, file ->
-                def filename = file.getSimpleName()
+                def filename = fileStem(file)
                 def chunk = filename.split("${meta.id}_", 2)[1]  // Split by meta.id_ and take remainder, to also match merged ids
                 [[id: meta.id, chunk: chunk], file]
             }

@@ -40,4 +40,68 @@ nextflow_workflow {
         }
     }
 
+    test("fasta - update - dotted family names") {
+        // Regression test for family file names being cut at their first dot. Existing family
+        // names come from the user's tarballs and may contain dots (e.g. Pfam's 'PF00069.29').
+        // The fixtures are repacked with every family renamed from 'mgnifams_test_<n>' to
+        // 'mgnifams.v2_<n>', HMM NAME fields included. Cut at the first dot, every family got
+        // the same key 'mgnifams', so each family's hits were paired with every family's MSA.
+        when {
+            workflow {
+                """
+                def rename = { name -> name.replace('mgnifams_test_', 'mgnifams.v2_') }
+                def repack = { tarball, subdir ->
+                    def src = file("dotted_src_\${subdir}")
+                    def dst = file("dotted_\${subdir}")
+                    [src, dst.resolve(subdir)]*.mkdirs()
+                    // Remote fixtures are copied locally first, since tar reads local paths only
+                    def local = file("dotted_src_\${subdir}.tar.gz")
+                    tarball.copyTo(local)
+                    assert ['tar', 'xzf', local.toString(), '-C', src.toString()].execute().waitFor() == 0
+                    src.resolve(subdir).listFiles().each { f ->
+                        def out = dst.resolve(subdir).resolve(rename.call(f.name))
+                        if (f.name.endsWith('.hmm.gz')) {
+                            def text = new java.util.zip.GZIPInputStream(f.newInputStream()).text
+                            new java.util.zip.GZIPOutputStream(out.newOutputStream()).withWriter { writer ->
+                                writer << text.replaceAll(/(?m)^NAME  .*\$/) { line -> rename.call(line) }
+                            }
+                        } else {
+                            f.copyTo(out)
+                        }
+                    }
+                    def packed = file("dotted_\${subdir}.tar.gz")
+                    assert ['tar', 'czf', packed.toString(), '-C', dst.toString(), subdir].execute().waitFor() == 0
+                    packed
+                }
+
+                input[0] = channel.of([
+                    [ id: 'test_update' ],
+                    file(params.pipelines_testdata_base_path + 'test_data/mgnifams_extra.faa', checkIfExists: true),
+                    repack.call(file(params.pipelines_testdata_base_path + 'test_data/existing_hmms.tar.gz', checkIfExists: true), 'hmm'),
+                    repack.call(file(params.pipelines_testdata_base_path + 'test_data/existing_msas.tar.gz', checkIfExists: true), 'msa')
+                ])
+                input[1] = 0.9        // hmmsearch_query_length_threshold
+                input[2] = false      // skip_sequence_redundancy_removal
+                input[3] = "linclust" // clustering_tool
+                input[4] = "famsa"    // alignment_tool
+                input[5] = false      // skip_msa_trimming
+                input[6] = "clipkit"  // clipkit_out_format
+                input[7] = true       // save_update_families_pre_clipped_fasta
+                input[8] = true       // save_update_families_clipped_fasta
+                """
+            }
+        }
+
+        then {
+            def families = workflow.out.hmm.collect { meta, _hmm -> meta.family }
+            assertAll(
+                { assert workflow.success },
+                // One rebuilt model per hit family, each keyed by its full dotted name
+                { assert families.size() > 0 },
+                { assert families.every { family -> family ==~ /mgnifams\.v2_\d+/ } },
+                { assert families.size() == families.unique(false).size() }
+            )
+        }
+    }
+
 }

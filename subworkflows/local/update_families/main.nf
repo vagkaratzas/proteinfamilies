@@ -9,7 +9,7 @@
 
 include { UNTAR as UNTAR_HMM                            } from '../../../modules/nf-core/untar/main'
 include { UNTAR as UNTAR_MSA                            } from '../../../modules/nf-core/untar/main'
-include { validateMatchingFolders                       } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
+include { validateMatchingFolders; fileStem             } from '../../../subworkflows/local/utils_nfcore_proteinfamilies_pipeline'
 include { FIND_CONCATENATE as CAT_HMM                   } from '../../../modules/nf-core/find/concatenate/main'
 include { HMMER_HMMSEARCH                               } from '../../../modules/nf-core/hmmer/hmmsearch/main'
 include { BRANCH_HITS_FASTA                             } from '../../../modules/local/branch_hits_fasta'
@@ -88,7 +88,7 @@ workflow UPDATE_FAMILIES {
     ch_hits_fasta = BRANCH_HITS_FASTA.out.hits
         .transpose()
         .map { meta, file ->
-            [[id: meta.id, family: file.getSimpleName()], file]
+            [[id: meta.id, family: fileStem(file)], file]
         }
 
     ch_family_msas = UNTAR_MSA.out.untar
@@ -97,7 +97,7 @@ workflow UPDATE_FAMILIES {
         }
         .transpose()
         .map { meta, file ->
-            [[id: meta.id, family: file.getSimpleName()], file]
+            [[id: meta.id, family: fileStem(file)], file]
         }
 
     // Keep fasta with family sequences by removing gaps
