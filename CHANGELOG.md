@@ -14,7 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Fixed`
 
-- [#193](https://github.com/nf-core/proteinfamilies/pull/193) - Family numbering and member order no longer follow the unstable row order of the MMseqs2 clustering TSV: clusters are sorted by representative ID and members by ID, so repeated runs give identically named families and representatives. (by @vagkaratzas)
+- [#193](https://github.com/nf-core/proteinfamilies/pull/193)
+  - Family numbering and member order no longer follow the unstable row order of the MMseqs2 clustering TSV: clusters are sorted by representative ID and members by ID, so repeated runs give identically named families and representatives. (by @vagkaratzas)
+  - Fixed the Nextflow head job running out of heap (`java.lang.OutOfMemoryError: Java heap space`) on large samples: each `MERGE_FAMILIES:MERGE_SEEDS` task now stages only the seed MSAs of its own pool instead of every seed MSA of the sample ([#191](https://github.com/nf-core/proteinfamilies/issues/191)). (by @vagkaratzas)
 
 ### `Dependencies`
 

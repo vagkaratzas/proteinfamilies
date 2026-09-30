@@ -57,13 +57,18 @@ workflow MERGE_FAMILIES {
 
     // Each pooled group is paired with its own sample's seed collection. combine() by sample id
     // repeats that collection for every group of the sample, without letting one sample's groups
-    // consume another sample's seeds.
+    // consume another sample's seeds. The collection is then narrowed to the group's own members:
+    // staging every seed of the sample into every task costs the head job one staging line per
+    // file per task, which exhausts its heap on large samples. Seed file stems match the family
+    // IDs by the same rule as alignment_stem() in bin/merge_seeds.py: strip '.gz', then the
+    // extension ('baseName' alone would leave 'x.fas' for 'x.fas.gz').
     ch_input_for_merge_seeds = ch_pooled_components
         .map { meta, components -> [ [id: meta.id], meta, components ] }
         .combine(seed_msa, by: 0)
         .multiMap { id, meta, components, seeds ->
+            def members = components.split(',') as Set
             components: [ meta, components ]
-            seed_msa  : [ id, seeds ]
+            seed_msa  : [ id, seeds.findAll { seed -> seed.name.replaceFirst(/\.gz$/, '').replaceFirst(/\.[^.]+$/, '') in members } ]
         }
 
     MERGE_SEEDS( ch_input_for_merge_seeds.components, ch_input_for_merge_seeds.seed_msa )
